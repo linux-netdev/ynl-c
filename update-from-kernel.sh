@@ -22,12 +22,13 @@ for hdr in $(cat Makefile.deps | sed -n 's/.*,\([^,]*\.h\))/\1/p'); do
 done
 
 mkdir -p lib
-cp -v ${KSRC}/tools/net/ynl/lib/*.{c,h}		./
+cp -v ${KSRC}/tools/net/ynl/lib/*.c		./
 
 mkdir -p generated
 cp -v ${KSRC}/tools/net/ynl/generated/*.{c,h}	./generated/
 
 mkdir -p include/ynl-c
+cp -v ${KSRC}/tools/net/ynl/lib/*.h		./include/ynl-c/
 for hdr in $(ls generated/ | grep -user.h); do
     mv -v generated/$hdr			./include/ynl-c/${hdr/-user/}
     (
