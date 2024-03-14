@@ -14,11 +14,11 @@ KSRC=$1
 make -C ${KSRC}/tools/net/ynl -j $(nproc) || exit 1
 
 cp -v ${KSRC}/tools/net/ynl/Makefile.deps	./
-sed -i 's@^UAPI_PATH:=.*@UAPI_PATH:=../uapi/@' Makefile.deps
+sed -i 's@^UAPI_PATH:=.*@UAPI_PATH:=../include/@' Makefile.deps
 
-mkdir -p uapi/linux/
+mkdir -p include/linux/
 for hdr in $(cat Makefile.deps | sed -n 's/.*,\([^,]*\.h\))/\1/p'); do
-    cp -v  ${KSRC}/include/uapi/linux/$hdr	./uapi/linux/
+    cp -v  ${KSRC}/include/uapi/linux/$hdr	./include/linux/
 done
 
 mkdir -p lib
@@ -32,6 +32,6 @@ for hdr in $(ls generated/ | grep -user.h); do
     mv -v generated/$hdr			./include/ynl-c/${hdr/-user/}
     (
 	cd generated
-	ln -sv ../include/ynl-c/${hdr/-user/}	./$hdr
+	ln -svf ../include/ynl-c/${hdr/-user/}	./$hdr
     )
 done
