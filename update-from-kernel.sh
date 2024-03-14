@@ -26,3 +26,12 @@ cp -v ${KSRC}/tools/net/ynl/lib/*.{c,h}		./
 
 mkdir -p generated
 cp -v ${KSRC}/tools/net/ynl/generated/*.{c,h}	./generated/
+
+mkdir -p include/ynl-c
+for hdr in $(ls generated/ | grep -user.h); do
+    mv -v generated/$hdr			./include/ynl-c/${hdr/-user/}
+    (
+	cd generated
+	ln -sv ../include/ynl-c/${hdr/-user/}	./$hdr
+    )
+done
