@@ -16,4 +16,5 @@ https://docs.kernel.org/next/userspace-api/netlink/intro-specs.html#ynl-lib
 Using the library
 =================
 
-Building the library generates an archive for static linking called ``ynl.a``.
+Building the library generates an archive for static linking called
+``libynl.a``.

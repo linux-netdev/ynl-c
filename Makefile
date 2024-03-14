@@ -12,12 +12,12 @@ include $(wildcard *.d)
 GEN_SRCS=$(wildcard generated/*.c)
 GENERATED=$(patsubst %.c,%.o,${GEN_SRCS})
 
-all: ynl.a
+all: libynl.a
 
 generated:
 	$(MAKE) -C $@
 
-ynl.a: ynl.o generated
+libynl.a: ynl.o generated
 	@echo -e "\tAR $@"
 	@ar rcs $@ ynl.o $(GENERATED)
 
