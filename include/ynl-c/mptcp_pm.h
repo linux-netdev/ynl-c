@@ -83,6 +83,7 @@ static inline void
 mptcp_pm_add_addr_req_set_addr_addr6(struct mptcp_pm_add_addr_req *req,
 				     const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -161,6 +162,7 @@ static inline void
 mptcp_pm_del_addr_req_set_addr_addr6(struct mptcp_pm_del_addr_req *req,
 				     const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -241,6 +243,7 @@ static inline void
 mptcp_pm_get_addr_req_set_addr_addr6(struct mptcp_pm_get_addr_req *req,
 				     const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -348,6 +351,7 @@ static inline void
 mptcp_pm_flush_addrs_req_set_addr_addr6(struct mptcp_pm_flush_addrs_req *req,
 					const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -523,6 +527,7 @@ static inline void
 mptcp_pm_set_flags_req_set_addr_addr6(struct mptcp_pm_set_flags_req *req,
 				      const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -587,6 +592,7 @@ static inline void
 mptcp_pm_set_flags_req_set_addr_remote_addr6(struct mptcp_pm_set_flags_req *req,
 					     const void *addr6, size_t len)
 {
+	req->_present.addr_remote = 1;
 	free(req->addr_remote.addr6);
 	req->addr_remote._present.addr6_len = len;
 	req->addr_remote.addr6 = malloc(req->addr_remote._present.addr6_len);
@@ -667,6 +673,7 @@ static inline void
 mptcp_pm_announce_req_set_addr_addr6(struct mptcp_pm_announce_req *req,
 				     const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -793,6 +800,7 @@ static inline void
 mptcp_pm_subflow_create_req_set_addr_addr6(struct mptcp_pm_subflow_create_req *req,
 					   const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -858,6 +866,7 @@ mptcp_pm_subflow_create_req_set_addr_remote_addr6(struct mptcp_pm_subflow_create
 						  const void *addr6,
 						  size_t len)
 {
+	req->_present.addr_remote = 1;
 	free(req->addr_remote.addr6);
 	req->addr_remote._present.addr6_len = len;
 	req->addr_remote.addr6 = malloc(req->addr_remote._present.addr6_len);
@@ -944,6 +953,7 @@ static inline void
 mptcp_pm_subflow_destroy_req_set_addr_addr6(struct mptcp_pm_subflow_destroy_req *req,
 					    const void *addr6, size_t len)
 {
+	req->_present.addr = 1;
 	free(req->addr.addr6);
 	req->addr._present.addr6_len = len;
 	req->addr.addr6 = malloc(req->addr._present.addr6_len);
@@ -1009,6 +1019,7 @@ mptcp_pm_subflow_destroy_req_set_addr_remote_addr6(struct mptcp_pm_subflow_destr
 						   const void *addr6,
 						   size_t len)
 {
+	req->_present.addr_remote = 1;
 	free(req->addr_remote.addr6);
 	req->addr_remote._present.addr6_len = len;
 	req->addr_remote.addr6 = malloc(req->addr_remote._present.addr6_len);

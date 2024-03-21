@@ -282,6 +282,7 @@ static inline void
 psp_tx_assoc_req_set_tx_key_key(struct psp_tx_assoc_req *req, const void *key,
 				size_t len)
 {
+	req->_present.tx_key = 1;
 	free(req->tx_key.key);
 	req->tx_key._present.key_len = len;
 	req->tx_key.key = malloc(req->tx_key._present.key_len);

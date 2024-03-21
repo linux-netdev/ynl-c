@@ -678,6 +678,7 @@ static inline void
 devlink_port_set_req_set_port_function_hw_addr(struct devlink_port_set_req *req,
 					       const void *hw_addr, size_t len)
 {
+	req->_present.port_function = 1;
 	free(req->port_function.hw_addr);
 	req->port_function._present.hw_addr_len = len;
 	req->port_function.hw_addr = malloc(req->port_function._present.hw_addr_len);
