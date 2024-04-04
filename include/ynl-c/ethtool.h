@@ -20,6 +20,7 @@ extern const struct ynl_family ynl_ethtool_family;
 const char *ethtool_op_str(int op);
 const char *ethtool_udp_tunnel_type_str(int value);
 const char *ethtool_stringset_str(enum ethtool_stringset value);
+const char *ethtool_header_flags_str(int value);
 
 /* Common nested types */
 struct ethtool_header {

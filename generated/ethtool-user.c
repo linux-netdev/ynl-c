@@ -90,6 +90,20 @@ const char *ethtool_stringset_str(enum ethtool_stringset value)
 	return ethtool_stringset_strmap[value];
 }
 
+static const char * const ethtool_header_flags_strmap[] = {
+	[0] = "compact-bitsets",
+	[1] = "omit-reply",
+	[2] = "stats",
+};
+
+const char *ethtool_header_flags_str(int value)
+{
+	value = ffs(value) - 1;
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(ethtool_header_flags_strmap))
+		return NULL;
+	return ethtool_header_flags_strmap[value];
+}
+
 /* Policies */
 struct ynl_policy_attr ethtool_header_policy[ETHTOOL_A_HEADER_MAX + 1] = {
 	[ETHTOOL_A_HEADER_DEV_INDEX] = { .name = "dev-index", .type = YNL_PT_U32, },
