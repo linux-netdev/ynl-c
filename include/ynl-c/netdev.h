@@ -444,9 +444,11 @@ netdev_napi_get_dump(struct ynl_sock *ys, struct netdev_napi_get_req_dump *req);
 /* NETDEV_CMD_QSTATS_GET - dump */
 struct netdev_qstats_get_req_dump {
 	struct {
+		__u32 ifindex:1;
 		__u32 scope:1;
 	} _present;
 
+	__u32 ifindex;
 	__u64 scope;
 };
 
@@ -457,6 +459,13 @@ netdev_qstats_get_req_dump_alloc(void)
 }
 void netdev_qstats_get_req_dump_free(struct netdev_qstats_get_req_dump *req);
 
+static inline void
+netdev_qstats_get_req_dump_set_ifindex(struct netdev_qstats_get_req_dump *req,
+				       __u32 ifindex)
+{
+	req->_present.ifindex = 1;
+	req->ifindex = ifindex;
+}
 static inline void
 netdev_qstats_get_req_dump_set_scope(struct netdev_qstats_get_req_dump *req,
 				     __u64 scope)

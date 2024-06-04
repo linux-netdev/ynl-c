@@ -128,10 +128,16 @@ psp_dev_set_req_set_psp_versions_ena(struct psp_dev_set_req *req,
 	req->psp_versions_ena = psp_versions_ena;
 }
 
+struct psp_dev_set_rsp {
+};
+
+void psp_dev_set_rsp_free(struct psp_dev_set_rsp *rsp);
+
 /*
  * Set the configuration of a PSP device.
  */
-int psp_dev_set(struct ynl_sock *ys, struct psp_dev_set_req *req);
+struct psp_dev_set_rsp *
+psp_dev_set(struct ynl_sock *ys, struct psp_dev_set_req *req);
 
 /* ============== PSP_CMD_KEY_ROTATE ============== */
 /* PSP_CMD_KEY_ROTATE - do */
@@ -167,7 +173,7 @@ struct psp_key_rotate_rsp {
 void psp_key_rotate_rsp_free(struct psp_key_rotate_rsp *rsp);
 
 /*
- * Rotate the main key.
+ * Rotate the device key.
  */
 struct psp_key_rotate_rsp *
 psp_key_rotate(struct ynl_sock *ys, struct psp_key_rotate_req *req);

@@ -96,7 +96,7 @@ static const char * const ethtool_header_flags_strmap[] = {
 	[2] = "stats",
 };
 
-const char *ethtool_header_flags_str(int value)
+const char *ethtool_header_flags_str(enum ethtool_header_flags value)
 {
 	value = ffs(value) - 1;
 	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(ethtool_header_flags_strmap))
@@ -125,6 +125,17 @@ struct ynl_policy_attr ethtool_pause_stat_policy[ETHTOOL_A_PAUSE_STAT_MAX + 1] =
 struct ynl_policy_nest ethtool_pause_stat_nest = {
 	.max_attr = ETHTOOL_A_PAUSE_STAT_MAX,
 	.table = ethtool_pause_stat_policy,
+};
+
+struct ynl_policy_attr ethtool_ts_stat_policy[ETHTOOL_A_TS_STAT_MAX + 1] = {
+	[ETHTOOL_A_TS_STAT_TX_PKTS] = { .name = "tx-pkts", .type = YNL_PT_UINT, },
+	[ETHTOOL_A_TS_STAT_TX_LOST] = { .name = "tx-lost", .type = YNL_PT_UINT, },
+	[ETHTOOL_A_TS_STAT_TX_ERR] = { .name = "tx-err", .type = YNL_PT_UINT, },
+};
+
+struct ynl_policy_nest ethtool_ts_stat_nest = {
+	.max_attr = ETHTOOL_A_TS_STAT_MAX,
+	.table = ethtool_ts_stat_policy,
 };
 
 struct ynl_policy_attr ethtool_cable_test_tdr_cfg_policy[ETHTOOL_A_CABLE_TEST_TDR_CFG_MAX + 1] = {
@@ -510,6 +521,7 @@ struct ynl_policy_attr ethtool_tsinfo_policy[ETHTOOL_A_TSINFO_MAX + 1] = {
 	[ETHTOOL_A_TSINFO_TX_TYPES] = { .name = "tx-types", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_TSINFO_RX_FILTERS] = { .name = "rx-filters", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_TSINFO_PHC_INDEX] = { .name = "phc-index", .type = YNL_PT_U32, },
+	[ETHTOOL_A_TSINFO_STATS] = { .name = "stats", .type = YNL_PT_NEST, .nest = &ethtool_ts_stat_nest, },
 };
 
 struct ynl_policy_nest ethtool_tsinfo_nest = {
@@ -620,9 +632,12 @@ struct ynl_policy_nest ethtool_module_nest = {
 
 struct ynl_policy_attr ethtool_pse_policy[ETHTOOL_A_PSE_MAX + 1] = {
 	[ETHTOOL_A_PSE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
-	[ETHTOOL_A_PODL_PSE_ADMIN_STATE] = { .name = "admin-state", .type = YNL_PT_U32, },
-	[ETHTOOL_A_PODL_PSE_ADMIN_CONTROL] = { .name = "admin-control", .type = YNL_PT_U32, },
-	[ETHTOOL_A_PODL_PSE_PW_D_STATUS] = { .name = "pw-d-status", .type = YNL_PT_U32, },
+	[ETHTOOL_A_PODL_PSE_ADMIN_STATE] = { .name = "podl-pse-admin-state", .type = YNL_PT_U32, },
+	[ETHTOOL_A_PODL_PSE_ADMIN_CONTROL] = { .name = "podl-pse-admin-control", .type = YNL_PT_U32, },
+	[ETHTOOL_A_PODL_PSE_PW_D_STATUS] = { .name = "podl-pse-pw-d-status", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_ADMIN_STATE] = { .name = "c33-pse-admin-state", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_ADMIN_CONTROL] = { .name = "c33-pse-admin-control", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_PW_D_STATUS] = { .name = "c33-pse-pw-d-status", .type = YNL_PT_U32, },
 };
 
 struct ynl_policy_nest ethtool_pse_nest = {
@@ -777,6 +792,40 @@ int ethtool_pause_stat_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.rx_frames = 1;
 			dst->rx_frames = ynl_attr_get_u64(attr);
+		}
+	}
+
+	return 0;
+}
+
+void ethtool_ts_stat_free(struct ethtool_ts_stat *obj)
+{
+}
+
+int ethtool_ts_stat_parse(struct ynl_parse_arg *yarg,
+			  const struct nlattr *nested)
+{
+	struct ethtool_ts_stat *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == ETHTOOL_A_TS_STAT_TX_PKTS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_pkts = 1;
+			dst->tx_pkts = ynl_attr_get_uint(attr);
+		} else if (type == ETHTOOL_A_TS_STAT_TX_LOST) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_lost = 1;
+			dst->tx_lost = ynl_attr_get_uint(attr);
+		} else if (type == ETHTOOL_A_TS_STAT_TX_ERR) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_err = 1;
+			dst->tx_err = ynl_attr_get_uint(attr);
 		}
 	}
 
@@ -4407,6 +4456,7 @@ void ethtool_tsinfo_get_rsp_free(struct ethtool_tsinfo_get_rsp *rsp)
 	ethtool_bitset_free(&rsp->timestamping);
 	ethtool_bitset_free(&rsp->tx_types);
 	ethtool_bitset_free(&rsp->rx_filters);
+	ethtool_ts_stat_free(&rsp->stats);
 	free(rsp);
 }
 
@@ -4464,6 +4514,15 @@ int ethtool_tsinfo_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.phc_index = 1;
 			dst->phc_index = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_TSINFO_STATS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.stats = 1;
+
+			parg.rsp_policy = &ethtool_ts_stat_nest;
+			parg.data = &dst->stats;
+			if (ethtool_ts_stat_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
 		}
 	}
 
@@ -4520,6 +4579,7 @@ void ethtool_tsinfo_get_list_free(struct ethtool_tsinfo_get_list *rsp)
 		ethtool_bitset_free(&rsp->obj.timestamping);
 		ethtool_bitset_free(&rsp->obj.tx_types);
 		ethtool_bitset_free(&rsp->obj.rx_filters);
+		ethtool_ts_stat_free(&rsp->obj.stats);
 		free(rsp);
 	}
 }
@@ -5466,18 +5526,33 @@ int ethtool_pse_get_rsp_parse(const struct nlmsghdr *nlh,
 		} else if (type == ETHTOOL_A_PODL_PSE_ADMIN_STATE) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
-			dst->_present.admin_state = 1;
-			dst->admin_state = ynl_attr_get_u32(attr);
+			dst->_present.podl_pse_admin_state = 1;
+			dst->podl_pse_admin_state = ynl_attr_get_u32(attr);
 		} else if (type == ETHTOOL_A_PODL_PSE_ADMIN_CONTROL) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
-			dst->_present.admin_control = 1;
-			dst->admin_control = ynl_attr_get_u32(attr);
+			dst->_present.podl_pse_admin_control = 1;
+			dst->podl_pse_admin_control = ynl_attr_get_u32(attr);
 		} else if (type == ETHTOOL_A_PODL_PSE_PW_D_STATUS) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
-			dst->_present.pw_d_status = 1;
-			dst->pw_d_status = ynl_attr_get_u32(attr);
+			dst->_present.podl_pse_pw_d_status = 1;
+			dst->podl_pse_pw_d_status = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_ADMIN_STATE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_admin_state = 1;
+			dst->c33_pse_admin_state = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_ADMIN_CONTROL) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_admin_control = 1;
+			dst->c33_pse_admin_control = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_PW_D_STATUS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_pw_d_status = 1;
+			dst->c33_pse_pw_d_status = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -5585,12 +5660,18 @@ int ethtool_pse_set(struct ynl_sock *ys, struct ethtool_pse_set_req *req)
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PSE_HEADER, &req->header);
-	if (req->_present.admin_state)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_ADMIN_STATE, req->admin_state);
-	if (req->_present.admin_control)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_ADMIN_CONTROL, req->admin_control);
-	if (req->_present.pw_d_status)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_PW_D_STATUS, req->pw_d_status);
+	if (req->_present.podl_pse_admin_state)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_ADMIN_STATE, req->podl_pse_admin_state);
+	if (req->_present.podl_pse_admin_control)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_ADMIN_CONTROL, req->podl_pse_admin_control);
+	if (req->_present.podl_pse_pw_d_status)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_PW_D_STATUS, req->podl_pse_pw_d_status);
+	if (req->_present.c33_pse_admin_state)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_ADMIN_STATE, req->c33_pse_admin_state);
+	if (req->_present.c33_pse_admin_control)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_ADMIN_CONTROL, req->c33_pse_admin_control);
+	if (req->_present.c33_pse_pw_d_status)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_PW_D_STATUS, req->c33_pse_pw_d_status);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

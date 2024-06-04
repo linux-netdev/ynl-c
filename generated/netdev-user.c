@@ -196,6 +196,28 @@ struct ynl_policy_attr netdev_qstats_policy[NETDEV_A_QSTATS_MAX + 1] = {
 	[NETDEV_A_QSTATS_TX_PACKETS] = { .name = "tx-packets", .type = YNL_PT_UINT, },
 	[NETDEV_A_QSTATS_TX_BYTES] = { .name = "tx-bytes", .type = YNL_PT_UINT, },
 	[NETDEV_A_QSTATS_RX_ALLOC_FAIL] = { .name = "rx-alloc-fail", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_DROPS] = { .name = "rx-hw-drops", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS] = { .name = "rx-hw-drop-overruns", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_CSUM_COMPLETE] = { .name = "rx-csum-complete", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY] = { .name = "rx-csum-unnecessary", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_CSUM_NONE] = { .name = "rx-csum-none", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_CSUM_BAD] = { .name = "rx-csum-bad", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_GRO_PACKETS] = { .name = "rx-hw-gro-packets", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_GRO_BYTES] = { .name = "rx-hw-gro-bytes", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS] = { .name = "rx-hw-gro-wire-packets", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES] = { .name = "rx-hw-gro-wire-bytes", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS] = { .name = "rx-hw-drop-ratelimits", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_DROPS] = { .name = "tx-hw-drops", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_DROP_ERRORS] = { .name = "tx-hw-drop-errors", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_CSUM_NONE] = { .name = "tx-csum-none", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_NEEDS_CSUM] = { .name = "tx-needs-csum", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_GSO_PACKETS] = { .name = "tx-hw-gso-packets", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_GSO_BYTES] = { .name = "tx-hw-gso-bytes", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS] = { .name = "tx-hw-gso-wire-packets", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES] = { .name = "tx-hw-gso-wire-bytes", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS] = { .name = "tx-hw-drop-ratelimits", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_STOP] = { .name = "tx-stop", .type = YNL_PT_UINT, },
+	[NETDEV_A_QSTATS_TX_WAKE] = { .name = "tx-wake", .type = YNL_PT_UINT, },
 };
 
 struct ynl_policy_nest netdev_qstats_nest = {
@@ -1039,6 +1061,8 @@ netdev_qstats_get_dump(struct ynl_sock *ys,
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NETDEV_CMD_QSTATS_GET, 1);
 	ys->req_policy = &netdev_qstats_nest;
 
+	if (req->_present.ifindex)
+		ynl_attr_put_u32(nlh, NETDEV_A_QSTATS_IFINDEX, req->ifindex);
 	if (req->_present.scope)
 		ynl_attr_put_uint(nlh, NETDEV_A_QSTATS_SCOPE, req->scope);
 

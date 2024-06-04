@@ -20,7 +20,7 @@ extern const struct ynl_family ynl_ethtool_family;
 const char *ethtool_op_str(int op);
 const char *ethtool_udp_tunnel_type_str(int value);
 const char *ethtool_stringset_str(enum ethtool_stringset value);
-const char *ethtool_header_flags_str(int value);
+const char *ethtool_header_flags_str(enum ethtool_header_flags value);
 
 /* Common nested types */
 struct ethtool_header {
@@ -43,6 +43,18 @@ struct ethtool_pause_stat {
 
 	__u64 tx_frames;
 	__u64 rx_frames;
+};
+
+struct ethtool_ts_stat {
+	struct {
+		__u32 tx_pkts:1;
+		__u32 tx_lost:1;
+		__u32 tx_err:1;
+	} _present;
+
+	__u64 tx_pkts;
+	__u64 tx_lost;
+	__u64 tx_err;
 };
 
 struct ethtool_cable_test_tdr_cfg {
@@ -3624,6 +3636,7 @@ struct ethtool_tsinfo_get_rsp {
 		__u32 tx_types:1;
 		__u32 rx_filters:1;
 		__u32 phc_index:1;
+		__u32 stats:1;
 	} _present;
 
 	struct ethtool_header header;
@@ -3631,6 +3644,7 @@ struct ethtool_tsinfo_get_rsp {
 	struct ethtool_bitset tx_types;
 	struct ethtool_bitset rx_filters;
 	__u32 phc_index;
+	struct ethtool_ts_stat stats;
 };
 
 void ethtool_tsinfo_get_rsp_free(struct ethtool_tsinfo_get_rsp *rsp);
@@ -4674,15 +4688,21 @@ ethtool_pse_get_req_set_header_flags(struct ethtool_pse_get_req *req,
 struct ethtool_pse_get_rsp {
 	struct {
 		__u32 header:1;
-		__u32 admin_state:1;
-		__u32 admin_control:1;
-		__u32 pw_d_status:1;
+		__u32 podl_pse_admin_state:1;
+		__u32 podl_pse_admin_control:1;
+		__u32 podl_pse_pw_d_status:1;
+		__u32 c33_pse_admin_state:1;
+		__u32 c33_pse_admin_control:1;
+		__u32 c33_pse_pw_d_status:1;
 	} _present;
 
 	struct ethtool_header header;
-	__u32 admin_state;
-	__u32 admin_control;
-	__u32 pw_d_status;
+	__u32 podl_pse_admin_state;
+	__u32 podl_pse_admin_control;
+	__u32 podl_pse_pw_d_status;
+	__u32 c33_pse_admin_state;
+	__u32 c33_pse_admin_control;
+	__u32 c33_pse_pw_d_status;
 };
 
 void ethtool_pse_get_rsp_free(struct ethtool_pse_get_rsp *rsp);
@@ -4752,15 +4772,21 @@ ethtool_pse_get_dump(struct ynl_sock *ys, struct ethtool_pse_get_req_dump *req);
 struct ethtool_pse_set_req {
 	struct {
 		__u32 header:1;
-		__u32 admin_state:1;
-		__u32 admin_control:1;
-		__u32 pw_d_status:1;
+		__u32 podl_pse_admin_state:1;
+		__u32 podl_pse_admin_control:1;
+		__u32 podl_pse_pw_d_status:1;
+		__u32 c33_pse_admin_state:1;
+		__u32 c33_pse_admin_control:1;
+		__u32 c33_pse_pw_d_status:1;
 	} _present;
 
 	struct ethtool_header header;
-	__u32 admin_state;
-	__u32 admin_control;
-	__u32 pw_d_status;
+	__u32 podl_pse_admin_state;
+	__u32 podl_pse_admin_control;
+	__u32 podl_pse_pw_d_status;
+	__u32 c33_pse_admin_state;
+	__u32 c33_pse_admin_control;
+	__u32 c33_pse_pw_d_status;
 };
 
 static inline struct ethtool_pse_set_req *ethtool_pse_set_req_alloc(void)
@@ -4797,25 +4823,46 @@ ethtool_pse_set_req_set_header_flags(struct ethtool_pse_set_req *req,
 	req->header.flags = flags;
 }
 static inline void
-ethtool_pse_set_req_set_admin_state(struct ethtool_pse_set_req *req,
-				    __u32 admin_state)
+ethtool_pse_set_req_set_podl_pse_admin_state(struct ethtool_pse_set_req *req,
+					     __u32 podl_pse_admin_state)
 {
-	req->_present.admin_state = 1;
-	req->admin_state = admin_state;
+	req->_present.podl_pse_admin_state = 1;
+	req->podl_pse_admin_state = podl_pse_admin_state;
 }
 static inline void
-ethtool_pse_set_req_set_admin_control(struct ethtool_pse_set_req *req,
-				      __u32 admin_control)
+ethtool_pse_set_req_set_podl_pse_admin_control(struct ethtool_pse_set_req *req,
+					       __u32 podl_pse_admin_control)
 {
-	req->_present.admin_control = 1;
-	req->admin_control = admin_control;
+	req->_present.podl_pse_admin_control = 1;
+	req->podl_pse_admin_control = podl_pse_admin_control;
 }
 static inline void
-ethtool_pse_set_req_set_pw_d_status(struct ethtool_pse_set_req *req,
-				    __u32 pw_d_status)
+ethtool_pse_set_req_set_podl_pse_pw_d_status(struct ethtool_pse_set_req *req,
+					     __u32 podl_pse_pw_d_status)
 {
-	req->_present.pw_d_status = 1;
-	req->pw_d_status = pw_d_status;
+	req->_present.podl_pse_pw_d_status = 1;
+	req->podl_pse_pw_d_status = podl_pse_pw_d_status;
+}
+static inline void
+ethtool_pse_set_req_set_c33_pse_admin_state(struct ethtool_pse_set_req *req,
+					    __u32 c33_pse_admin_state)
+{
+	req->_present.c33_pse_admin_state = 1;
+	req->c33_pse_admin_state = c33_pse_admin_state;
+}
+static inline void
+ethtool_pse_set_req_set_c33_pse_admin_control(struct ethtool_pse_set_req *req,
+					      __u32 c33_pse_admin_control)
+{
+	req->_present.c33_pse_admin_control = 1;
+	req->c33_pse_admin_control = c33_pse_admin_control;
+}
+static inline void
+ethtool_pse_set_req_set_c33_pse_pw_d_status(struct ethtool_pse_set_req *req,
+					    __u32 c33_pse_pw_d_status)
+{
+	req->_present.c33_pse_pw_d_status = 1;
+	req->c33_pse_pw_d_status = c33_pse_pw_d_status;
 }
 
 /*

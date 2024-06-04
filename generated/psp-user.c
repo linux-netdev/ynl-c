@@ -70,7 +70,6 @@ struct ynl_policy_nest psp_dev_nest = {
 };
 
 struct ynl_policy_attr psp_assoc_policy[PSP_A_ASSOC_MAX + 1] = {
-	[PSP_A_ASSOC_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
 	[PSP_A_ASSOC_DEV_ID] = { .name = "dev-id", .type = YNL_PT_U32, },
 	[PSP_A_ASSOC_VERSION] = { .name = "version", .type = YNL_PT_U32, },
 	[PSP_A_ASSOC_RX_KEY] = { .name = "rx-key", .type = YNL_PT_NEST, .nest = &psp_keys_nest, },
@@ -85,17 +84,16 @@ struct ynl_policy_nest psp_assoc_nest = {
 
 struct ynl_policy_attr psp_stats_policy[PSP_A_STATS_MAX + 1] = {
 	[PSP_A_STATS_DEV_ID] = { .name = "dev-id", .type = YNL_PT_U32, },
-	[PSP_A_STATS_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
-	[PSP_A_STATS_KEY_ROTATIONS] = { .name = "key-rotations", .type = YNL_PT_U64, },
-	[PSP_A_STATS_STALE_EVENTS] = { .name = "stale-events", .type = YNL_PT_U64, },
-	[PSP_A_STATS_RX_PACKETS] = { .name = "rx-packets", .type = YNL_PT_U64, },
-	[PSP_A_STATS_RX_BYTES] = { .name = "rx-bytes", .type = YNL_PT_U64, },
-	[PSP_A_STATS_RX_AUTH_FAIL] = { .name = "rx-auth-fail", .type = YNL_PT_U64, },
-	[PSP_A_STATS_RX_ERROR] = { .name = "rx-error", .type = YNL_PT_U64, },
-	[PSP_A_STATS_RX_BAD] = { .name = "rx-bad", .type = YNL_PT_U64, },
-	[PSP_A_STATS_TX_PACKETS] = { .name = "tx-packets", .type = YNL_PT_U64, },
-	[PSP_A_STATS_TX_BYTES] = { .name = "tx-bytes", .type = YNL_PT_U64, },
-	[PSP_A_STATS_TX_ERROR] = { .name = "tx-error", .type = YNL_PT_U64, },
+	[PSP_A_STATS_KEY_ROTATIONS] = { .name = "key-rotations", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_STALE_EVENTS] = { .name = "stale-events", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_RX_PACKETS] = { .name = "rx-packets", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_RX_BYTES] = { .name = "rx-bytes", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_RX_AUTH_FAIL] = { .name = "rx-auth-fail", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_RX_ERROR] = { .name = "rx-error", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_RX_BAD] = { .name = "rx-bad", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_TX_PACKETS] = { .name = "tx-packets", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_TX_BYTES] = { .name = "tx-bytes", .type = YNL_PT_UINT, },
+	[PSP_A_STATS_TX_ERROR] = { .name = "tx-error", .type = YNL_PT_UINT, },
 };
 
 struct ynl_policy_nest psp_stats_nest = {
@@ -285,25 +283,48 @@ void psp_dev_set_req_free(struct psp_dev_set_req *req)
 	free(req);
 }
 
-int psp_dev_set(struct ynl_sock *ys, struct psp_dev_set_req *req)
+void psp_dev_set_rsp_free(struct psp_dev_set_rsp *rsp)
+{
+	free(rsp);
+}
+
+int psp_dev_set_rsp_parse(const struct nlmsghdr *nlh,
+			  struct ynl_parse_arg *yarg)
+{
+	return YNL_PARSE_CB_OK;
+}
+
+struct psp_dev_set_rsp *
+psp_dev_set(struct ynl_sock *ys, struct psp_dev_set_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct psp_dev_set_rsp *rsp;
 	struct nlmsghdr *nlh;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_DEV_SET, 1);
 	ys->req_policy = &psp_dev_nest;
+	yrs.yarg.rsp_policy = &psp_dev_nest;
 
 	if (req->_present.id)
 		ynl_attr_put_u32(nlh, PSP_A_DEV_ID, req->id);
 	if (req->_present.psp_versions_ena)
 		ynl_attr_put_u32(nlh, PSP_A_DEV_PSP_VERSIONS_ENA, req->psp_versions_ena);
 
+	rsp = calloc(1, sizeof(*rsp));
+	yrs.yarg.data = rsp;
+	yrs.cb = psp_dev_set_rsp_parse;
+	yrs.rsp_cmd = PSP_CMD_DEV_SET;
+
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
-		return -1;
+		goto err_free;
 
-	return 0;
+	return rsp;
+
+err_free:
+	psp_dev_set_rsp_free(rsp);
+	return NULL;
 }
 
 /* ============== PSP_CMD_KEY_ROTATE ============== */
@@ -551,12 +572,12 @@ int psp_get_stats_rsp_parse(const struct nlmsghdr *nlh,
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.key_rotations = 1;
-			dst->key_rotations = ynl_attr_get_u64(attr);
+			dst->key_rotations = ynl_attr_get_uint(attr);
 		} else if (type == PSP_A_STATS_STALE_EVENTS) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.stale_events = 1;
-			dst->stale_events = ynl_attr_get_u64(attr);
+			dst->stale_events = ynl_attr_get_uint(attr);
 		}
 	}
 

@@ -389,6 +389,7 @@ void dpll_pin_get_rsp_free(struct dpll_pin_get_rsp *rsp);
 
 /*
  * Get list of pins and its attributes.
+
 - dump request without any attributes given - list all the pins in the
   system
 - dump request with target dpll - list all the pins registered with
