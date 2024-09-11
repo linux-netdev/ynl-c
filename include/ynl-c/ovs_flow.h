@@ -48,6 +48,16 @@ struct ovs_flow_userspace_attrs {
 	__u32 egress_tun_port;
 };
 
+struct ovs_flow_psample_attrs {
+	struct {
+		__u32 group:1;
+		__u32 cookie_len;
+	} _present;
+
+	__u32 group;
+	void *cookie;
+};
+
 struct ovs_flow_vxlan_ext_attrs {
 	struct {
 		__u32 gbp:1;
@@ -133,26 +143,6 @@ struct ovs_flow_ct_attrs {
 	char *timeout;
 };
 
-struct ovs_flow_check_pkt_len_attrs {
-	struct {
-		__u32 pkt_len:1;
-		__u32 actions_if_greater:1;
-		__u32 actions_if_less_equal:1;
-	} _present;
-
-	__u16 pkt_len;
-	struct ovs_flow_action_attrs *actions_if_greater;
-	struct ovs_flow_action_attrs *actions_if_less_equal;
-};
-
-struct ovs_flow_dec_ttl_attrs {
-	struct {
-		__u32 action:1;
-	} _present;
-
-	struct ovs_flow_action_attrs *action;
-};
-
 struct ovs_flow_key_attrs {
 	struct {
 		__u32 encap:1;
@@ -233,6 +223,26 @@ struct ovs_flow_sample_attrs {
 	struct ovs_flow_action_attrs *actions;
 };
 
+struct ovs_flow_check_pkt_len_attrs {
+	struct {
+		__u32 pkt_len:1;
+		__u32 actions_if_greater:1;
+		__u32 actions_if_less_equal:1;
+	} _present;
+
+	__u16 pkt_len;
+	struct ovs_flow_action_attrs *actions_if_greater;
+	struct ovs_flow_action_attrs *actions_if_less_equal;
+};
+
+struct ovs_flow_dec_ttl_attrs {
+	struct {
+		__u32 action:1;
+	} _present;
+
+	struct ovs_flow_action_attrs *action;
+};
+
 struct ovs_flow_action_attrs {
 	struct {
 		__u32 output:1;
@@ -258,6 +268,7 @@ struct ovs_flow_action_attrs {
 		__u32 check_pkt_len:1;
 		__u32 add_mpls_len;
 		__u32 dec_ttl:1;
+		__u32 psample:1;
 	} _present;
 
 	__u32 output;
@@ -279,6 +290,7 @@ struct ovs_flow_action_attrs {
 	struct ovs_flow_check_pkt_len_attrs check_pkt_len;
 	void *add_mpls;
 	struct ovs_flow_dec_ttl_attrs dec_ttl;
+	struct ovs_flow_psample_attrs psample;
 };
 
 /* ============== OVS_FLOW_CMD_GET ============== */
@@ -2598,6 +2610,26 @@ ovs_flow_new_req_set_actions_add_mpls(struct ovs_flow_new_req *req,
 	req->actions._present.add_mpls_len = len;
 	req->actions.add_mpls = malloc(req->actions._present.add_mpls_len);
 	memcpy(req->actions.add_mpls, add_mpls, req->actions._present.add_mpls_len);
+}
+static inline void
+ovs_flow_new_req_set_actions_psample_group(struct ovs_flow_new_req *req,
+					   __u32 group)
+{
+	req->_present.actions = 1;
+	req->actions._present.psample = 1;
+	req->actions.psample._present.group = 1;
+	req->actions.psample.group = group;
+}
+static inline void
+ovs_flow_new_req_set_actions_psample_cookie(struct ovs_flow_new_req *req,
+					    const void *cookie, size_t len)
+{
+	req->_present.actions = 1;
+	req->actions._present.psample = 1;
+	free(req->actions.psample.cookie);
+	req->actions.psample._present.cookie_len = len;
+	req->actions.psample.cookie = malloc(req->actions.psample._present.cookie_len);
+	memcpy(req->actions.psample.cookie, cookie, req->actions.psample._present.cookie_len);
 }
 
 /*

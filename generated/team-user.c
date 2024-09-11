@@ -26,7 +26,7 @@ const char *team_op_str(int op)
 }
 
 /* Policies */
-struct ynl_policy_attr team_attr_option_policy[TEAM_ATTR_OPTION_MAX + 1] = {
+const struct ynl_policy_attr team_attr_option_policy[TEAM_ATTR_OPTION_MAX + 1] = {
 	[TEAM_ATTR_OPTION_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[TEAM_ATTR_OPTION_NAME] = { .name = "name", .type = YNL_PT_NUL_STR, },
 	[TEAM_ATTR_OPTION_CHANGED] = { .name = "changed", .type = YNL_PT_FLAG, },
@@ -37,12 +37,12 @@ struct ynl_policy_attr team_attr_option_policy[TEAM_ATTR_OPTION_MAX + 1] = {
 	[TEAM_ATTR_OPTION_ARRAY_INDEX] = { .name = "array-index", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest team_attr_option_nest = {
+const struct ynl_policy_nest team_attr_option_nest = {
 	.max_attr = TEAM_ATTR_OPTION_MAX,
 	.table = team_attr_option_policy,
 };
 
-struct ynl_policy_attr team_attr_port_policy[TEAM_ATTR_PORT_MAX + 1] = {
+const struct ynl_policy_attr team_attr_port_policy[TEAM_ATTR_PORT_MAX + 1] = {
 	[TEAM_ATTR_PORT_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[TEAM_ATTR_PORT_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[TEAM_ATTR_PORT_CHANGED] = { .name = "changed", .type = YNL_PT_FLAG, },
@@ -52,39 +52,39 @@ struct ynl_policy_attr team_attr_port_policy[TEAM_ATTR_PORT_MAX + 1] = {
 	[TEAM_ATTR_PORT_REMOVED] = { .name = "removed", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest team_attr_port_nest = {
+const struct ynl_policy_nest team_attr_port_nest = {
 	.max_attr = TEAM_ATTR_PORT_MAX,
 	.table = team_attr_port_policy,
 };
 
-struct ynl_policy_attr team_item_option_policy[TEAM_ATTR_ITEM_OPTION_MAX + 1] = {
+const struct ynl_policy_attr team_item_option_policy[TEAM_ATTR_ITEM_OPTION_MAX + 1] = {
 	[TEAM_ATTR_ITEM_OPTION_UNSPEC] = { .name = "option-unspec", .type = YNL_PT_REJECT, },
 	[TEAM_ATTR_ITEM_OPTION] = { .name = "option", .type = YNL_PT_NEST, .nest = &team_attr_option_nest, },
 };
 
-struct ynl_policy_nest team_item_option_nest = {
+const struct ynl_policy_nest team_item_option_nest = {
 	.max_attr = TEAM_ATTR_ITEM_OPTION_MAX,
 	.table = team_item_option_policy,
 };
 
-struct ynl_policy_attr team_item_port_policy[TEAM_ATTR_ITEM_PORT_MAX + 1] = {
+const struct ynl_policy_attr team_item_port_policy[TEAM_ATTR_ITEM_PORT_MAX + 1] = {
 	[TEAM_ATTR_ITEM_PORT_UNSPEC] = { .name = "port-unspec", .type = YNL_PT_REJECT, },
 	[TEAM_ATTR_ITEM_PORT] = { .name = "port", .type = YNL_PT_NEST, .nest = &team_attr_port_nest, },
 };
 
-struct ynl_policy_nest team_item_port_nest = {
+const struct ynl_policy_nest team_item_port_nest = {
 	.max_attr = TEAM_ATTR_ITEM_PORT_MAX,
 	.table = team_item_port_policy,
 };
 
-struct ynl_policy_attr team_policy[TEAM_ATTR_MAX + 1] = {
+const struct ynl_policy_attr team_policy[TEAM_ATTR_MAX + 1] = {
 	[TEAM_ATTR_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[TEAM_ATTR_TEAM_IFINDEX] = { .name = "team-ifindex", .type = YNL_PT_U32, },
 	[TEAM_ATTR_LIST_OPTION] = { .name = "list-option", .type = YNL_PT_NEST, .nest = &team_item_option_nest, },
 	[TEAM_ATTR_LIST_PORT] = { .name = "list-port", .type = YNL_PT_NEST, .nest = &team_item_port_nest, },
 };
 
-struct ynl_policy_nest team_nest = {
+const struct ynl_policy_nest team_nest = {
 	.max_attr = TEAM_ATTR_MAX,
 	.table = team_policy,
 };

@@ -42,27 +42,27 @@ const char *ovs_vport_vport_type_str(enum ovs_vport_type value)
 }
 
 /* Policies */
-struct ynl_policy_attr ovs_vport_vport_options_policy[OVS_TUNNEL_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_vport_vport_options_policy[OVS_TUNNEL_ATTR_MAX + 1] = {
 	[OVS_TUNNEL_ATTR_DST_PORT] = { .name = "dst-port", .type = YNL_PT_U32, },
 	[OVS_TUNNEL_ATTR_EXTENSION] = { .name = "extension", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ovs_vport_vport_options_nest = {
+const struct ynl_policy_nest ovs_vport_vport_options_nest = {
 	.max_attr = OVS_TUNNEL_ATTR_MAX,
 	.table = ovs_vport_vport_options_policy,
 };
 
-struct ynl_policy_attr ovs_vport_upcall_stats_policy[OVS_VPORT_UPCALL_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_vport_upcall_stats_policy[OVS_VPORT_UPCALL_ATTR_MAX + 1] = {
 	[OVS_VPORT_UPCALL_ATTR_SUCCESS] = { .name = "success", .type = YNL_PT_U64, },
 	[OVS_VPORT_UPCALL_ATTR_FAIL] = { .name = "fail", .type = YNL_PT_U64, },
 };
 
-struct ynl_policy_nest ovs_vport_upcall_stats_nest = {
+const struct ynl_policy_nest ovs_vport_upcall_stats_nest = {
 	.max_attr = OVS_VPORT_UPCALL_ATTR_MAX,
 	.table = ovs_vport_upcall_stats_policy,
 };
 
-struct ynl_policy_attr ovs_vport_vport_policy[OVS_VPORT_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_vport_vport_policy[OVS_VPORT_ATTR_MAX + 1] = {
 	[OVS_VPORT_ATTR_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[OVS_VPORT_ATTR_PORT_NO] = { .name = "port-no", .type = YNL_PT_U32, },
 	[OVS_VPORT_ATTR_TYPE] = { .name = "type", .type = YNL_PT_U32, },
@@ -76,7 +76,7 @@ struct ynl_policy_attr ovs_vport_vport_policy[OVS_VPORT_ATTR_MAX + 1] = {
 	[OVS_VPORT_ATTR_UPCALL_STATS] = { .name = "upcall-stats", .type = YNL_PT_NEST, .nest = &ovs_vport_upcall_stats_nest, },
 };
 
-struct ynl_policy_nest ovs_vport_vport_nest = {
+const struct ynl_policy_nest ovs_vport_vport_nest = {
 	.max_attr = OVS_VPORT_ATTR_MAX,
 	.table = ovs_vport_vport_policy,
 };

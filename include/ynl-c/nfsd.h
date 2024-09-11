@@ -254,4 +254,56 @@ void nfsd_listener_get_rsp_free(struct nfsd_listener_get_rsp *rsp);
  */
 struct nfsd_listener_get_rsp *nfsd_listener_get(struct ynl_sock *ys);
 
+/* ============== NFSD_CMD_POOL_MODE_SET ============== */
+/* NFSD_CMD_POOL_MODE_SET - do */
+struct nfsd_pool_mode_set_req {
+	struct {
+		__u32 mode_len;
+	} _present;
+
+	char *mode;
+};
+
+static inline struct nfsd_pool_mode_set_req *nfsd_pool_mode_set_req_alloc(void)
+{
+	return calloc(1, sizeof(struct nfsd_pool_mode_set_req));
+}
+void nfsd_pool_mode_set_req_free(struct nfsd_pool_mode_set_req *req);
+
+static inline void
+nfsd_pool_mode_set_req_set_mode(struct nfsd_pool_mode_set_req *req,
+				const char *mode)
+{
+	free(req->mode);
+	req->_present.mode_len = strlen(mode);
+	req->mode = malloc(req->_present.mode_len + 1);
+	memcpy(req->mode, mode, req->_present.mode_len);
+	req->mode[req->_present.mode_len] = 0;
+}
+
+/*
+ * set the current server pool-mode
+ */
+int nfsd_pool_mode_set(struct ynl_sock *ys, struct nfsd_pool_mode_set_req *req);
+
+/* ============== NFSD_CMD_POOL_MODE_GET ============== */
+/* NFSD_CMD_POOL_MODE_GET - do */
+
+struct nfsd_pool_mode_get_rsp {
+	struct {
+		__u32 mode_len;
+		__u32 npools:1;
+	} _present;
+
+	char *mode;
+	__u32 npools;
+};
+
+void nfsd_pool_mode_get_rsp_free(struct nfsd_pool_mode_get_rsp *rsp);
+
+/*
+ * get info about server pool-mode
+ */
+struct nfsd_pool_mode_get_rsp *nfsd_pool_mode_get(struct ynl_sock *ys);
+
 #endif /* _LINUX_NFSD_GEN_H */

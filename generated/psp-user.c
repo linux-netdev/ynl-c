@@ -47,29 +47,29 @@ const char *psp_version_str(enum psp_version value)
 }
 
 /* Policies */
-struct ynl_policy_attr psp_keys_policy[PSP_A_KEYS_MAX + 1] = {
+const struct ynl_policy_attr psp_keys_policy[PSP_A_KEYS_MAX + 1] = {
 	[PSP_A_KEYS_KEY] = { .name = "key", .type = YNL_PT_BINARY,},
 	[PSP_A_KEYS_SPI] = { .name = "spi", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest psp_keys_nest = {
+const struct ynl_policy_nest psp_keys_nest = {
 	.max_attr = PSP_A_KEYS_MAX,
 	.table = psp_keys_policy,
 };
 
-struct ynl_policy_attr psp_dev_policy[PSP_A_DEV_MAX + 1] = {
+const struct ynl_policy_attr psp_dev_policy[PSP_A_DEV_MAX + 1] = {
 	[PSP_A_DEV_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[PSP_A_DEV_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[PSP_A_DEV_PSP_VERSIONS_CAP] = { .name = "psp-versions-cap", .type = YNL_PT_U32, },
 	[PSP_A_DEV_PSP_VERSIONS_ENA] = { .name = "psp-versions-ena", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest psp_dev_nest = {
+const struct ynl_policy_nest psp_dev_nest = {
 	.max_attr = PSP_A_DEV_MAX,
 	.table = psp_dev_policy,
 };
 
-struct ynl_policy_attr psp_assoc_policy[PSP_A_ASSOC_MAX + 1] = {
+const struct ynl_policy_attr psp_assoc_policy[PSP_A_ASSOC_MAX + 1] = {
 	[PSP_A_ASSOC_DEV_ID] = { .name = "dev-id", .type = YNL_PT_U32, },
 	[PSP_A_ASSOC_VERSION] = { .name = "version", .type = YNL_PT_U32, },
 	[PSP_A_ASSOC_RX_KEY] = { .name = "rx-key", .type = YNL_PT_NEST, .nest = &psp_keys_nest, },
@@ -77,12 +77,12 @@ struct ynl_policy_attr psp_assoc_policy[PSP_A_ASSOC_MAX + 1] = {
 	[PSP_A_ASSOC_SOCK_FD] = { .name = "sock-fd", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest psp_assoc_nest = {
+const struct ynl_policy_nest psp_assoc_nest = {
 	.max_attr = PSP_A_ASSOC_MAX,
 	.table = psp_assoc_policy,
 };
 
-struct ynl_policy_attr psp_stats_policy[PSP_A_STATS_MAX + 1] = {
+const struct ynl_policy_attr psp_stats_policy[PSP_A_STATS_MAX + 1] = {
 	[PSP_A_STATS_DEV_ID] = { .name = "dev-id", .type = YNL_PT_U32, },
 	[PSP_A_STATS_KEY_ROTATIONS] = { .name = "key-rotations", .type = YNL_PT_UINT, },
 	[PSP_A_STATS_STALE_EVENTS] = { .name = "stale-events", .type = YNL_PT_UINT, },
@@ -96,7 +96,7 @@ struct ynl_policy_attr psp_stats_policy[PSP_A_STATS_MAX + 1] = {
 	[PSP_A_STATS_TX_ERROR] = { .name = "tx-error", .type = YNL_PT_UINT, },
 };
 
-struct ynl_policy_nest psp_stats_nest = {
+const struct ynl_policy_nest psp_stats_nest = {
 	.max_attr = PSP_A_STATS_MAX,
 	.table = psp_stats_policy,
 };

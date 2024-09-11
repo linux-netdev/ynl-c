@@ -41,7 +41,7 @@ const char *ovs_datapath_user_features_str(int value)
 }
 
 /* Policies */
-struct ynl_policy_attr ovs_datapath_datapath_policy[OVS_DP_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_datapath_datapath_policy[OVS_DP_ATTR_MAX + 1] = {
 	[OVS_DP_ATTR_NAME] = { .name = "name", .type = YNL_PT_NUL_STR, },
 	[OVS_DP_ATTR_UPCALL_PID] = { .name = "upcall-pid", .type = YNL_PT_U32, },
 	[OVS_DP_ATTR_STATS] = { .name = "stats", .type = YNL_PT_BINARY,},
@@ -53,7 +53,7 @@ struct ynl_policy_attr ovs_datapath_datapath_policy[OVS_DP_ATTR_MAX + 1] = {
 	[OVS_DP_ATTR_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ovs_datapath_datapath_nest = {
+const struct ynl_policy_nest ovs_datapath_datapath_nest = {
 	.max_attr = OVS_DP_ATTR_MAX,
 	.table = ovs_datapath_datapath_policy,
 };

@@ -141,17 +141,17 @@ const char *dpll_pin_capabilities_str(enum dpll_pin_capabilities value)
 }
 
 /* Policies */
-struct ynl_policy_attr dpll_frequency_range_policy[DPLL_A_PIN_MAX + 1] = {
+const struct ynl_policy_attr dpll_frequency_range_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_FREQUENCY_MIN] = { .name = "frequency-min", .type = YNL_PT_U64, },
 	[DPLL_A_PIN_FREQUENCY_MAX] = { .name = "frequency-max", .type = YNL_PT_U64, },
 };
 
-struct ynl_policy_nest dpll_frequency_range_nest = {
+const struct ynl_policy_nest dpll_frequency_range_nest = {
 	.max_attr = DPLL_A_PIN_MAX,
 	.table = dpll_frequency_range_policy,
 };
 
-struct ynl_policy_attr dpll_pin_parent_device_policy[DPLL_A_PIN_MAX + 1] = {
+const struct ynl_policy_attr dpll_pin_parent_device_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_PARENT_ID] = { .name = "parent-id", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_DIRECTION] = { .name = "direction", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_PRIO] = { .name = "prio", .type = YNL_PT_U32, },
@@ -159,22 +159,22 @@ struct ynl_policy_attr dpll_pin_parent_device_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_PHASE_OFFSET] = { .name = "phase-offset", .type = YNL_PT_U64, },
 };
 
-struct ynl_policy_nest dpll_pin_parent_device_nest = {
+const struct ynl_policy_nest dpll_pin_parent_device_nest = {
 	.max_attr = DPLL_A_PIN_MAX,
 	.table = dpll_pin_parent_device_policy,
 };
 
-struct ynl_policy_attr dpll_pin_parent_pin_policy[DPLL_A_PIN_MAX + 1] = {
+const struct ynl_policy_attr dpll_pin_parent_pin_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_PARENT_ID] = { .name = "parent-id", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_STATE] = { .name = "state", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest dpll_pin_parent_pin_nest = {
+const struct ynl_policy_nest dpll_pin_parent_pin_nest = {
 	.max_attr = DPLL_A_PIN_MAX,
 	.table = dpll_pin_parent_pin_policy,
 };
 
-struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
+const struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
 	[DPLL_A_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[DPLL_A_MODULE_NAME] = { .name = "module-name", .type = YNL_PT_NUL_STR, },
 	[DPLL_A_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
@@ -187,12 +187,12 @@ struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
 	[DPLL_A_LOCK_STATUS_ERROR] = { .name = "lock-status-error", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest dpll_nest = {
+const struct ynl_policy_nest dpll_nest = {
 	.max_attr = DPLL_A_MAX,
 	.table = dpll_policy,
 };
 
-struct ynl_policy_attr dpll_pin_policy[DPLL_A_PIN_MAX + 1] = {
+const struct ynl_policy_attr dpll_pin_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_PARENT_ID] = { .name = "parent-id", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_MODULE_NAME] = { .name = "module-name", .type = YNL_PT_NUL_STR, },
@@ -217,9 +217,12 @@ struct ynl_policy_attr dpll_pin_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_PHASE_ADJUST] = { .name = "phase-adjust", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_PHASE_OFFSET] = { .name = "phase-offset", .type = YNL_PT_U64, },
 	[DPLL_A_PIN_FRACTIONAL_FREQUENCY_OFFSET] = { .name = "fractional-frequency-offset", .type = YNL_PT_UINT, },
+	[DPLL_A_PIN_ESYNC_FREQUENCY] = { .name = "esync-frequency", .type = YNL_PT_U64, },
+	[DPLL_A_PIN_ESYNC_FREQUENCY_SUPPORTED] = { .name = "esync-frequency-supported", .type = YNL_PT_NEST, .nest = &dpll_frequency_range_nest, },
+	[DPLL_A_PIN_ESYNC_PULSE] = { .name = "esync-pulse", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest dpll_pin_nest = {
+const struct ynl_policy_nest dpll_pin_nest = {
 	.max_attr = DPLL_A_PIN_MAX,
 	.table = dpll_pin_policy,
 };
@@ -737,12 +740,16 @@ void dpll_pin_get_rsp_free(struct dpll_pin_get_rsp *rsp)
 	for (i = 0; i < rsp->n_parent_pin; i++)
 		dpll_pin_parent_pin_free(&rsp->parent_pin[i]);
 	free(rsp->parent_pin);
+	for (i = 0; i < rsp->n_esync_frequency_supported; i++)
+		dpll_frequency_range_free(&rsp->esync_frequency_supported[i]);
+	free(rsp->esync_frequency_supported);
 	free(rsp);
 }
 
 int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 			   struct ynl_parse_arg *yarg)
 {
+	unsigned int n_esync_frequency_supported = 0;
 	unsigned int n_frequency_supported = 0;
 	unsigned int n_parent_device = 0;
 	unsigned int n_parent_pin = 0;
@@ -754,6 +761,8 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 	dst = yarg->data;
 	parg.ys = yarg->ys;
 
+	if (dst->esync_frequency_supported)
+		return ynl_error_parse(yarg, "attribute already present (pin.esync-frequency-supported)");
 	if (dst->frequency_supported)
 		return ynl_error_parse(yarg, "attribute already present (pin.frequency-supported)");
 	if (dst->parent_device)
@@ -843,9 +852,35 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.fractional_frequency_offset = 1;
 			dst->fractional_frequency_offset = ynl_attr_get_sint(attr);
+		} else if (type == DPLL_A_PIN_ESYNC_FREQUENCY) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.esync_frequency = 1;
+			dst->esync_frequency = ynl_attr_get_u64(attr);
+		} else if (type == DPLL_A_PIN_ESYNC_FREQUENCY_SUPPORTED) {
+			n_esync_frequency_supported++;
+		} else if (type == DPLL_A_PIN_ESYNC_PULSE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.esync_pulse = 1;
+			dst->esync_pulse = ynl_attr_get_u32(attr);
 		}
 	}
 
+	if (n_esync_frequency_supported) {
+		dst->esync_frequency_supported = calloc(n_esync_frequency_supported, sizeof(*dst->esync_frequency_supported));
+		dst->n_esync_frequency_supported = n_esync_frequency_supported;
+		i = 0;
+		parg.rsp_policy = &dpll_frequency_range_nest;
+		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+			if (ynl_attr_type(attr) == DPLL_A_PIN_ESYNC_FREQUENCY_SUPPORTED) {
+				parg.data = &dst->esync_frequency_supported[i];
+				if (dpll_frequency_range_parse(&parg, attr))
+					return YNL_PARSE_CB_ERROR;
+				i++;
+			}
+		}
+	}
 	if (n_frequency_supported) {
 		dst->frequency_supported = calloc(n_frequency_supported, sizeof(*dst->frequency_supported));
 		dst->n_frequency_supported = n_frequency_supported;
@@ -951,6 +986,9 @@ void dpll_pin_get_list_free(struct dpll_pin_get_list *rsp)
 		for (i = 0; i < rsp->obj.n_parent_pin; i++)
 			dpll_pin_parent_pin_free(&rsp->obj.parent_pin[i]);
 		free(rsp->obj.parent_pin);
+		for (i = 0; i < rsp->obj.n_esync_frequency_supported; i++)
+			dpll_frequency_range_free(&rsp->obj.esync_frequency_supported[i]);
+		free(rsp->obj.esync_frequency_supported);
 		free(rsp);
 	}
 }
@@ -1003,6 +1041,9 @@ void dpll_pin_get_ntf_free(struct dpll_pin_get_ntf *rsp)
 	for (i = 0; i < rsp->obj.n_parent_pin; i++)
 		dpll_pin_parent_pin_free(&rsp->obj.parent_pin[i]);
 	free(rsp->obj.parent_pin);
+	for (i = 0; i < rsp->obj.n_esync_frequency_supported; i++)
+		dpll_frequency_range_free(&rsp->obj.esync_frequency_supported[i]);
+	free(rsp->obj.esync_frequency_supported);
 	free(rsp);
 }
 
@@ -1046,6 +1087,8 @@ int dpll_pin_set(struct ynl_sock *ys, struct dpll_pin_set_req *req)
 		dpll_pin_parent_pin_put(nlh, DPLL_A_PIN_PARENT_PIN, &req->parent_pin[i]);
 	if (req->_present.phase_adjust)
 		ynl_attr_put_s32(nlh, DPLL_A_PIN_PHASE_ADJUST, req->phase_adjust);
+	if (req->_present.esync_frequency)
+		ynl_attr_put_u64(nlh, DPLL_A_PIN_ESYNC_FREQUENCY, req->esync_frequency);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

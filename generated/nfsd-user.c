@@ -20,6 +20,8 @@ static const char * const nfsd_op_strmap[] = {
 	[NFSD_CMD_VERSION_GET] = "version-get",
 	[NFSD_CMD_LISTENER_SET] = "listener-set",
 	[NFSD_CMD_LISTENER_GET] = "listener-get",
+	[NFSD_CMD_POOL_MODE_SET] = "pool-mode-set",
+	[NFSD_CMD_POOL_MODE_GET] = "pool-mode-get",
 };
 
 const char *nfsd_op_str(int op)
@@ -30,28 +32,28 @@ const char *nfsd_op_str(int op)
 }
 
 /* Policies */
-struct ynl_policy_attr nfsd_version_policy[NFSD_A_VERSION_MAX + 1] = {
+const struct ynl_policy_attr nfsd_version_policy[NFSD_A_VERSION_MAX + 1] = {
 	[NFSD_A_VERSION_MAJOR] = { .name = "major", .type = YNL_PT_U32, },
 	[NFSD_A_VERSION_MINOR] = { .name = "minor", .type = YNL_PT_U32, },
 	[NFSD_A_VERSION_ENABLED] = { .name = "enabled", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest nfsd_version_nest = {
+const struct ynl_policy_nest nfsd_version_nest = {
 	.max_attr = NFSD_A_VERSION_MAX,
 	.table = nfsd_version_policy,
 };
 
-struct ynl_policy_attr nfsd_sock_policy[NFSD_A_SOCK_MAX + 1] = {
+const struct ynl_policy_attr nfsd_sock_policy[NFSD_A_SOCK_MAX + 1] = {
 	[NFSD_A_SOCK_ADDR] = { .name = "addr", .type = YNL_PT_BINARY,},
 	[NFSD_A_SOCK_TRANSPORT_NAME] = { .name = "transport-name", .type = YNL_PT_NUL_STR, },
 };
 
-struct ynl_policy_nest nfsd_sock_nest = {
+const struct ynl_policy_nest nfsd_sock_nest = {
 	.max_attr = NFSD_A_SOCK_MAX,
 	.table = nfsd_sock_policy,
 };
 
-struct ynl_policy_attr nfsd_rpc_status_policy[NFSD_A_RPC_STATUS_MAX + 1] = {
+const struct ynl_policy_attr nfsd_rpc_status_policy[NFSD_A_RPC_STATUS_MAX + 1] = {
 	[NFSD_A_RPC_STATUS_XID] = { .name = "xid", .type = YNL_PT_U32, },
 	[NFSD_A_RPC_STATUS_FLAGS] = { .name = "flags", .type = YNL_PT_U32, },
 	[NFSD_A_RPC_STATUS_PROG] = { .name = "prog", .type = YNL_PT_U32, },
@@ -68,39 +70,49 @@ struct ynl_policy_attr nfsd_rpc_status_policy[NFSD_A_RPC_STATUS_MAX + 1] = {
 	[NFSD_A_RPC_STATUS_COMPOUND_OPS] = { .name = "compound-ops", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest nfsd_rpc_status_nest = {
+const struct ynl_policy_nest nfsd_rpc_status_nest = {
 	.max_attr = NFSD_A_RPC_STATUS_MAX,
 	.table = nfsd_rpc_status_policy,
 };
 
-struct ynl_policy_attr nfsd_server_policy[NFSD_A_SERVER_MAX + 1] = {
+const struct ynl_policy_attr nfsd_server_policy[NFSD_A_SERVER_MAX + 1] = {
 	[NFSD_A_SERVER_THREADS] = { .name = "threads", .type = YNL_PT_U32, },
 	[NFSD_A_SERVER_GRACETIME] = { .name = "gracetime", .type = YNL_PT_U32, },
 	[NFSD_A_SERVER_LEASETIME] = { .name = "leasetime", .type = YNL_PT_U32, },
 	[NFSD_A_SERVER_SCOPE] = { .name = "scope", .type = YNL_PT_NUL_STR, },
 };
 
-struct ynl_policy_nest nfsd_server_nest = {
+const struct ynl_policy_nest nfsd_server_nest = {
 	.max_attr = NFSD_A_SERVER_MAX,
 	.table = nfsd_server_policy,
 };
 
-struct ynl_policy_attr nfsd_server_proto_policy[NFSD_A_SERVER_PROTO_MAX + 1] = {
+const struct ynl_policy_attr nfsd_server_proto_policy[NFSD_A_SERVER_PROTO_MAX + 1] = {
 	[NFSD_A_SERVER_PROTO_VERSION] = { .name = "version", .type = YNL_PT_NEST, .nest = &nfsd_version_nest, },
 };
 
-struct ynl_policy_nest nfsd_server_proto_nest = {
+const struct ynl_policy_nest nfsd_server_proto_nest = {
 	.max_attr = NFSD_A_SERVER_PROTO_MAX,
 	.table = nfsd_server_proto_policy,
 };
 
-struct ynl_policy_attr nfsd_server_sock_policy[NFSD_A_SERVER_SOCK_MAX + 1] = {
+const struct ynl_policy_attr nfsd_server_sock_policy[NFSD_A_SERVER_SOCK_MAX + 1] = {
 	[NFSD_A_SERVER_SOCK_ADDR] = { .name = "addr", .type = YNL_PT_NEST, .nest = &nfsd_sock_nest, },
 };
 
-struct ynl_policy_nest nfsd_server_sock_nest = {
+const struct ynl_policy_nest nfsd_server_sock_nest = {
 	.max_attr = NFSD_A_SERVER_SOCK_MAX,
 	.table = nfsd_server_sock_policy,
+};
+
+const struct ynl_policy_attr nfsd_pool_mode_policy[NFSD_A_POOL_MODE_MAX + 1] = {
+	[NFSD_A_POOL_MODE_MODE] = { .name = "mode", .type = YNL_PT_NUL_STR, },
+	[NFSD_A_POOL_MODE_NPOOLS] = { .name = "npools", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest nfsd_pool_mode_nest = {
+	.max_attr = NFSD_A_POOL_MODE_MAX,
+	.table = nfsd_pool_mode_policy,
 };
 
 /* Common nested types */
@@ -706,6 +718,101 @@ struct nfsd_listener_get_rsp *nfsd_listener_get(struct ynl_sock *ys)
 
 err_free:
 	nfsd_listener_get_rsp_free(rsp);
+	return NULL;
+}
+
+/* ============== NFSD_CMD_POOL_MODE_SET ============== */
+/* NFSD_CMD_POOL_MODE_SET - do */
+void nfsd_pool_mode_set_req_free(struct nfsd_pool_mode_set_req *req)
+{
+	free(req->mode);
+	free(req);
+}
+
+int nfsd_pool_mode_set(struct ynl_sock *ys, struct nfsd_pool_mode_set_req *req)
+{
+	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct nlmsghdr *nlh;
+	int err;
+
+	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_POOL_MODE_SET, 1);
+	ys->req_policy = &nfsd_pool_mode_nest;
+
+	if (req->_present.mode_len)
+		ynl_attr_put_str(nlh, NFSD_A_POOL_MODE_MODE, req->mode);
+
+	err = ynl_exec(ys, nlh, &yrs);
+	if (err < 0)
+		return -1;
+
+	return 0;
+}
+
+/* ============== NFSD_CMD_POOL_MODE_GET ============== */
+/* NFSD_CMD_POOL_MODE_GET - do */
+void nfsd_pool_mode_get_rsp_free(struct nfsd_pool_mode_get_rsp *rsp)
+{
+	free(rsp->mode);
+	free(rsp);
+}
+
+int nfsd_pool_mode_get_rsp_parse(const struct nlmsghdr *nlh,
+				 struct ynl_parse_arg *yarg)
+{
+	struct nfsd_pool_mode_get_rsp *dst;
+	const struct nlattr *attr;
+
+	dst = yarg->data;
+
+	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == NFSD_A_POOL_MODE_MODE) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.mode_len = len;
+			dst->mode = malloc(len + 1);
+			memcpy(dst->mode, ynl_attr_get_str(attr), len);
+			dst->mode[len] = 0;
+		} else if (type == NFSD_A_POOL_MODE_NPOOLS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.npools = 1;
+			dst->npools = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return YNL_PARSE_CB_OK;
+}
+
+struct nfsd_pool_mode_get_rsp *nfsd_pool_mode_get(struct ynl_sock *ys)
+{
+	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct nfsd_pool_mode_get_rsp *rsp;
+	struct nlmsghdr *nlh;
+	int err;
+
+	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_POOL_MODE_GET, 1);
+	ys->req_policy = &nfsd_pool_mode_nest;
+	yrs.yarg.rsp_policy = &nfsd_pool_mode_nest;
+
+	rsp = calloc(1, sizeof(*rsp));
+	yrs.yarg.data = rsp;
+	yrs.cb = nfsd_pool_mode_get_rsp_parse;
+	yrs.rsp_cmd = NFSD_CMD_POOL_MODE_GET;
+
+	err = ynl_exec(ys, nlh, &yrs);
+	if (err < 0)
+		goto err_free;
+
+	return rsp;
+
+err_free:
+	nfsd_pool_mode_get_rsp_free(rsp);
 	return NULL;
 }
 

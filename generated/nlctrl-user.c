@@ -69,27 +69,27 @@ const char *nlctrl_attr_type_str(enum netlink_attribute_type value)
 }
 
 /* Policies */
-struct ynl_policy_attr nlctrl_op_attrs_policy[CTRL_ATTR_OP_MAX + 1] = {
+const struct ynl_policy_attr nlctrl_op_attrs_policy[CTRL_ATTR_OP_MAX + 1] = {
 	[CTRL_ATTR_OP_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[CTRL_ATTR_OP_FLAGS] = { .name = "flags", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest nlctrl_op_attrs_nest = {
+const struct ynl_policy_nest nlctrl_op_attrs_nest = {
 	.max_attr = CTRL_ATTR_OP_MAX,
 	.table = nlctrl_op_attrs_policy,
 };
 
-struct ynl_policy_attr nlctrl_mcast_group_attrs_policy[CTRL_ATTR_MCAST_GRP_MAX + 1] = {
+const struct ynl_policy_attr nlctrl_mcast_group_attrs_policy[CTRL_ATTR_MCAST_GRP_MAX + 1] = {
 	[CTRL_ATTR_MCAST_GRP_NAME] = { .name = "name", .type = YNL_PT_NUL_STR, },
 	[CTRL_ATTR_MCAST_GRP_ID] = { .name = "id", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest nlctrl_mcast_group_attrs_nest = {
+const struct ynl_policy_nest nlctrl_mcast_group_attrs_nest = {
 	.max_attr = CTRL_ATTR_MCAST_GRP_MAX,
 	.table = nlctrl_mcast_group_attrs_policy,
 };
 
-struct ynl_policy_attr nlctrl_policy_attrs_policy[NL_POLICY_TYPE_ATTR_MAX + 1] = {
+const struct ynl_policy_attr nlctrl_policy_attrs_policy[NL_POLICY_TYPE_ATTR_MAX + 1] = {
 	[NL_POLICY_TYPE_ATTR_TYPE] = { .name = "type", .type = YNL_PT_U32, },
 	[NL_POLICY_TYPE_ATTR_MIN_VALUE_S] = { .name = "min-value-s", .type = YNL_PT_U64, },
 	[NL_POLICY_TYPE_ATTR_MAX_VALUE_S] = { .name = "max-value-s", .type = YNL_PT_U64, },
@@ -104,22 +104,22 @@ struct ynl_policy_attr nlctrl_policy_attrs_policy[NL_POLICY_TYPE_ATTR_MAX + 1] =
 	[NL_POLICY_TYPE_ATTR_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
 };
 
-struct ynl_policy_nest nlctrl_policy_attrs_nest = {
+const struct ynl_policy_nest nlctrl_policy_attrs_nest = {
 	.max_attr = NL_POLICY_TYPE_ATTR_MAX,
 	.table = nlctrl_policy_attrs_policy,
 };
 
-struct ynl_policy_attr nlctrl_op_policy_attrs_policy[CTRL_ATTR_POLICY_MAX + 1] = {
+const struct ynl_policy_attr nlctrl_op_policy_attrs_policy[CTRL_ATTR_POLICY_MAX + 1] = {
 	[CTRL_ATTR_POLICY_DO] = { .name = "do", .type = YNL_PT_U32, },
 	[CTRL_ATTR_POLICY_DUMP] = { .name = "dump", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest nlctrl_op_policy_attrs_nest = {
+const struct ynl_policy_nest nlctrl_op_policy_attrs_nest = {
 	.max_attr = CTRL_ATTR_POLICY_MAX,
 	.table = nlctrl_op_policy_attrs_policy,
 };
 
-struct ynl_policy_attr nlctrl_ctrl_attrs_policy[CTRL_ATTR_MAX + 1] = {
+const struct ynl_policy_attr nlctrl_ctrl_attrs_policy[CTRL_ATTR_MAX + 1] = {
 	[CTRL_ATTR_FAMILY_ID] = { .name = "family-id", .type = YNL_PT_U16, },
 	[CTRL_ATTR_FAMILY_NAME] = { .name = "family-name", .type = YNL_PT_NUL_STR, },
 	[CTRL_ATTR_VERSION] = { .name = "version", .type = YNL_PT_U32, },
@@ -132,7 +132,7 @@ struct ynl_policy_attr nlctrl_ctrl_attrs_policy[CTRL_ATTR_MAX + 1] = {
 	[CTRL_ATTR_OP] = { .name = "op", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest nlctrl_ctrl_attrs_nest = {
+const struct ynl_policy_nest nlctrl_ctrl_attrs_nest = {
 	.max_attr = CTRL_ATTR_MAX,
 	.table = nlctrl_ctrl_attrs_policy,
 };

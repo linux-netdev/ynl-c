@@ -58,6 +58,8 @@ static const char * const ethtool_op_strmap[] = {
 	[41] = "plca-ntf",
 	[ETHTOOL_MSG_MM_GET] = "mm-get",
 	[43] = "mm-ntf",
+	[44] = "module-fw-flash-ntf",
+	[ETHTOOL_MSG_PHY_GET] = "phy-get",
 };
 
 const char *ethtool_op_str(int op)
@@ -104,65 +106,122 @@ const char *ethtool_header_flags_str(enum ethtool_header_flags value)
 	return ethtool_header_flags_strmap[value];
 }
 
+static const char * const ethtool_module_fw_flash_status_strmap[] = {
+	[0] = "started",
+	[1] = "in_progress",
+	[2] = "completed",
+	[3] = "error",
+};
+
+const char *
+ethtool_module_fw_flash_status_str(enum ethtool_module_fw_flash_status value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(ethtool_module_fw_flash_status_strmap))
+		return NULL;
+	return ethtool_module_fw_flash_status_strmap[value];
+}
+
+static const char * const ethtool_c33_pse_ext_state_strmap[] = {
+	[0] = "none",
+	[1] = "error-condition",
+	[2] = "mr-mps-valid",
+	[3] = "mr-pse-enable",
+	[4] = "option-detect-ted",
+	[5] = "option-vport-lim",
+	[6] = "ovld-detected",
+	[7] = "power-not-available",
+	[8] = "short-detected",
+};
+
+const char *ethtool_c33_pse_ext_state_str(int value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(ethtool_c33_pse_ext_state_strmap))
+		return NULL;
+	return ethtool_c33_pse_ext_state_strmap[value];
+}
+
+static const char * const ethtool_phy_upstream_type_strmap[] = {
+	[0] = "mac",
+	[1] = "phy",
+};
+
+const char *ethtool_phy_upstream_type_str(int value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(ethtool_phy_upstream_type_strmap))
+		return NULL;
+	return ethtool_phy_upstream_type_strmap[value];
+}
+
 /* Policies */
-struct ynl_policy_attr ethtool_header_policy[ETHTOOL_A_HEADER_MAX + 1] = {
+const struct ynl_policy_attr ethtool_header_policy[ETHTOOL_A_HEADER_MAX + 1] = {
 	[ETHTOOL_A_HEADER_DEV_INDEX] = { .name = "dev-index", .type = YNL_PT_U32, },
 	[ETHTOOL_A_HEADER_DEV_NAME] = { .name = "dev-name", .type = YNL_PT_NUL_STR, },
 	[ETHTOOL_A_HEADER_FLAGS] = { .name = "flags", .type = YNL_PT_U32, },
+	[ETHTOOL_A_HEADER_PHY_INDEX] = { .name = "phy-index", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_header_nest = {
+const struct ynl_policy_nest ethtool_header_nest = {
 	.max_attr = ETHTOOL_A_HEADER_MAX,
 	.table = ethtool_header_policy,
 };
 
-struct ynl_policy_attr ethtool_pause_stat_policy[ETHTOOL_A_PAUSE_STAT_MAX + 1] = {
+const struct ynl_policy_attr ethtool_pause_stat_policy[ETHTOOL_A_PAUSE_STAT_MAX + 1] = {
 	[ETHTOOL_A_PAUSE_STAT_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
 	[ETHTOOL_A_PAUSE_STAT_TX_FRAMES] = { .name = "tx-frames", .type = YNL_PT_U64, },
 	[ETHTOOL_A_PAUSE_STAT_RX_FRAMES] = { .name = "rx-frames", .type = YNL_PT_U64, },
 };
 
-struct ynl_policy_nest ethtool_pause_stat_nest = {
+const struct ynl_policy_nest ethtool_pause_stat_nest = {
 	.max_attr = ETHTOOL_A_PAUSE_STAT_MAX,
 	.table = ethtool_pause_stat_policy,
 };
 
-struct ynl_policy_attr ethtool_ts_stat_policy[ETHTOOL_A_TS_STAT_MAX + 1] = {
+const struct ynl_policy_attr ethtool_ts_stat_policy[ETHTOOL_A_TS_STAT_MAX + 1] = {
 	[ETHTOOL_A_TS_STAT_TX_PKTS] = { .name = "tx-pkts", .type = YNL_PT_UINT, },
 	[ETHTOOL_A_TS_STAT_TX_LOST] = { .name = "tx-lost", .type = YNL_PT_UINT, },
 	[ETHTOOL_A_TS_STAT_TX_ERR] = { .name = "tx-err", .type = YNL_PT_UINT, },
 };
 
-struct ynl_policy_nest ethtool_ts_stat_nest = {
+const struct ynl_policy_nest ethtool_ts_stat_nest = {
 	.max_attr = ETHTOOL_A_TS_STAT_MAX,
 	.table = ethtool_ts_stat_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_test_tdr_cfg_policy[ETHTOOL_A_CABLE_TEST_TDR_CFG_MAX + 1] = {
+const struct ynl_policy_attr ethtool_cable_test_tdr_cfg_policy[ETHTOOL_A_CABLE_TEST_TDR_CFG_MAX + 1] = {
 	[ETHTOOL_A_CABLE_TEST_TDR_CFG_FIRST] = { .name = "first", .type = YNL_PT_U32, },
 	[ETHTOOL_A_CABLE_TEST_TDR_CFG_LAST] = { .name = "last", .type = YNL_PT_U32, },
 	[ETHTOOL_A_CABLE_TEST_TDR_CFG_STEP] = { .name = "step", .type = YNL_PT_U32, },
 	[ETHTOOL_A_CABLE_TEST_TDR_CFG_PAIR] = { .name = "pair", .type = YNL_PT_U8, },
 };
 
-struct ynl_policy_nest ethtool_cable_test_tdr_cfg_nest = {
+const struct ynl_policy_nest ethtool_cable_test_tdr_cfg_nest = {
 	.max_attr = ETHTOOL_A_CABLE_TEST_TDR_CFG_MAX,
 	.table = ethtool_cable_test_tdr_cfg_policy,
 };
 
-struct ynl_policy_attr ethtool_fec_stat_policy[ETHTOOL_A_FEC_STAT_MAX + 1] = {
+const struct ynl_policy_attr ethtool_fec_stat_policy[ETHTOOL_A_FEC_STAT_MAX + 1] = {
 	[ETHTOOL_A_FEC_STAT_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
 	[ETHTOOL_A_FEC_STAT_CORRECTED] = { .name = "corrected", .type = YNL_PT_BINARY,},
 	[ETHTOOL_A_FEC_STAT_UNCORR] = { .name = "uncorr", .type = YNL_PT_BINARY,},
 	[ETHTOOL_A_FEC_STAT_CORR_BITS] = { .name = "corr-bits", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ethtool_fec_stat_nest = {
+const struct ynl_policy_nest ethtool_fec_stat_nest = {
 	.max_attr = ETHTOOL_A_FEC_STAT_MAX,
 	.table = ethtool_fec_stat_policy,
 };
 
-struct ynl_policy_attr ethtool_mm_stat_policy[ETHTOOL_A_MM_STAT_MAX + 1] = {
+const struct ynl_policy_attr ethtool_c33_pse_pw_limit_policy[ETHTOOL_A_C33_PSE_PW_LIMIT_MAX + 1] = {
+	[ETHTOOL_A_C33_PSE_PW_LIMIT_MIN] = { .name = "min", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_PW_LIMIT_MAX] = { .name = "max", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ethtool_c33_pse_pw_limit_nest = {
+	.max_attr = ETHTOOL_A_C33_PSE_PW_LIMIT_MAX,
+	.table = ethtool_c33_pse_pw_limit_policy,
+};
+
+const struct ynl_policy_attr ethtool_mm_stat_policy[ETHTOOL_A_MM_STAT_MAX + 1] = {
 	[ETHTOOL_A_MM_STAT_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
 	[ETHTOOL_A_MM_STAT_REASSEMBLY_ERRORS] = { .name = "reassembly-errors", .type = YNL_PT_U64, },
 	[ETHTOOL_A_MM_STAT_SMD_ERRORS] = { .name = "smd-errors", .type = YNL_PT_U64, },
@@ -172,153 +231,175 @@ struct ynl_policy_attr ethtool_mm_stat_policy[ETHTOOL_A_MM_STAT_MAX + 1] = {
 	[ETHTOOL_A_MM_STAT_HOLD_COUNT] = { .name = "hold-count", .type = YNL_PT_U64, },
 };
 
-struct ynl_policy_nest ethtool_mm_stat_nest = {
+const struct ynl_policy_nest ethtool_mm_stat_nest = {
 	.max_attr = ETHTOOL_A_MM_STAT_MAX,
 	.table = ethtool_mm_stat_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_result_policy[ETHTOOL_A_CABLE_RESULT_MAX + 1] = {
-	[ETHTOOL_A_CABLE_RESULT_PAIR] = { .name = "pair", .type = YNL_PT_U8, },
-	[ETHTOOL_A_CABLE_RESULT_CODE] = { .name = "code", .type = YNL_PT_U8, },
+const struct ynl_policy_attr ethtool_irq_moderation_policy[ETHTOOL_A_IRQ_MODERATION_MAX + 1] = {
+	[ETHTOOL_A_IRQ_MODERATION_USEC] = { .name = "usec", .type = YNL_PT_U32, },
+	[ETHTOOL_A_IRQ_MODERATION_PKTS] = { .name = "pkts", .type = YNL_PT_U32, },
+	[ETHTOOL_A_IRQ_MODERATION_COMPS] = { .name = "comps", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_cable_result_nest = {
+const struct ynl_policy_nest ethtool_irq_moderation_nest = {
+	.max_attr = ETHTOOL_A_IRQ_MODERATION_MAX,
+	.table = ethtool_irq_moderation_policy,
+};
+
+const struct ynl_policy_attr ethtool_cable_result_policy[ETHTOOL_A_CABLE_RESULT_MAX + 1] = {
+	[ETHTOOL_A_CABLE_RESULT_PAIR] = { .name = "pair", .type = YNL_PT_U8, },
+	[ETHTOOL_A_CABLE_RESULT_CODE] = { .name = "code", .type = YNL_PT_U8, },
+	[ETHTOOL_A_CABLE_RESULT_SRC] = { .name = "src", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ethtool_cable_result_nest = {
 	.max_attr = ETHTOOL_A_CABLE_RESULT_MAX,
 	.table = ethtool_cable_result_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_fault_length_policy[ETHTOOL_A_CABLE_FAULT_LENGTH_MAX + 1] = {
+const struct ynl_policy_attr ethtool_cable_fault_length_policy[ETHTOOL_A_CABLE_FAULT_LENGTH_MAX + 1] = {
 	[ETHTOOL_A_CABLE_FAULT_LENGTH_PAIR] = { .name = "pair", .type = YNL_PT_U8, },
 	[ETHTOOL_A_CABLE_FAULT_LENGTH_CM] = { .name = "cm", .type = YNL_PT_U32, },
+	[ETHTOOL_A_CABLE_FAULT_LENGTH_SRC] = { .name = "src", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_cable_fault_length_nest = {
+const struct ynl_policy_nest ethtool_cable_fault_length_nest = {
 	.max_attr = ETHTOOL_A_CABLE_FAULT_LENGTH_MAX,
 	.table = ethtool_cable_fault_length_policy,
 };
 
-struct ynl_policy_attr ethtool_bitset_bit_policy[ETHTOOL_A_BITSET_BIT_MAX + 1] = {
+const struct ynl_policy_attr ethtool_bitset_bit_policy[ETHTOOL_A_BITSET_BIT_MAX + 1] = {
 	[ETHTOOL_A_BITSET_BIT_INDEX] = { .name = "index", .type = YNL_PT_U32, },
 	[ETHTOOL_A_BITSET_BIT_NAME] = { .name = "name", .type = YNL_PT_NUL_STR, },
 	[ETHTOOL_A_BITSET_BIT_VALUE] = { .name = "value", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest ethtool_bitset_bit_nest = {
+const struct ynl_policy_nest ethtool_bitset_bit_nest = {
 	.max_attr = ETHTOOL_A_BITSET_BIT_MAX,
 	.table = ethtool_bitset_bit_policy,
 };
 
-struct ynl_policy_attr ethtool_tunnel_udp_entry_policy[ETHTOOL_A_TUNNEL_UDP_ENTRY_MAX + 1] = {
+const struct ynl_policy_attr ethtool_tunnel_udp_entry_policy[ETHTOOL_A_TUNNEL_UDP_ENTRY_MAX + 1] = {
 	[ETHTOOL_A_TUNNEL_UDP_ENTRY_PORT] = { .name = "port", .type = YNL_PT_U16, },
 	[ETHTOOL_A_TUNNEL_UDP_ENTRY_TYPE] = { .name = "type", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_tunnel_udp_entry_nest = {
+const struct ynl_policy_nest ethtool_tunnel_udp_entry_nest = {
 	.max_attr = ETHTOOL_A_TUNNEL_UDP_ENTRY_MAX,
 	.table = ethtool_tunnel_udp_entry_policy,
 };
 
-struct ynl_policy_attr ethtool_string_policy[ETHTOOL_A_STRING_MAX + 1] = {
+const struct ynl_policy_attr ethtool_string_policy[ETHTOOL_A_STRING_MAX + 1] = {
 	[ETHTOOL_A_STRING_INDEX] = { .name = "index", .type = YNL_PT_U32, },
 	[ETHTOOL_A_STRING_VALUE] = { .name = "value", .type = YNL_PT_NUL_STR, },
 };
 
-struct ynl_policy_nest ethtool_string_nest = {
+const struct ynl_policy_nest ethtool_string_nest = {
 	.max_attr = ETHTOOL_A_STRING_MAX,
 	.table = ethtool_string_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_nest_policy[ETHTOOL_A_CABLE_NEST_MAX + 1] = {
+const struct ynl_policy_attr ethtool_profile_policy[ETHTOOL_A_PROFILE_MAX + 1] = {
+	[ETHTOOL_A_PROFILE_IRQ_MODERATION] = { .name = "irq-moderation", .type = YNL_PT_NEST, .nest = &ethtool_irq_moderation_nest, },
+};
+
+const struct ynl_policy_nest ethtool_profile_nest = {
+	.max_attr = ETHTOOL_A_PROFILE_MAX,
+	.table = ethtool_profile_policy,
+};
+
+const struct ynl_policy_attr ethtool_cable_nest_policy[ETHTOOL_A_CABLE_NEST_MAX + 1] = {
 	[ETHTOOL_A_CABLE_NEST_RESULT] = { .name = "result", .type = YNL_PT_NEST, .nest = &ethtool_cable_result_nest, },
 	[ETHTOOL_A_CABLE_NEST_FAULT_LENGTH] = { .name = "fault-length", .type = YNL_PT_NEST, .nest = &ethtool_cable_fault_length_nest, },
 };
 
-struct ynl_policy_nest ethtool_cable_nest_nest = {
+const struct ynl_policy_nest ethtool_cable_nest_nest = {
 	.max_attr = ETHTOOL_A_CABLE_NEST_MAX,
 	.table = ethtool_cable_nest_policy,
 };
 
-struct ynl_policy_attr ethtool_bitset_bits_policy[ETHTOOL_A_BITSET_BITS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_bitset_bits_policy[ETHTOOL_A_BITSET_BITS_MAX + 1] = {
 	[ETHTOOL_A_BITSET_BITS_BIT] = { .name = "bit", .type = YNL_PT_NEST, .nest = &ethtool_bitset_bit_nest, },
 };
 
-struct ynl_policy_nest ethtool_bitset_bits_nest = {
+const struct ynl_policy_nest ethtool_bitset_bits_nest = {
 	.max_attr = ETHTOOL_A_BITSET_BITS_MAX,
 	.table = ethtool_bitset_bits_policy,
 };
 
-struct ynl_policy_attr ethtool_strings_policy[ETHTOOL_A_STRINGS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_strings_policy[ETHTOOL_A_STRINGS_MAX + 1] = {
 	[ETHTOOL_A_STRINGS_STRING] = { .name = "string", .type = YNL_PT_NEST, .nest = &ethtool_string_nest, },
 };
 
-struct ynl_policy_nest ethtool_strings_nest = {
+const struct ynl_policy_nest ethtool_strings_nest = {
 	.max_attr = ETHTOOL_A_STRINGS_MAX,
 	.table = ethtool_strings_policy,
 };
 
-struct ynl_policy_attr ethtool_bitset_policy[ETHTOOL_A_BITSET_MAX + 1] = {
+const struct ynl_policy_attr ethtool_bitset_policy[ETHTOOL_A_BITSET_MAX + 1] = {
 	[ETHTOOL_A_BITSET_NOMASK] = { .name = "nomask", .type = YNL_PT_FLAG, },
 	[ETHTOOL_A_BITSET_SIZE] = { .name = "size", .type = YNL_PT_U32, },
 	[ETHTOOL_A_BITSET_BITS] = { .name = "bits", .type = YNL_PT_NEST, .nest = &ethtool_bitset_bits_nest, },
 };
 
-struct ynl_policy_nest ethtool_bitset_nest = {
+const struct ynl_policy_nest ethtool_bitset_nest = {
 	.max_attr = ETHTOOL_A_BITSET_MAX,
 	.table = ethtool_bitset_policy,
 };
 
-struct ynl_policy_attr ethtool_stringset_policy[ETHTOOL_A_STRINGSET_MAX + 1] = {
+const struct ynl_policy_attr ethtool_stringset_policy[ETHTOOL_A_STRINGSET_MAX + 1] = {
 	[ETHTOOL_A_STRINGSET_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[ETHTOOL_A_STRINGSET_COUNT] = { .name = "count", .type = YNL_PT_U32, },
 	[ETHTOOL_A_STRINGSET_STRINGS] = { .name = "strings", .type = YNL_PT_NEST, .nest = &ethtool_strings_nest, },
 };
 
-struct ynl_policy_nest ethtool_stringset_nest = {
+const struct ynl_policy_nest ethtool_stringset_nest = {
 	.max_attr = ETHTOOL_A_STRINGSET_MAX,
 	.table = ethtool_stringset_policy,
 };
 
-struct ynl_policy_attr ethtool_tunnel_udp_table_policy[ETHTOOL_A_TUNNEL_UDP_TABLE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_tunnel_udp_table_policy[ETHTOOL_A_TUNNEL_UDP_TABLE_MAX + 1] = {
 	[ETHTOOL_A_TUNNEL_UDP_TABLE_SIZE] = { .name = "size", .type = YNL_PT_U32, },
 	[ETHTOOL_A_TUNNEL_UDP_TABLE_TYPES] = { .name = "types", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_TUNNEL_UDP_TABLE_ENTRY] = { .name = "entry", .type = YNL_PT_NEST, .nest = &ethtool_tunnel_udp_entry_nest, },
 };
 
-struct ynl_policy_nest ethtool_tunnel_udp_table_nest = {
+const struct ynl_policy_nest ethtool_tunnel_udp_table_nest = {
 	.max_attr = ETHTOOL_A_TUNNEL_UDP_TABLE_MAX,
 	.table = ethtool_tunnel_udp_table_policy,
 };
 
-struct ynl_policy_attr ethtool_stringsets_policy[ETHTOOL_A_STRINGSETS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_stringsets_policy[ETHTOOL_A_STRINGSETS_MAX + 1] = {
 	[ETHTOOL_A_STRINGSETS_STRINGSET] = { .name = "stringset", .type = YNL_PT_NEST, .nest = &ethtool_stringset_nest, },
 };
 
-struct ynl_policy_nest ethtool_stringsets_nest = {
+const struct ynl_policy_nest ethtool_stringsets_nest = {
 	.max_attr = ETHTOOL_A_STRINGSETS_MAX,
 	.table = ethtool_stringsets_policy,
 };
 
-struct ynl_policy_attr ethtool_tunnel_udp_policy[ETHTOOL_A_TUNNEL_UDP_MAX + 1] = {
+const struct ynl_policy_attr ethtool_tunnel_udp_policy[ETHTOOL_A_TUNNEL_UDP_MAX + 1] = {
 	[ETHTOOL_A_TUNNEL_UDP_TABLE] = { .name = "table", .type = YNL_PT_NEST, .nest = &ethtool_tunnel_udp_table_nest, },
 };
 
-struct ynl_policy_nest ethtool_tunnel_udp_nest = {
+const struct ynl_policy_nest ethtool_tunnel_udp_nest = {
 	.max_attr = ETHTOOL_A_TUNNEL_UDP_MAX,
 	.table = ethtool_tunnel_udp_policy,
 };
 
-struct ynl_policy_attr ethtool_strset_policy[ETHTOOL_A_STRSET_MAX + 1] = {
+const struct ynl_policy_attr ethtool_strset_policy[ETHTOOL_A_STRSET_MAX + 1] = {
 	[ETHTOOL_A_STRSET_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_STRSET_STRINGSETS] = { .name = "stringsets", .type = YNL_PT_NEST, .nest = &ethtool_stringsets_nest, },
 	[ETHTOOL_A_STRSET_COUNTS_ONLY] = { .name = "counts-only", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest ethtool_strset_nest = {
+const struct ynl_policy_nest ethtool_strset_nest = {
 	.max_attr = ETHTOOL_A_STRSET_MAX,
 	.table = ethtool_strset_policy,
 };
 
-struct ynl_policy_attr ethtool_linkinfo_policy[ETHTOOL_A_LINKINFO_MAX + 1] = {
+const struct ynl_policy_attr ethtool_linkinfo_policy[ETHTOOL_A_LINKINFO_MAX + 1] = {
 	[ETHTOOL_A_LINKINFO_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_LINKINFO_PORT] = { .name = "port", .type = YNL_PT_U8, },
 	[ETHTOOL_A_LINKINFO_PHYADDR] = { .name = "phyaddr", .type = YNL_PT_U8, },
@@ -327,12 +408,12 @@ struct ynl_policy_attr ethtool_linkinfo_policy[ETHTOOL_A_LINKINFO_MAX + 1] = {
 	[ETHTOOL_A_LINKINFO_TRANSCEIVER] = { .name = "transceiver", .type = YNL_PT_U8, },
 };
 
-struct ynl_policy_nest ethtool_linkinfo_nest = {
+const struct ynl_policy_nest ethtool_linkinfo_nest = {
 	.max_attr = ETHTOOL_A_LINKINFO_MAX,
 	.table = ethtool_linkinfo_policy,
 };
 
-struct ynl_policy_attr ethtool_linkmodes_policy[ETHTOOL_A_LINKMODES_MAX + 1] = {
+const struct ynl_policy_attr ethtool_linkmodes_policy[ETHTOOL_A_LINKMODES_MAX + 1] = {
 	[ETHTOOL_A_LINKMODES_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_LINKMODES_AUTONEG] = { .name = "autoneg", .type = YNL_PT_U8, },
 	[ETHTOOL_A_LINKMODES_OURS] = { .name = "ours", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
@@ -345,12 +426,12 @@ struct ynl_policy_attr ethtool_linkmodes_policy[ETHTOOL_A_LINKMODES_MAX + 1] = {
 	[ETHTOOL_A_LINKMODES_RATE_MATCHING] = { .name = "rate-matching", .type = YNL_PT_U8, },
 };
 
-struct ynl_policy_nest ethtool_linkmodes_nest = {
+const struct ynl_policy_nest ethtool_linkmodes_nest = {
 	.max_attr = ETHTOOL_A_LINKMODES_MAX,
 	.table = ethtool_linkmodes_policy,
 };
 
-struct ynl_policy_attr ethtool_linkstate_policy[ETHTOOL_A_LINKSTATE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_linkstate_policy[ETHTOOL_A_LINKSTATE_MAX + 1] = {
 	[ETHTOOL_A_LINKSTATE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_LINKSTATE_LINK] = { .name = "link", .type = YNL_PT_U8, },
 	[ETHTOOL_A_LINKSTATE_SQI] = { .name = "sqi", .type = YNL_PT_U32, },
@@ -360,33 +441,33 @@ struct ynl_policy_attr ethtool_linkstate_policy[ETHTOOL_A_LINKSTATE_MAX + 1] = {
 	[ETHTOOL_A_LINKSTATE_EXT_DOWN_CNT] = { .name = "ext-down-cnt", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_linkstate_nest = {
+const struct ynl_policy_nest ethtool_linkstate_nest = {
 	.max_attr = ETHTOOL_A_LINKSTATE_MAX,
 	.table = ethtool_linkstate_policy,
 };
 
-struct ynl_policy_attr ethtool_debug_policy[ETHTOOL_A_DEBUG_MAX + 1] = {
+const struct ynl_policy_attr ethtool_debug_policy[ETHTOOL_A_DEBUG_MAX + 1] = {
 	[ETHTOOL_A_DEBUG_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_DEBUG_MSGMASK] = { .name = "msgmask", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 };
 
-struct ynl_policy_nest ethtool_debug_nest = {
+const struct ynl_policy_nest ethtool_debug_nest = {
 	.max_attr = ETHTOOL_A_DEBUG_MAX,
 	.table = ethtool_debug_policy,
 };
 
-struct ynl_policy_attr ethtool_wol_policy[ETHTOOL_A_WOL_MAX + 1] = {
+const struct ynl_policy_attr ethtool_wol_policy[ETHTOOL_A_WOL_MAX + 1] = {
 	[ETHTOOL_A_WOL_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_WOL_MODES] = { .name = "modes", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_WOL_SOPASS] = { .name = "sopass", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ethtool_wol_nest = {
+const struct ynl_policy_nest ethtool_wol_nest = {
 	.max_attr = ETHTOOL_A_WOL_MAX,
 	.table = ethtool_wol_policy,
 };
 
-struct ynl_policy_attr ethtool_features_policy[ETHTOOL_A_FEATURES_MAX + 1] = {
+const struct ynl_policy_attr ethtool_features_policy[ETHTOOL_A_FEATURES_MAX + 1] = {
 	[ETHTOOL_A_FEATURES_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_FEATURES_HW] = { .name = "hw", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_FEATURES_WANTED] = { .name = "wanted", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
@@ -394,22 +475,22 @@ struct ynl_policy_attr ethtool_features_policy[ETHTOOL_A_FEATURES_MAX + 1] = {
 	[ETHTOOL_A_FEATURES_NOCHANGE] = { .name = "nochange", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 };
 
-struct ynl_policy_nest ethtool_features_nest = {
+const struct ynl_policy_nest ethtool_features_nest = {
 	.max_attr = ETHTOOL_A_FEATURES_MAX,
 	.table = ethtool_features_policy,
 };
 
-struct ynl_policy_attr ethtool_privflags_policy[ETHTOOL_A_PRIVFLAGS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_privflags_policy[ETHTOOL_A_PRIVFLAGS_MAX + 1] = {
 	[ETHTOOL_A_PRIVFLAGS_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_PRIVFLAGS_FLAGS] = { .name = "flags", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 };
 
-struct ynl_policy_nest ethtool_privflags_nest = {
+const struct ynl_policy_nest ethtool_privflags_nest = {
 	.max_attr = ETHTOOL_A_PRIVFLAGS_MAX,
 	.table = ethtool_privflags_policy,
 };
 
-struct ynl_policy_attr ethtool_rings_policy[ETHTOOL_A_RINGS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_rings_policy[ETHTOOL_A_RINGS_MAX + 1] = {
 	[ETHTOOL_A_RINGS_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_RINGS_RX_MAX] = { .name = "rx-max", .type = YNL_PT_U32, },
 	[ETHTOOL_A_RINGS_RX_MINI_MAX] = { .name = "rx-mini-max", .type = YNL_PT_U32, },
@@ -428,12 +509,12 @@ struct ynl_policy_attr ethtool_rings_policy[ETHTOOL_A_RINGS_MAX + 1] = {
 	[ETHTOOL_A_RINGS_TX_PUSH_BUF_LEN_MAX] = { .name = "tx-push-buf-len-max", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_rings_nest = {
+const struct ynl_policy_nest ethtool_rings_nest = {
 	.max_attr = ETHTOOL_A_RINGS_MAX,
 	.table = ethtool_rings_policy,
 };
 
-struct ynl_policy_attr ethtool_channels_policy[ETHTOOL_A_CHANNELS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_channels_policy[ETHTOOL_A_CHANNELS_MAX + 1] = {
 	[ETHTOOL_A_CHANNELS_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_CHANNELS_RX_MAX] = { .name = "rx-max", .type = YNL_PT_U32, },
 	[ETHTOOL_A_CHANNELS_TX_MAX] = { .name = "tx-max", .type = YNL_PT_U32, },
@@ -445,12 +526,12 @@ struct ynl_policy_attr ethtool_channels_policy[ETHTOOL_A_CHANNELS_MAX + 1] = {
 	[ETHTOOL_A_CHANNELS_COMBINED_COUNT] = { .name = "combined-count", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_channels_nest = {
+const struct ynl_policy_nest ethtool_channels_nest = {
 	.max_attr = ETHTOOL_A_CHANNELS_MAX,
 	.table = ethtool_channels_policy,
 };
 
-struct ynl_policy_attr ethtool_coalesce_policy[ETHTOOL_A_COALESCE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_coalesce_policy[ETHTOOL_A_COALESCE_MAX + 1] = {
 	[ETHTOOL_A_COALESCE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_COALESCE_RX_USECS] = { .name = "rx-usecs", .type = YNL_PT_U32, },
 	[ETHTOOL_A_COALESCE_RX_MAX_FRAMES] = { .name = "rx-max-frames", .type = YNL_PT_U32, },
@@ -479,14 +560,16 @@ struct ynl_policy_attr ethtool_coalesce_policy[ETHTOOL_A_COALESCE_MAX + 1] = {
 	[ETHTOOL_A_COALESCE_TX_AGGR_MAX_BYTES] = { .name = "tx-aggr-max-bytes", .type = YNL_PT_U32, },
 	[ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES] = { .name = "tx-aggr-max-frames", .type = YNL_PT_U32, },
 	[ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS] = { .name = "tx-aggr-time-usecs", .type = YNL_PT_U32, },
+	[ETHTOOL_A_COALESCE_RX_PROFILE] = { .name = "rx-profile", .type = YNL_PT_NEST, .nest = &ethtool_profile_nest, },
+	[ETHTOOL_A_COALESCE_TX_PROFILE] = { .name = "tx-profile", .type = YNL_PT_NEST, .nest = &ethtool_profile_nest, },
 };
 
-struct ynl_policy_nest ethtool_coalesce_nest = {
+const struct ynl_policy_nest ethtool_coalesce_nest = {
 	.max_attr = ETHTOOL_A_COALESCE_MAX,
 	.table = ethtool_coalesce_policy,
 };
 
-struct ynl_policy_attr ethtool_pause_policy[ETHTOOL_A_PAUSE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_pause_policy[ETHTOOL_A_PAUSE_MAX + 1] = {
 	[ETHTOOL_A_PAUSE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_PAUSE_AUTONEG] = { .name = "autoneg", .type = YNL_PT_U8, },
 	[ETHTOOL_A_PAUSE_RX] = { .name = "rx", .type = YNL_PT_U8, },
@@ -495,12 +578,12 @@ struct ynl_policy_attr ethtool_pause_policy[ETHTOOL_A_PAUSE_MAX + 1] = {
 	[ETHTOOL_A_PAUSE_STATS_SRC] = { .name = "stats-src", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_pause_nest = {
+const struct ynl_policy_nest ethtool_pause_nest = {
 	.max_attr = ETHTOOL_A_PAUSE_MAX,
 	.table = ethtool_pause_policy,
 };
 
-struct ynl_policy_attr ethtool_eee_policy[ETHTOOL_A_EEE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_eee_policy[ETHTOOL_A_EEE_MAX + 1] = {
 	[ETHTOOL_A_EEE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_EEE_MODES_OURS] = { .name = "modes-ours", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_EEE_MODES_PEER] = { .name = "modes-peer", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
@@ -510,12 +593,12 @@ struct ynl_policy_attr ethtool_eee_policy[ETHTOOL_A_EEE_MAX + 1] = {
 	[ETHTOOL_A_EEE_TX_LPI_TIMER] = { .name = "tx-lpi-timer", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_eee_nest = {
+const struct ynl_policy_nest ethtool_eee_nest = {
 	.max_attr = ETHTOOL_A_EEE_MAX,
 	.table = ethtool_eee_policy,
 };
 
-struct ynl_policy_attr ethtool_tsinfo_policy[ETHTOOL_A_TSINFO_MAX + 1] = {
+const struct ynl_policy_attr ethtool_tsinfo_policy[ETHTOOL_A_TSINFO_MAX + 1] = {
 	[ETHTOOL_A_TSINFO_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_TSINFO_TIMESTAMPING] = { .name = "timestamping", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_TSINFO_TX_TYPES] = { .name = "tx-types", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
@@ -524,63 +607,63 @@ struct ynl_policy_attr ethtool_tsinfo_policy[ETHTOOL_A_TSINFO_MAX + 1] = {
 	[ETHTOOL_A_TSINFO_STATS] = { .name = "stats", .type = YNL_PT_NEST, .nest = &ethtool_ts_stat_nest, },
 };
 
-struct ynl_policy_nest ethtool_tsinfo_nest = {
+const struct ynl_policy_nest ethtool_tsinfo_nest = {
 	.max_attr = ETHTOOL_A_TSINFO_MAX,
 	.table = ethtool_tsinfo_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_test_policy[ETHTOOL_A_CABLE_TEST_MAX + 1] = {
+const struct ynl_policy_attr ethtool_cable_test_policy[ETHTOOL_A_CABLE_TEST_MAX + 1] = {
 	[ETHTOOL_A_CABLE_TEST_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 };
 
-struct ynl_policy_nest ethtool_cable_test_nest = {
+const struct ynl_policy_nest ethtool_cable_test_nest = {
 	.max_attr = ETHTOOL_A_CABLE_TEST_MAX,
 	.table = ethtool_cable_test_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_test_ntf_policy[ETHTOOL_A_CABLE_TEST_NTF_MAX + 1] = {
+const struct ynl_policy_attr ethtool_cable_test_ntf_policy[ETHTOOL_A_CABLE_TEST_NTF_MAX + 1] = {
 	[ETHTOOL_A_CABLE_TEST_NTF_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_CABLE_TEST_NTF_STATUS] = { .name = "status", .type = YNL_PT_U8, },
 	[ETHTOOL_A_CABLE_TEST_NTF_NEST] = { .name = "nest", .type = YNL_PT_NEST, .nest = &ethtool_cable_nest_nest, },
 };
 
-struct ynl_policy_nest ethtool_cable_test_ntf_nest = {
+const struct ynl_policy_nest ethtool_cable_test_ntf_nest = {
 	.max_attr = ETHTOOL_A_CABLE_TEST_NTF_MAX,
 	.table = ethtool_cable_test_ntf_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_test_tdr_policy[ETHTOOL_A_CABLE_TEST_TDR_MAX + 1] = {
+const struct ynl_policy_attr ethtool_cable_test_tdr_policy[ETHTOOL_A_CABLE_TEST_TDR_MAX + 1] = {
 	[ETHTOOL_A_CABLE_TEST_TDR_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_CABLE_TEST_TDR_CFG] = { .name = "cfg", .type = YNL_PT_NEST, .nest = &ethtool_cable_test_tdr_cfg_nest, },
 };
 
-struct ynl_policy_nest ethtool_cable_test_tdr_nest = {
+const struct ynl_policy_nest ethtool_cable_test_tdr_nest = {
 	.max_attr = ETHTOOL_A_CABLE_TEST_TDR_MAX,
 	.table = ethtool_cable_test_tdr_policy,
 };
 
-struct ynl_policy_attr ethtool_cable_test_tdr_ntf_policy[ETHTOOL_A_CABLE_TEST_TDR_NTF_MAX + 1] = {
+const struct ynl_policy_attr ethtool_cable_test_tdr_ntf_policy[ETHTOOL_A_CABLE_TEST_TDR_NTF_MAX + 1] = {
 	[ETHTOOL_A_CABLE_TEST_TDR_NTF_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_CABLE_TEST_TDR_NTF_STATUS] = { .name = "status", .type = YNL_PT_U8, },
 	[ETHTOOL_A_CABLE_TEST_TDR_NTF_NEST] = { .name = "nest", .type = YNL_PT_NEST, .nest = &ethtool_cable_nest_nest, },
 };
 
-struct ynl_policy_nest ethtool_cable_test_tdr_ntf_nest = {
+const struct ynl_policy_nest ethtool_cable_test_tdr_ntf_nest = {
 	.max_attr = ETHTOOL_A_CABLE_TEST_TDR_NTF_MAX,
 	.table = ethtool_cable_test_tdr_ntf_policy,
 };
 
-struct ynl_policy_attr ethtool_tunnel_info_policy[ETHTOOL_A_TUNNEL_INFO_MAX + 1] = {
+const struct ynl_policy_attr ethtool_tunnel_info_policy[ETHTOOL_A_TUNNEL_INFO_MAX + 1] = {
 	[ETHTOOL_A_TUNNEL_INFO_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_TUNNEL_INFO_UDP_PORTS] = { .name = "udp-ports", .type = YNL_PT_NEST, .nest = &ethtool_tunnel_udp_nest, },
 };
 
-struct ynl_policy_nest ethtool_tunnel_info_nest = {
+const struct ynl_policy_nest ethtool_tunnel_info_nest = {
 	.max_attr = ETHTOOL_A_TUNNEL_INFO_MAX,
 	.table = ethtool_tunnel_info_policy,
 };
 
-struct ynl_policy_attr ethtool_fec_policy[ETHTOOL_A_FEC_MAX + 1] = {
+const struct ynl_policy_attr ethtool_fec_policy[ETHTOOL_A_FEC_MAX + 1] = {
 	[ETHTOOL_A_FEC_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_FEC_MODES] = { .name = "modes", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_FEC_AUTO] = { .name = "auto", .type = YNL_PT_U8, },
@@ -588,12 +671,12 @@ struct ynl_policy_attr ethtool_fec_policy[ETHTOOL_A_FEC_MAX + 1] = {
 	[ETHTOOL_A_FEC_STATS] = { .name = "stats", .type = YNL_PT_NEST, .nest = &ethtool_fec_stat_nest, },
 };
 
-struct ynl_policy_nest ethtool_fec_nest = {
+const struct ynl_policy_nest ethtool_fec_nest = {
 	.max_attr = ETHTOOL_A_FEC_MAX,
 	.table = ethtool_fec_policy,
 };
 
-struct ynl_policy_attr ethtool_module_eeprom_policy[ETHTOOL_A_MODULE_EEPROM_MAX + 1] = {
+const struct ynl_policy_attr ethtool_module_eeprom_policy[ETHTOOL_A_MODULE_EEPROM_MAX + 1] = {
 	[ETHTOOL_A_MODULE_EEPROM_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_MODULE_EEPROM_OFFSET] = { .name = "offset", .type = YNL_PT_U32, },
 	[ETHTOOL_A_MODULE_EEPROM_LENGTH] = { .name = "length", .type = YNL_PT_U32, },
@@ -603,34 +686,34 @@ struct ynl_policy_attr ethtool_module_eeprom_policy[ETHTOOL_A_MODULE_EEPROM_MAX 
 	[ETHTOOL_A_MODULE_EEPROM_DATA] = { .name = "data", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ethtool_module_eeprom_nest = {
+const struct ynl_policy_nest ethtool_module_eeprom_nest = {
 	.max_attr = ETHTOOL_A_MODULE_EEPROM_MAX,
 	.table = ethtool_module_eeprom_policy,
 };
 
-struct ynl_policy_attr ethtool_phc_vclocks_policy[ETHTOOL_A_PHC_VCLOCKS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_phc_vclocks_policy[ETHTOOL_A_PHC_VCLOCKS_MAX + 1] = {
 	[ETHTOOL_A_PHC_VCLOCKS_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_PHC_VCLOCKS_NUM] = { .name = "num", .type = YNL_PT_U32, },
 	[ETHTOOL_A_PHC_VCLOCKS_INDEX] = { .name = "index", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ethtool_phc_vclocks_nest = {
+const struct ynl_policy_nest ethtool_phc_vclocks_nest = {
 	.max_attr = ETHTOOL_A_PHC_VCLOCKS_MAX,
 	.table = ethtool_phc_vclocks_policy,
 };
 
-struct ynl_policy_attr ethtool_module_policy[ETHTOOL_A_MODULE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_module_policy[ETHTOOL_A_MODULE_MAX + 1] = {
 	[ETHTOOL_A_MODULE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_MODULE_POWER_MODE_POLICY] = { .name = "power-mode-policy", .type = YNL_PT_U8, },
 	[ETHTOOL_A_MODULE_POWER_MODE] = { .name = "power-mode", .type = YNL_PT_U8, },
 };
 
-struct ynl_policy_nest ethtool_module_nest = {
+const struct ynl_policy_nest ethtool_module_nest = {
 	.max_attr = ETHTOOL_A_MODULE_MAX,
 	.table = ethtool_module_policy,
 };
 
-struct ynl_policy_attr ethtool_pse_policy[ETHTOOL_A_PSE_MAX + 1] = {
+const struct ynl_policy_attr ethtool_pse_policy[ETHTOOL_A_PSE_MAX + 1] = {
 	[ETHTOOL_A_PSE_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_PODL_PSE_ADMIN_STATE] = { .name = "podl-pse-admin-state", .type = YNL_PT_U32, },
 	[ETHTOOL_A_PODL_PSE_ADMIN_CONTROL] = { .name = "podl-pse-admin-control", .type = YNL_PT_U32, },
@@ -638,28 +721,35 @@ struct ynl_policy_attr ethtool_pse_policy[ETHTOOL_A_PSE_MAX + 1] = {
 	[ETHTOOL_A_C33_PSE_ADMIN_STATE] = { .name = "c33-pse-admin-state", .type = YNL_PT_U32, },
 	[ETHTOOL_A_C33_PSE_ADMIN_CONTROL] = { .name = "c33-pse-admin-control", .type = YNL_PT_U32, },
 	[ETHTOOL_A_C33_PSE_PW_D_STATUS] = { .name = "c33-pse-pw-d-status", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_PW_CLASS] = { .name = "c33-pse-pw-class", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_ACTUAL_PW] = { .name = "c33-pse-actual-pw", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_EXT_STATE] = { .name = "c33-pse-ext-state", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_EXT_SUBSTATE] = { .name = "c33-pse-ext-substate", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_AVAIL_PW_LIMIT] = { .name = "c33-pse-avail-pw-limit", .type = YNL_PT_U32, },
+	[ETHTOOL_A_C33_PSE_PW_LIMIT_RANGES] = { .name = "c33-pse-pw-limit-ranges", .type = YNL_PT_NEST, .nest = &ethtool_c33_pse_pw_limit_nest, },
 };
 
-struct ynl_policy_nest ethtool_pse_nest = {
+const struct ynl_policy_nest ethtool_pse_nest = {
 	.max_attr = ETHTOOL_A_PSE_MAX,
 	.table = ethtool_pse_policy,
 };
 
-struct ynl_policy_attr ethtool_rss_policy[ETHTOOL_A_RSS_MAX + 1] = {
+const struct ynl_policy_attr ethtool_rss_policy[ETHTOOL_A_RSS_MAX + 1] = {
 	[ETHTOOL_A_RSS_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_RSS_CONTEXT] = { .name = "context", .type = YNL_PT_U32, },
 	[ETHTOOL_A_RSS_HFUNC] = { .name = "hfunc", .type = YNL_PT_U32, },
 	[ETHTOOL_A_RSS_INDIR] = { .name = "indir", .type = YNL_PT_BINARY,},
 	[ETHTOOL_A_RSS_HKEY] = { .name = "hkey", .type = YNL_PT_BINARY,},
 	[ETHTOOL_A_RSS_INPUT_XFRM] = { .name = "input_xfrm", .type = YNL_PT_U32, },
+	[ETHTOOL_A_RSS_START_CONTEXT] = { .name = "start-context", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_rss_nest = {
+const struct ynl_policy_nest ethtool_rss_nest = {
 	.max_attr = ETHTOOL_A_RSS_MAX,
 	.table = ethtool_rss_policy,
 };
 
-struct ynl_policy_attr ethtool_plca_policy[ETHTOOL_A_PLCA_MAX + 1] = {
+const struct ynl_policy_attr ethtool_plca_policy[ETHTOOL_A_PLCA_MAX + 1] = {
 	[ETHTOOL_A_PLCA_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_PLCA_VERSION] = { .name = "version", .type = YNL_PT_U16, },
 	[ETHTOOL_A_PLCA_ENABLED] = { .name = "enabled", .type = YNL_PT_U8, },
@@ -671,12 +761,12 @@ struct ynl_policy_attr ethtool_plca_policy[ETHTOOL_A_PLCA_MAX + 1] = {
 	[ETHTOOL_A_PLCA_BURST_TMR] = { .name = "burst-tmr", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ethtool_plca_nest = {
+const struct ynl_policy_nest ethtool_plca_nest = {
 	.max_attr = ETHTOOL_A_PLCA_MAX,
 	.table = ethtool_plca_policy,
 };
 
-struct ynl_policy_attr ethtool_mm_policy[ETHTOOL_A_MM_MAX + 1] = {
+const struct ynl_policy_attr ethtool_mm_policy[ETHTOOL_A_MM_MAX + 1] = {
 	[ETHTOOL_A_MM_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
 	[ETHTOOL_A_MM_PMAC_ENABLED] = { .name = "pmac-enabled", .type = YNL_PT_U8, },
 	[ETHTOOL_A_MM_TX_ENABLED] = { .name = "tx-enabled", .type = YNL_PT_U8, },
@@ -690,9 +780,40 @@ struct ynl_policy_attr ethtool_mm_policy[ETHTOOL_A_MM_MAX + 1] = {
 	[ETHTOOL_A_MM_STATS] = { .name = "stats", .type = YNL_PT_NEST, .nest = &ethtool_mm_stat_nest, },
 };
 
-struct ynl_policy_nest ethtool_mm_nest = {
+const struct ynl_policy_nest ethtool_mm_nest = {
 	.max_attr = ETHTOOL_A_MM_MAX,
 	.table = ethtool_mm_policy,
+};
+
+const struct ynl_policy_attr ethtool_module_fw_flash_policy[ETHTOOL_A_MODULE_FW_FLASH_MAX + 1] = {
+	[ETHTOOL_A_MODULE_FW_FLASH_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
+	[ETHTOOL_A_MODULE_FW_FLASH_FILE_NAME] = { .name = "file-name", .type = YNL_PT_NUL_STR, },
+	[ETHTOOL_A_MODULE_FW_FLASH_PASSWORD] = { .name = "password", .type = YNL_PT_U32, },
+	[ETHTOOL_A_MODULE_FW_FLASH_STATUS] = { .name = "status", .type = YNL_PT_U32, },
+	[ETHTOOL_A_MODULE_FW_FLASH_STATUS_MSG] = { .name = "status-msg", .type = YNL_PT_NUL_STR, },
+	[ETHTOOL_A_MODULE_FW_FLASH_DONE] = { .name = "done", .type = YNL_PT_UINT, },
+	[ETHTOOL_A_MODULE_FW_FLASH_TOTAL] = { .name = "total", .type = YNL_PT_UINT, },
+};
+
+const struct ynl_policy_nest ethtool_module_fw_flash_nest = {
+	.max_attr = ETHTOOL_A_MODULE_FW_FLASH_MAX,
+	.table = ethtool_module_fw_flash_policy,
+};
+
+const struct ynl_policy_attr ethtool_phy_policy[ETHTOOL_A_PHY_MAX + 1] = {
+	[ETHTOOL_A_PHY_HEADER] = { .name = "header", .type = YNL_PT_NEST, .nest = &ethtool_header_nest, },
+	[ETHTOOL_A_PHY_INDEX] = { .name = "index", .type = YNL_PT_U32, },
+	[ETHTOOL_A_PHY_DRVNAME] = { .name = "drvname", .type = YNL_PT_NUL_STR, },
+	[ETHTOOL_A_PHY_NAME] = { .name = "name", .type = YNL_PT_NUL_STR, },
+	[ETHTOOL_A_PHY_UPSTREAM_TYPE] = { .name = "upstream-type", .type = YNL_PT_U32, },
+	[ETHTOOL_A_PHY_UPSTREAM_INDEX] = { .name = "upstream-index", .type = YNL_PT_U32, },
+	[ETHTOOL_A_PHY_UPSTREAM_SFP_NAME] = { .name = "upstream-sfp-name", .type = YNL_PT_NUL_STR, },
+	[ETHTOOL_A_PHY_DOWNSTREAM_SFP_NAME] = { .name = "downstream-sfp-name", .type = YNL_PT_NUL_STR, },
+};
+
+const struct ynl_policy_nest ethtool_phy_nest = {
+	.max_attr = ETHTOOL_A_PHY_MAX,
+	.table = ethtool_phy_policy,
 };
 
 /* Common nested types */
@@ -713,6 +834,8 @@ int ethtool_header_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_str(nlh, ETHTOOL_A_HEADER_DEV_NAME, obj->dev_name);
 	if (obj->_present.flags)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_HEADER_FLAGS, obj->flags);
+	if (obj->_present.phy_index)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_HEADER_PHY_INDEX, obj->phy_index);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -748,6 +871,11 @@ int ethtool_header_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.flags = 1;
 			dst->flags = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_HEADER_PHY_INDEX) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.phy_index = 1;
+			dst->phy_index = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -905,6 +1033,35 @@ int ethtool_fec_stat_parse(struct ynl_parse_arg *yarg,
 	return 0;
 }
 
+void ethtool_c33_pse_pw_limit_free(struct ethtool_c33_pse_pw_limit *obj)
+{
+}
+
+int ethtool_c33_pse_pw_limit_parse(struct ynl_parse_arg *yarg,
+				   const struct nlattr *nested)
+{
+	struct ethtool_c33_pse_pw_limit *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == ETHTOOL_A_C33_PSE_PW_LIMIT_MIN) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.min = 1;
+			dst->min = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_PW_LIMIT_MAX) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.max = 1;
+			dst->max = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return 0;
+}
+
 void ethtool_mm_stat_free(struct ethtool_mm_stat *obj)
 {
 }
@@ -954,6 +1111,57 @@ int ethtool_mm_stat_parse(struct ynl_parse_arg *yarg,
 	return 0;
 }
 
+void ethtool_irq_moderation_free(struct ethtool_irq_moderation *obj)
+{
+}
+
+int ethtool_irq_moderation_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			       struct ethtool_irq_moderation *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.usec)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_IRQ_MODERATION_USEC, obj->usec);
+	if (obj->_present.pkts)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_IRQ_MODERATION_PKTS, obj->pkts);
+	if (obj->_present.comps)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_IRQ_MODERATION_COMPS, obj->comps);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int ethtool_irq_moderation_parse(struct ynl_parse_arg *yarg,
+				 const struct nlattr *nested)
+{
+	struct ethtool_irq_moderation *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == ETHTOOL_A_IRQ_MODERATION_USEC) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.usec = 1;
+			dst->usec = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_IRQ_MODERATION_PKTS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.pkts = 1;
+			dst->pkts = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_IRQ_MODERATION_COMPS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.comps = 1;
+			dst->comps = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return 0;
+}
+
 void ethtool_cable_result_free(struct ethtool_cable_result *obj)
 {
 }
@@ -977,6 +1185,11 @@ int ethtool_cable_result_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.code = 1;
 			dst->code = ynl_attr_get_u8(attr);
+		} else if (type == ETHTOOL_A_CABLE_RESULT_SRC) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.src = 1;
+			dst->src = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -1006,6 +1219,11 @@ int ethtool_cable_fault_length_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.cm = 1;
 			dst->cm = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_CABLE_FAULT_LENGTH_SRC) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.src = 1;
+			dst->src = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -1143,6 +1361,68 @@ int ethtool_string_parse(struct ynl_parse_arg *yarg,
 			dst->value = malloc(len + 1);
 			memcpy(dst->value, ynl_attr_get_str(attr), len);
 			dst->value[len] = 0;
+		}
+	}
+
+	return 0;
+}
+
+void ethtool_profile_free(struct ethtool_profile *obj)
+{
+	unsigned int i;
+
+	for (i = 0; i < obj->n_irq_moderation; i++)
+		ethtool_irq_moderation_free(&obj->irq_moderation[i]);
+	free(obj->irq_moderation);
+}
+
+int ethtool_profile_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			struct ethtool_profile *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	for (unsigned int i = 0; i < obj->n_irq_moderation; i++)
+		ethtool_irq_moderation_put(nlh, ETHTOOL_A_PROFILE_IRQ_MODERATION, &obj->irq_moderation[i]);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int ethtool_profile_parse(struct ynl_parse_arg *yarg,
+			  const struct nlattr *nested)
+{
+	struct ethtool_profile *dst = yarg->data;
+	unsigned int n_irq_moderation = 0;
+	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
+	int i;
+
+	parg.ys = yarg->ys;
+
+	if (dst->irq_moderation)
+		return ynl_error_parse(yarg, "attribute already present (profile.irq-moderation)");
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == ETHTOOL_A_PROFILE_IRQ_MODERATION) {
+			n_irq_moderation++;
+		}
+	}
+
+	if (n_irq_moderation) {
+		dst->irq_moderation = calloc(n_irq_moderation, sizeof(*dst->irq_moderation));
+		dst->n_irq_moderation = n_irq_moderation;
+		i = 0;
+		parg.rsp_policy = &ethtool_irq_moderation_nest;
+		ynl_attr_for_each_nested(attr, nested) {
+			if (ynl_attr_type(attr) == ETHTOOL_A_PROFILE_IRQ_MODERATION) {
+				parg.data = &dst->irq_moderation[i];
+				if (ethtool_irq_moderation_parse(&parg, attr))
+					return YNL_PARSE_CB_ERROR;
+				i++;
+			}
 		}
 	}
 
@@ -3685,6 +3965,8 @@ void ethtool_coalesce_get_req_free(struct ethtool_coalesce_get_req *req)
 void ethtool_coalesce_get_rsp_free(struct ethtool_coalesce_get_rsp *rsp)
 {
 	ethtool_header_free(&rsp->header);
+	ethtool_profile_free(&rsp->rx_profile);
+	ethtool_profile_free(&rsp->tx_profile);
 	free(rsp);
 }
 
@@ -3845,6 +4127,24 @@ int ethtool_coalesce_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.tx_aggr_time_usecs = 1;
 			dst->tx_aggr_time_usecs = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_COALESCE_RX_PROFILE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_profile = 1;
+
+			parg.rsp_policy = &ethtool_profile_nest;
+			parg.data = &dst->rx_profile;
+			if (ethtool_profile_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		} else if (type == ETHTOOL_A_COALESCE_TX_PROFILE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_profile = 1;
+
+			parg.rsp_policy = &ethtool_profile_nest;
+			parg.data = &dst->tx_profile;
+			if (ethtool_profile_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
 		}
 	}
 
@@ -3899,6 +4199,8 @@ void ethtool_coalesce_get_list_free(struct ethtool_coalesce_get_list *rsp)
 		next = rsp->next;
 
 		ethtool_header_free(&rsp->obj.header);
+		ethtool_profile_free(&rsp->obj.rx_profile);
+		ethtool_profile_free(&rsp->obj.tx_profile);
 		free(rsp);
 	}
 }
@@ -3939,6 +4241,8 @@ free_list:
 void ethtool_coalesce_get_ntf_free(struct ethtool_coalesce_get_ntf *rsp)
 {
 	ethtool_header_free(&rsp->obj.header);
+	ethtool_profile_free(&rsp->obj.rx_profile);
+	ethtool_profile_free(&rsp->obj.tx_profile);
 	free(rsp);
 }
 
@@ -3947,6 +4251,8 @@ void ethtool_coalesce_get_ntf_free(struct ethtool_coalesce_get_ntf *rsp)
 void ethtool_coalesce_set_req_free(struct ethtool_coalesce_set_req *req)
 {
 	ethtool_header_free(&req->header);
+	ethtool_profile_free(&req->rx_profile);
+	ethtool_profile_free(&req->tx_profile);
 	free(req);
 }
 
@@ -4016,6 +4322,10 @@ int ethtool_coalesce_set(struct ynl_sock *ys,
 		ynl_attr_put_u32(nlh, ETHTOOL_A_COALESCE_TX_AGGR_MAX_FRAMES, req->tx_aggr_max_frames);
 	if (req->_present.tx_aggr_time_usecs)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_COALESCE_TX_AGGR_TIME_USECS, req->tx_aggr_time_usecs);
+	if (req->_present.rx_profile)
+		ethtool_profile_put(nlh, ETHTOOL_A_COALESCE_RX_PROFILE, &req->rx_profile);
+	if (req->_present.tx_profile)
+		ethtool_profile_put(nlh, ETHTOOL_A_COALESCE_TX_PROFILE, &req->tx_profile);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -5497,19 +5807,29 @@ void ethtool_pse_get_req_free(struct ethtool_pse_get_req *req)
 
 void ethtool_pse_get_rsp_free(struct ethtool_pse_get_rsp *rsp)
 {
+	unsigned int i;
+
 	ethtool_header_free(&rsp->header);
+	for (i = 0; i < rsp->n_c33_pse_pw_limit_ranges; i++)
+		ethtool_c33_pse_pw_limit_free(&rsp->c33_pse_pw_limit_ranges[i]);
+	free(rsp->c33_pse_pw_limit_ranges);
 	free(rsp);
 }
 
 int ethtool_pse_get_rsp_parse(const struct nlmsghdr *nlh,
 			      struct ynl_parse_arg *yarg)
 {
+	unsigned int n_c33_pse_pw_limit_ranges = 0;
 	struct ethtool_pse_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	int i;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
+
+	if (dst->c33_pse_pw_limit_ranges)
+		return ynl_error_parse(yarg, "attribute already present (pse.c33-pse-pw-limit-ranges)");
 
 	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 		unsigned int type = ynl_attr_type(attr);
@@ -5553,6 +5873,48 @@ int ethtool_pse_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.c33_pse_pw_d_status = 1;
 			dst->c33_pse_pw_d_status = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_PW_CLASS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_pw_class = 1;
+			dst->c33_pse_pw_class = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_ACTUAL_PW) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_actual_pw = 1;
+			dst->c33_pse_actual_pw = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_EXT_STATE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_ext_state = 1;
+			dst->c33_pse_ext_state = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_EXT_SUBSTATE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_ext_substate = 1;
+			dst->c33_pse_ext_substate = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_AVAIL_PW_LIMIT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c33_pse_avail_pw_limit = 1;
+			dst->c33_pse_avail_pw_limit = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_C33_PSE_PW_LIMIT_RANGES) {
+			n_c33_pse_pw_limit_ranges++;
+		}
+	}
+
+	if (n_c33_pse_pw_limit_ranges) {
+		dst->c33_pse_pw_limit_ranges = calloc(n_c33_pse_pw_limit_ranges, sizeof(*dst->c33_pse_pw_limit_ranges));
+		dst->n_c33_pse_pw_limit_ranges = n_c33_pse_pw_limit_ranges;
+		i = 0;
+		parg.rsp_policy = &ethtool_c33_pse_pw_limit_nest;
+		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+			if (ynl_attr_type(attr) == ETHTOOL_A_C33_PSE_PW_LIMIT_RANGES) {
+				parg.data = &dst->c33_pse_pw_limit_ranges[i];
+				if (ethtool_c33_pse_pw_limit_parse(&parg, attr))
+					return YNL_PARSE_CB_ERROR;
+				i++;
+			}
 		}
 	}
 
@@ -5602,10 +5964,15 @@ void ethtool_pse_get_list_free(struct ethtool_pse_get_list *rsp)
 	struct ethtool_pse_get_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
+		unsigned int i;
+
 		rsp = next;
 		next = rsp->next;
 
 		ethtool_header_free(&rsp->obj.header);
+		for (i = 0; i < rsp->obj.n_c33_pse_pw_limit_ranges; i++)
+			ethtool_c33_pse_pw_limit_free(&rsp->obj.c33_pse_pw_limit_ranges[i]);
+		free(rsp->obj.c33_pse_pw_limit_ranges);
 		free(rsp);
 	}
 }
@@ -5660,18 +6027,12 @@ int ethtool_pse_set(struct ynl_sock *ys, struct ethtool_pse_set_req *req)
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PSE_HEADER, &req->header);
-	if (req->_present.podl_pse_admin_state)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_ADMIN_STATE, req->podl_pse_admin_state);
 	if (req->_present.podl_pse_admin_control)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_ADMIN_CONTROL, req->podl_pse_admin_control);
-	if (req->_present.podl_pse_pw_d_status)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_PODL_PSE_PW_D_STATUS, req->podl_pse_pw_d_status);
-	if (req->_present.c33_pse_admin_state)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_ADMIN_STATE, req->c33_pse_admin_state);
 	if (req->_present.c33_pse_admin_control)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_ADMIN_CONTROL, req->c33_pse_admin_control);
-	if (req->_present.c33_pse_pw_d_status)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_PW_D_STATUS, req->c33_pse_pw_d_status);
+	if (req->_present.c33_pse_avail_pw_limit)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_C33_PSE_AVAIL_PW_LIMIT, req->c33_pse_avail_pw_limit);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -5773,6 +6134,8 @@ ethtool_rss_get(struct ynl_sock *ys, struct ethtool_rss_get_req *req)
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_RSS_HEADER, &req->header);
+	if (req->_present.context)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_RSS_CONTEXT, req->context);
 
 	rsp = calloc(1, sizeof(*rsp));
 	yrs.yarg.data = rsp;
@@ -5831,6 +6194,8 @@ ethtool_rss_get_dump(struct ynl_sock *ys, struct ethtool_rss_get_req_dump *req)
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_RSS_HEADER, &req->header);
+	if (req->_present.start_context)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_RSS_START_CONTEXT, req->start_context);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
 	if (err < 0)
@@ -6448,6 +6813,231 @@ int ethtool_mm_set(struct ynl_sock *ys, struct ethtool_mm_set_req *req)
 	return 0;
 }
 
+/* ============== ETHTOOL_MSG_MODULE_FW_FLASH_ACT ============== */
+/* ETHTOOL_MSG_MODULE_FW_FLASH_ACT - do */
+void
+ethtool_module_fw_flash_act_req_free(struct ethtool_module_fw_flash_act_req *req)
+{
+	ethtool_header_free(&req->header);
+	free(req->file_name);
+	free(req);
+}
+
+int ethtool_module_fw_flash_act(struct ynl_sock *ys,
+				struct ethtool_module_fw_flash_act_req *req)
+{
+	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct nlmsghdr *nlh;
+	int err;
+
+	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MODULE_FW_FLASH_ACT, 1);
+	ys->req_policy = &ethtool_module_fw_flash_nest;
+
+	if (req->_present.header)
+		ethtool_header_put(nlh, ETHTOOL_A_MODULE_FW_FLASH_HEADER, &req->header);
+	if (req->_present.file_name_len)
+		ynl_attr_put_str(nlh, ETHTOOL_A_MODULE_FW_FLASH_FILE_NAME, req->file_name);
+	if (req->_present.password)
+		ynl_attr_put_u32(nlh, ETHTOOL_A_MODULE_FW_FLASH_PASSWORD, req->password);
+
+	err = ynl_exec(ys, nlh, &yrs);
+	if (err < 0)
+		return -1;
+
+	return 0;
+}
+
+/* ============== ETHTOOL_MSG_PHY_GET ============== */
+/* ETHTOOL_MSG_PHY_GET - do */
+void ethtool_phy_get_req_free(struct ethtool_phy_get_req *req)
+{
+	ethtool_header_free(&req->header);
+	free(req);
+}
+
+void ethtool_phy_get_rsp_free(struct ethtool_phy_get_rsp *rsp)
+{
+	ethtool_header_free(&rsp->header);
+	free(rsp->drvname);
+	free(rsp->name);
+	free(rsp->upstream_sfp_name);
+	free(rsp->downstream_sfp_name);
+	free(rsp);
+}
+
+int ethtool_phy_get_rsp_parse(const struct nlmsghdr *nlh,
+			      struct ynl_parse_arg *yarg)
+{
+	struct ethtool_phy_get_rsp *dst;
+	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
+
+	dst = yarg->data;
+	parg.ys = yarg->ys;
+
+	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == ETHTOOL_A_PHY_HEADER) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.header = 1;
+
+			parg.rsp_policy = &ethtool_header_nest;
+			parg.data = &dst->header;
+			if (ethtool_header_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		} else if (type == ETHTOOL_A_PHY_INDEX) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.index = 1;
+			dst->index = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_PHY_DRVNAME) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.drvname_len = len;
+			dst->drvname = malloc(len + 1);
+			memcpy(dst->drvname, ynl_attr_get_str(attr), len);
+			dst->drvname[len] = 0;
+		} else if (type == ETHTOOL_A_PHY_NAME) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.name_len = len;
+			dst->name = malloc(len + 1);
+			memcpy(dst->name, ynl_attr_get_str(attr), len);
+			dst->name[len] = 0;
+		} else if (type == ETHTOOL_A_PHY_UPSTREAM_TYPE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.upstream_type = 1;
+			dst->upstream_type = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_PHY_UPSTREAM_INDEX) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.upstream_index = 1;
+			dst->upstream_index = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_PHY_UPSTREAM_SFP_NAME) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.upstream_sfp_name_len = len;
+			dst->upstream_sfp_name = malloc(len + 1);
+			memcpy(dst->upstream_sfp_name, ynl_attr_get_str(attr), len);
+			dst->upstream_sfp_name[len] = 0;
+		} else if (type == ETHTOOL_A_PHY_DOWNSTREAM_SFP_NAME) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.downstream_sfp_name_len = len;
+			dst->downstream_sfp_name = malloc(len + 1);
+			memcpy(dst->downstream_sfp_name, ynl_attr_get_str(attr), len);
+			dst->downstream_sfp_name[len] = 0;
+		}
+	}
+
+	return YNL_PARSE_CB_OK;
+}
+
+struct ethtool_phy_get_rsp *
+ethtool_phy_get(struct ynl_sock *ys, struct ethtool_phy_get_req *req)
+{
+	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct ethtool_phy_get_rsp *rsp;
+	struct nlmsghdr *nlh;
+	int err;
+
+	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PHY_GET, 1);
+	ys->req_policy = &ethtool_phy_nest;
+	yrs.yarg.rsp_policy = &ethtool_phy_nest;
+
+	if (req->_present.header)
+		ethtool_header_put(nlh, ETHTOOL_A_PHY_HEADER, &req->header);
+
+	rsp = calloc(1, sizeof(*rsp));
+	yrs.yarg.data = rsp;
+	yrs.cb = ethtool_phy_get_rsp_parse;
+	yrs.rsp_cmd = ETHTOOL_MSG_PHY_GET;
+
+	err = ynl_exec(ys, nlh, &yrs);
+	if (err < 0)
+		goto err_free;
+
+	return rsp;
+
+err_free:
+	ethtool_phy_get_rsp_free(rsp);
+	return NULL;
+}
+
+/* ETHTOOL_MSG_PHY_GET - dump */
+void ethtool_phy_get_req_dump_free(struct ethtool_phy_get_req_dump *req)
+{
+	ethtool_header_free(&req->header);
+	free(req);
+}
+
+void ethtool_phy_get_list_free(struct ethtool_phy_get_list *rsp)
+{
+	struct ethtool_phy_get_list *next = rsp;
+
+	while ((void *)next != YNL_LIST_END) {
+		rsp = next;
+		next = rsp->next;
+
+		ethtool_header_free(&rsp->obj.header);
+		free(rsp->obj.drvname);
+		free(rsp->obj.name);
+		free(rsp->obj.upstream_sfp_name);
+		free(rsp->obj.downstream_sfp_name);
+		free(rsp);
+	}
+}
+
+struct ethtool_phy_get_list *
+ethtool_phy_get_dump(struct ynl_sock *ys, struct ethtool_phy_get_req_dump *req)
+{
+	struct ynl_dump_state yds = {};
+	struct nlmsghdr *nlh;
+	int err;
+
+	yds.yarg.ys = ys;
+	yds.yarg.rsp_policy = &ethtool_phy_nest;
+	yds.yarg.data = NULL;
+	yds.alloc_sz = sizeof(struct ethtool_phy_get_list);
+	yds.cb = ethtool_phy_get_rsp_parse;
+	yds.rsp_cmd = ETHTOOL_MSG_PHY_GET;
+
+	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PHY_GET, 1);
+	ys->req_policy = &ethtool_phy_nest;
+
+	if (req->_present.header)
+		ethtool_header_put(nlh, ETHTOOL_A_PHY_HEADER, &req->header);
+
+	err = ynl_exec_dump(ys, nlh, &yds);
+	if (err < 0)
+		goto free_list;
+
+	return yds.first;
+
+free_list:
+	ethtool_phy_get_list_free(yds.first);
+	return NULL;
+}
+
 /* ETHTOOL_MSG_CABLE_TEST_NTF - event */
 int ethtool_cable_test_ntf_rsp_parse(const struct nlmsghdr *nlh,
 				     struct ynl_parse_arg *yarg)
@@ -6535,6 +7125,68 @@ void ethtool_cable_test_tdr_ntf_free(struct ethtool_cable_test_tdr_ntf *rsp)
 {
 	ethtool_header_free(&rsp->obj.header);
 	ethtool_cable_nest_free(&rsp->obj.nest);
+	free(rsp);
+}
+
+/* ETHTOOL_MSG_MODULE_FW_FLASH_NTF - event */
+int ethtool_module_fw_flash_ntf_rsp_parse(const struct nlmsghdr *nlh,
+					  struct ynl_parse_arg *yarg)
+{
+	struct ethtool_module_fw_flash_ntf_rsp *dst;
+	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
+
+	dst = yarg->data;
+	parg.ys = yarg->ys;
+
+	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == ETHTOOL_A_MODULE_FW_FLASH_HEADER) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.header = 1;
+
+			parg.rsp_policy = &ethtool_header_nest;
+			parg.data = &dst->header;
+			if (ethtool_header_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		} else if (type == ETHTOOL_A_MODULE_FW_FLASH_STATUS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.status = 1;
+			dst->status = ynl_attr_get_u32(attr);
+		} else if (type == ETHTOOL_A_MODULE_FW_FLASH_STATUS_MSG) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.status_msg_len = len;
+			dst->status_msg = malloc(len + 1);
+			memcpy(dst->status_msg, ynl_attr_get_str(attr), len);
+			dst->status_msg[len] = 0;
+		} else if (type == ETHTOOL_A_MODULE_FW_FLASH_DONE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.done = 1;
+			dst->done = ynl_attr_get_uint(attr);
+		} else if (type == ETHTOOL_A_MODULE_FW_FLASH_TOTAL) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.total = 1;
+			dst->total = ynl_attr_get_uint(attr);
+		}
+	}
+
+	return YNL_PARSE_CB_OK;
+}
+
+void ethtool_module_fw_flash_ntf_free(struct ethtool_module_fw_flash_ntf *rsp)
+{
+	ethtool_header_free(&rsp->obj.header);
+	free(rsp->obj.status_msg);
 	free(rsp);
 }
 
@@ -6640,6 +7292,12 @@ static const struct ynl_ntf_info ethtool_ntf_info[] =  {
 		.cb		= ethtool_mm_get_rsp_parse,
 		.policy		= &ethtool_mm_nest,
 		.free		= (void *)ethtool_mm_get_ntf_free,
+	},
+	[ETHTOOL_MSG_MODULE_FW_FLASH_NTF] =  {
+		.alloc_sz	= sizeof(struct ethtool_module_fw_flash_ntf),
+		.cb		= ethtool_module_fw_flash_ntf_rsp_parse,
+		.policy		= &ethtool_module_fw_flash_nest,
+		.free		= (void *)ethtool_module_fw_flash_ntf_free,
 	},
 };
 

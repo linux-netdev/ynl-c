@@ -364,6 +364,8 @@ struct dpll_pin_get_rsp {
 		__u32 phase_adjust_max:1;
 		__u32 phase_adjust:1;
 		__u32 fractional_frequency_offset:1;
+		__u32 esync_frequency:1;
+		__u32 esync_pulse:1;
 	} _present;
 
 	__u32 id;
@@ -383,6 +385,10 @@ struct dpll_pin_get_rsp {
 	__s32 phase_adjust_max;
 	__s32 phase_adjust;
 	__s64 fractional_frequency_offset;
+	__u64 esync_frequency;
+	unsigned int n_esync_frequency_supported;
+	struct dpll_frequency_range *esync_frequency_supported;
+	__u32 esync_pulse;
 };
 
 void dpll_pin_get_rsp_free(struct dpll_pin_get_rsp *rsp);
@@ -453,6 +459,7 @@ struct dpll_pin_set_req {
 		__u32 prio:1;
 		__u32 state:1;
 		__u32 phase_adjust:1;
+		__u32 esync_frequency:1;
 	} _present;
 
 	__u32 id;
@@ -465,6 +472,7 @@ struct dpll_pin_set_req {
 	unsigned int n_parent_pin;
 	struct dpll_pin_parent_pin *parent_pin;
 	__s32 phase_adjust;
+	__u64 esync_frequency;
 };
 
 static inline struct dpll_pin_set_req *dpll_pin_set_req_alloc(void)
@@ -529,6 +537,13 @@ dpll_pin_set_req_set_phase_adjust(struct dpll_pin_set_req *req,
 {
 	req->_present.phase_adjust = 1;
 	req->phase_adjust = phase_adjust;
+}
+static inline void
+dpll_pin_set_req_set_esync_frequency(struct dpll_pin_set_req *req,
+				     __u64 esync_frequency)
+{
+	req->_present.esync_frequency = 1;
+	req->esync_frequency = esync_frequency;
 }
 
 /*

@@ -83,42 +83,52 @@ const char *ovs_flow_ct_state_flags_str(int value)
 }
 
 /* Policies */
-extern struct ynl_policy_nest ovs_flow_key_attrs_nest;
-extern struct ynl_policy_nest ovs_flow_action_attrs_nest;
+extern const struct ynl_policy_nest ovs_flow_key_attrs_nest;
+extern const struct ynl_policy_nest ovs_flow_action_attrs_nest;
 
-struct ynl_policy_attr ovs_flow_ovs_nsh_key_attrs_policy[OVS_NSH_KEY_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_ovs_nsh_key_attrs_policy[OVS_NSH_KEY_ATTR_MAX + 1] = {
 	[OVS_NSH_KEY_ATTR_BASE] = { .name = "base", .type = YNL_PT_BINARY,},
 	[OVS_NSH_KEY_ATTR_MD1] = { .name = "md1", .type = YNL_PT_BINARY,},
 	[OVS_NSH_KEY_ATTR_MD2] = { .name = "md2", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ovs_flow_ovs_nsh_key_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_ovs_nsh_key_attrs_nest = {
 	.max_attr = OVS_NSH_KEY_ATTR_MAX,
 	.table = ovs_flow_ovs_nsh_key_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_userspace_attrs_policy[OVS_USERSPACE_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_userspace_attrs_policy[OVS_USERSPACE_ATTR_MAX + 1] = {
 	[OVS_USERSPACE_ATTR_PID] = { .name = "pid", .type = YNL_PT_U32, },
 	[OVS_USERSPACE_ATTR_USERDATA] = { .name = "userdata", .type = YNL_PT_BINARY,},
 	[OVS_USERSPACE_ATTR_EGRESS_TUN_PORT] = { .name = "egress-tun-port", .type = YNL_PT_U32, },
 	[OVS_USERSPACE_ATTR_ACTIONS] = { .name = "actions", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest ovs_flow_userspace_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_userspace_attrs_nest = {
 	.max_attr = OVS_USERSPACE_ATTR_MAX,
 	.table = ovs_flow_userspace_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_vxlan_ext_attrs_policy[OVS_VXLAN_EXT_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_psample_attrs_policy[OVS_PSAMPLE_ATTR_MAX + 1] = {
+	[OVS_PSAMPLE_ATTR_GROUP] = { .name = "group", .type = YNL_PT_U32, },
+	[OVS_PSAMPLE_ATTR_COOKIE] = { .name = "cookie", .type = YNL_PT_BINARY,},
+};
+
+const struct ynl_policy_nest ovs_flow_psample_attrs_nest = {
+	.max_attr = OVS_PSAMPLE_ATTR_MAX,
+	.table = ovs_flow_psample_attrs_policy,
+};
+
+const struct ynl_policy_attr ovs_flow_vxlan_ext_attrs_policy[OVS_VXLAN_EXT_MAX + 1] = {
 	[OVS_VXLAN_EXT_GBP] = { .name = "gbp", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest ovs_flow_vxlan_ext_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_vxlan_ext_attrs_nest = {
 	.max_attr = OVS_VXLAN_EXT_MAX,
 	.table = ovs_flow_vxlan_ext_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_nat_attrs_policy[OVS_NAT_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_nat_attrs_policy[OVS_NAT_ATTR_MAX + 1] = {
 	[OVS_NAT_ATTR_SRC] = { .name = "src", .type = YNL_PT_FLAG, },
 	[OVS_NAT_ATTR_DST] = { .name = "dst", .type = YNL_PT_FLAG, },
 	[OVS_NAT_ATTR_IP_MIN] = { .name = "ip-min", .type = YNL_PT_BINARY,},
@@ -130,12 +140,12 @@ struct ynl_policy_attr ovs_flow_nat_attrs_policy[OVS_NAT_ATTR_MAX + 1] = {
 	[OVS_NAT_ATTR_PROTO_RANDOM] = { .name = "proto-random", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest ovs_flow_nat_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_nat_attrs_nest = {
 	.max_attr = OVS_NAT_ATTR_MAX,
 	.table = ovs_flow_nat_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_tunnel_key_attrs_policy[OVS_TUNNEL_KEY_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_tunnel_key_attrs_policy[OVS_TUNNEL_KEY_ATTR_MAX + 1] = {
 	[OVS_TUNNEL_KEY_ATTR_ID] = { .name = "id", .type = YNL_PT_U64, },
 	[OVS_TUNNEL_KEY_ATTR_IPV4_SRC] = { .name = "ipv4-src", .type = YNL_PT_U32, },
 	[OVS_TUNNEL_KEY_ATTR_IPV4_DST] = { .name = "ipv4-dst", .type = YNL_PT_U32, },
@@ -155,12 +165,12 @@ struct ynl_policy_attr ovs_flow_tunnel_key_attrs_policy[OVS_TUNNEL_KEY_ATTR_MAX 
 	[OVS_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE] = { .name = "ipv4-info-bridge", .type = YNL_PT_FLAG, },
 };
 
-struct ynl_policy_nest ovs_flow_tunnel_key_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_tunnel_key_attrs_nest = {
 	.max_attr = OVS_TUNNEL_KEY_ATTR_MAX,
 	.table = ovs_flow_tunnel_key_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_ct_attrs_policy[OVS_CT_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_ct_attrs_policy[OVS_CT_ATTR_MAX + 1] = {
 	[OVS_CT_ATTR_COMMIT] = { .name = "commit", .type = YNL_PT_FLAG, },
 	[OVS_CT_ATTR_ZONE] = { .name = "zone", .type = YNL_PT_U16, },
 	[OVS_CT_ATTR_MARK] = { .name = "mark", .type = YNL_PT_BINARY,},
@@ -172,32 +182,12 @@ struct ynl_policy_attr ovs_flow_ct_attrs_policy[OVS_CT_ATTR_MAX + 1] = {
 	[OVS_CT_ATTR_TIMEOUT] = { .name = "timeout", .type = YNL_PT_NUL_STR, },
 };
 
-struct ynl_policy_nest ovs_flow_ct_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_ct_attrs_nest = {
 	.max_attr = OVS_CT_ATTR_MAX,
 	.table = ovs_flow_ct_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_check_pkt_len_attrs_policy[OVS_CHECK_PKT_LEN_ATTR_MAX + 1] = {
-	[OVS_CHECK_PKT_LEN_ATTR_PKT_LEN] = { .name = "pkt-len", .type = YNL_PT_U16, },
-	[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER] = { .name = "actions-if-greater", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
-	[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL] = { .name = "actions-if-less-equal", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
-};
-
-struct ynl_policy_nest ovs_flow_check_pkt_len_attrs_nest = {
-	.max_attr = OVS_CHECK_PKT_LEN_ATTR_MAX,
-	.table = ovs_flow_check_pkt_len_attrs_policy,
-};
-
-struct ynl_policy_attr ovs_flow_dec_ttl_attrs_policy[OVS_DEC_TTL_ATTR_MAX + 1] = {
-	[OVS_DEC_TTL_ATTR_ACTION] = { .name = "action", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
-};
-
-struct ynl_policy_nest ovs_flow_dec_ttl_attrs_nest = {
-	.max_attr = OVS_DEC_TTL_ATTR_MAX,
-	.table = ovs_flow_dec_ttl_attrs_policy,
-};
-
-struct ynl_policy_attr ovs_flow_key_attrs_policy[OVS_KEY_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_key_attrs_policy[OVS_KEY_ATTR_MAX + 1] = {
 	[OVS_KEY_ATTR_ENCAP] = { .name = "encap", .type = YNL_PT_NEST, .nest = &ovs_flow_key_attrs_nest, },
 	[OVS_KEY_ATTR_PRIORITY] = { .name = "priority", .type = YNL_PT_U32, },
 	[OVS_KEY_ATTR_IN_PORT] = { .name = "in-port", .type = YNL_PT_U32, },
@@ -232,22 +222,42 @@ struct ynl_policy_attr ovs_flow_key_attrs_policy[OVS_KEY_ATTR_MAX + 1] = {
 	[OVS_KEY_ATTR_IPV6_EXTHDRS] = { .name = "ipv6-exthdrs", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ovs_flow_key_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_key_attrs_nest = {
 	.max_attr = OVS_KEY_ATTR_MAX,
 	.table = ovs_flow_key_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_sample_attrs_policy[OVS_SAMPLE_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_sample_attrs_policy[OVS_SAMPLE_ATTR_MAX + 1] = {
 	[OVS_SAMPLE_ATTR_PROBABILITY] = { .name = "probability", .type = YNL_PT_U32, },
 	[OVS_SAMPLE_ATTR_ACTIONS] = { .name = "actions", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
 };
 
-struct ynl_policy_nest ovs_flow_sample_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_sample_attrs_nest = {
 	.max_attr = OVS_SAMPLE_ATTR_MAX,
 	.table = ovs_flow_sample_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_action_attrs_policy[OVS_ACTION_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_check_pkt_len_attrs_policy[OVS_CHECK_PKT_LEN_ATTR_MAX + 1] = {
+	[OVS_CHECK_PKT_LEN_ATTR_PKT_LEN] = { .name = "pkt-len", .type = YNL_PT_U16, },
+	[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER] = { .name = "actions-if-greater", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
+	[OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL] = { .name = "actions-if-less-equal", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
+};
+
+const struct ynl_policy_nest ovs_flow_check_pkt_len_attrs_nest = {
+	.max_attr = OVS_CHECK_PKT_LEN_ATTR_MAX,
+	.table = ovs_flow_check_pkt_len_attrs_policy,
+};
+
+const struct ynl_policy_attr ovs_flow_dec_ttl_attrs_policy[OVS_DEC_TTL_ATTR_MAX + 1] = {
+	[OVS_DEC_TTL_ATTR_ACTION] = { .name = "action", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
+};
+
+const struct ynl_policy_nest ovs_flow_dec_ttl_attrs_nest = {
+	.max_attr = OVS_DEC_TTL_ATTR_MAX,
+	.table = ovs_flow_dec_ttl_attrs_policy,
+};
+
+const struct ynl_policy_attr ovs_flow_action_attrs_policy[OVS_ACTION_ATTR_MAX + 1] = {
 	[OVS_ACTION_ATTR_OUTPUT] = { .name = "output", .type = YNL_PT_U32, },
 	[OVS_ACTION_ATTR_USERSPACE] = { .name = "userspace", .type = YNL_PT_NEST, .nest = &ovs_flow_userspace_attrs_nest, },
 	[OVS_ACTION_ATTR_SET] = { .name = "set", .type = YNL_PT_NEST, .nest = &ovs_flow_key_attrs_nest, },
@@ -271,14 +281,15 @@ struct ynl_policy_attr ovs_flow_action_attrs_policy[OVS_ACTION_ATTR_MAX + 1] = {
 	[OVS_ACTION_ATTR_CHECK_PKT_LEN] = { .name = "check-pkt-len", .type = YNL_PT_NEST, .nest = &ovs_flow_check_pkt_len_attrs_nest, },
 	[OVS_ACTION_ATTR_ADD_MPLS] = { .name = "add-mpls", .type = YNL_PT_BINARY,},
 	[OVS_ACTION_ATTR_DEC_TTL] = { .name = "dec-ttl", .type = YNL_PT_NEST, .nest = &ovs_flow_dec_ttl_attrs_nest, },
+	[OVS_ACTION_ATTR_PSAMPLE] = { .name = "psample", .type = YNL_PT_NEST, .nest = &ovs_flow_psample_attrs_nest, },
 };
 
-struct ynl_policy_nest ovs_flow_action_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_action_attrs_nest = {
 	.max_attr = OVS_ACTION_ATTR_MAX,
 	.table = ovs_flow_action_attrs_policy,
 };
 
-struct ynl_policy_attr ovs_flow_flow_attrs_policy[OVS_FLOW_ATTR_MAX + 1] = {
+const struct ynl_policy_attr ovs_flow_flow_attrs_policy[OVS_FLOW_ATTR_MAX + 1] = {
 	[OVS_FLOW_ATTR_KEY] = { .name = "key", .type = YNL_PT_NEST, .nest = &ovs_flow_key_attrs_nest, },
 	[OVS_FLOW_ATTR_ACTIONS] = { .name = "actions", .type = YNL_PT_NEST, .nest = &ovs_flow_action_attrs_nest, },
 	[OVS_FLOW_ATTR_STATS] = { .name = "stats", .type = YNL_PT_BINARY,},
@@ -292,7 +303,7 @@ struct ynl_policy_attr ovs_flow_flow_attrs_policy[OVS_FLOW_ATTR_MAX + 1] = {
 	[OVS_FLOW_ATTR_PAD] = { .name = "pad", .type = YNL_PT_BINARY,},
 };
 
-struct ynl_policy_nest ovs_flow_flow_attrs_nest = {
+const struct ynl_policy_nest ovs_flow_flow_attrs_nest = {
 	.max_attr = OVS_FLOW_ATTR_MAX,
 	.table = ovs_flow_flow_attrs_policy,
 };
@@ -309,6 +320,11 @@ int ovs_flow_userspace_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 				 struct ovs_flow_userspace_attrs *obj);
 int ovs_flow_userspace_attrs_parse(struct ynl_parse_arg *yarg,
 				   const struct nlattr *nested);
+void ovs_flow_psample_attrs_free(struct ovs_flow_psample_attrs *obj);
+int ovs_flow_psample_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			       struct ovs_flow_psample_attrs *obj);
+int ovs_flow_psample_attrs_parse(struct ynl_parse_arg *yarg,
+				 const struct nlattr *nested);
 void ovs_flow_vxlan_ext_attrs_free(struct ovs_flow_vxlan_ext_attrs *obj);
 int ovs_flow_vxlan_ext_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 				 struct ovs_flow_vxlan_ext_attrs *obj);
@@ -329,6 +345,16 @@ int ovs_flow_ct_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			  struct ovs_flow_ct_attrs *obj);
 int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			    const struct nlattr *nested);
+void ovs_flow_key_attrs_free(struct ovs_flow_key_attrs *obj);
+int ovs_flow_key_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			   struct ovs_flow_key_attrs *obj);
+int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
+			     const struct nlattr *nested);
+void ovs_flow_sample_attrs_free(struct ovs_flow_sample_attrs *obj);
+int ovs_flow_sample_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			      struct ovs_flow_sample_attrs *obj);
+int ovs_flow_sample_attrs_parse(struct ynl_parse_arg *yarg,
+				const struct nlattr *nested);
 void
 ovs_flow_check_pkt_len_attrs_free(struct ovs_flow_check_pkt_len_attrs *obj);
 int ovs_flow_check_pkt_len_attrs_put(struct nlmsghdr *nlh,
@@ -341,16 +367,6 @@ int ovs_flow_dec_ttl_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			       struct ovs_flow_dec_ttl_attrs *obj);
 int ovs_flow_dec_ttl_attrs_parse(struct ynl_parse_arg *yarg,
 				 const struct nlattr *nested);
-void ovs_flow_key_attrs_free(struct ovs_flow_key_attrs *obj);
-int ovs_flow_key_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
-			   struct ovs_flow_key_attrs *obj);
-int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
-			     const struct nlattr *nested);
-void ovs_flow_sample_attrs_free(struct ovs_flow_sample_attrs *obj);
-int ovs_flow_sample_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
-			      struct ovs_flow_sample_attrs *obj);
-int ovs_flow_sample_attrs_parse(struct ynl_parse_arg *yarg,
-				const struct nlattr *nested);
 void ovs_flow_action_attrs_free(struct ovs_flow_action_attrs *obj);
 int ovs_flow_action_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			      struct ovs_flow_action_attrs *obj);
@@ -484,6 +500,56 @@ int ovs_flow_userspace_attrs_parse(struct ynl_parse_arg *yarg,
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.actions = 1;
+		}
+	}
+
+	return 0;
+}
+
+void ovs_flow_psample_attrs_free(struct ovs_flow_psample_attrs *obj)
+{
+	free(obj->cookie);
+}
+
+int ovs_flow_psample_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			       struct ovs_flow_psample_attrs *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.group)
+		ynl_attr_put_u32(nlh, OVS_PSAMPLE_ATTR_GROUP, obj->group);
+	if (obj->_present.cookie_len)
+		ynl_attr_put(nlh, OVS_PSAMPLE_ATTR_COOKIE, obj->cookie, obj->_present.cookie_len);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int ovs_flow_psample_attrs_parse(struct ynl_parse_arg *yarg,
+				 const struct nlattr *nested)
+{
+	struct ovs_flow_psample_attrs *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == OVS_PSAMPLE_ATTR_GROUP) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.group = 1;
+			dst->group = ynl_attr_get_u32(attr);
+		} else if (type == OVS_PSAMPLE_ATTR_COOKIE) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = ynl_attr_data_len(attr);
+			dst->_present.cookie_len = len;
+			dst->cookie = malloc(len);
+			memcpy(dst->cookie, ynl_attr_data(attr), len);
 		}
 	}
 
@@ -935,120 +1001,6 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 	return 0;
 }
 
-void
-ovs_flow_check_pkt_len_attrs_free(struct ovs_flow_check_pkt_len_attrs *obj)
-{
-	if (obj->actions_if_greater)
-		ovs_flow_action_attrs_free(obj->actions_if_greater);
-	if (obj->actions_if_less_equal)
-		ovs_flow_action_attrs_free(obj->actions_if_less_equal);
-}
-
-int ovs_flow_check_pkt_len_attrs_put(struct nlmsghdr *nlh,
-				     unsigned int attr_type,
-				     struct ovs_flow_check_pkt_len_attrs *obj)
-{
-	struct nlattr *nest;
-
-	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.pkt_len)
-		ynl_attr_put_u16(nlh, OVS_CHECK_PKT_LEN_ATTR_PKT_LEN, obj->pkt_len);
-	if (obj->_present.actions_if_greater)
-		ovs_flow_action_attrs_put(nlh, OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER, obj->actions_if_greater);
-	if (obj->_present.actions_if_less_equal)
-		ovs_flow_action_attrs_put(nlh, OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL, obj->actions_if_less_equal);
-	ynl_attr_nest_end(nlh, nest);
-
-	return 0;
-}
-
-int ovs_flow_check_pkt_len_attrs_parse(struct ynl_parse_arg *yarg,
-				       const struct nlattr *nested)
-{
-	struct ovs_flow_check_pkt_len_attrs *dst = yarg->data;
-	const struct nlattr *attr;
-	struct ynl_parse_arg parg;
-
-	parg.ys = yarg->ys;
-
-	ynl_attr_for_each_nested(attr, nested) {
-		unsigned int type = ynl_attr_type(attr);
-
-		if (type == OVS_CHECK_PKT_LEN_ATTR_PKT_LEN) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.pkt_len = 1;
-			dst->pkt_len = ynl_attr_get_u16(attr);
-		} else if (type == OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.actions_if_greater = 1;
-
-			parg.rsp_policy = &ovs_flow_action_attrs_nest;
-			parg.data = &dst->actions_if_greater;
-			if (ovs_flow_action_attrs_parse(&parg, attr))
-				return YNL_PARSE_CB_ERROR;
-		} else if (type == OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.actions_if_less_equal = 1;
-
-			parg.rsp_policy = &ovs_flow_action_attrs_nest;
-			parg.data = &dst->actions_if_less_equal;
-			if (ovs_flow_action_attrs_parse(&parg, attr))
-				return YNL_PARSE_CB_ERROR;
-		}
-	}
-
-	return 0;
-}
-
-void ovs_flow_dec_ttl_attrs_free(struct ovs_flow_dec_ttl_attrs *obj)
-{
-	if (obj->action)
-		ovs_flow_action_attrs_free(obj->action);
-}
-
-int ovs_flow_dec_ttl_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
-			       struct ovs_flow_dec_ttl_attrs *obj)
-{
-	struct nlattr *nest;
-
-	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.action)
-		ovs_flow_action_attrs_put(nlh, OVS_DEC_TTL_ATTR_ACTION, obj->action);
-	ynl_attr_nest_end(nlh, nest);
-
-	return 0;
-}
-
-int ovs_flow_dec_ttl_attrs_parse(struct ynl_parse_arg *yarg,
-				 const struct nlattr *nested)
-{
-	struct ovs_flow_dec_ttl_attrs *dst = yarg->data;
-	const struct nlattr *attr;
-	struct ynl_parse_arg parg;
-
-	parg.ys = yarg->ys;
-
-	ynl_attr_for_each_nested(attr, nested) {
-		unsigned int type = ynl_attr_type(attr);
-
-		if (type == OVS_DEC_TTL_ATTR_ACTION) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.action = 1;
-
-			parg.rsp_policy = &ovs_flow_action_attrs_nest;
-			parg.data = &dst->action;
-			if (ovs_flow_action_attrs_parse(&parg, attr))
-				return YNL_PARSE_CB_ERROR;
-		}
-	}
-
-	return 0;
-}
-
 void ovs_flow_key_attrs_free(struct ovs_flow_key_attrs *obj)
 {
 	if (obj->encap)
@@ -1477,6 +1429,120 @@ int ovs_flow_sample_attrs_parse(struct ynl_parse_arg *yarg,
 	return 0;
 }
 
+void
+ovs_flow_check_pkt_len_attrs_free(struct ovs_flow_check_pkt_len_attrs *obj)
+{
+	if (obj->actions_if_greater)
+		ovs_flow_action_attrs_free(obj->actions_if_greater);
+	if (obj->actions_if_less_equal)
+		ovs_flow_action_attrs_free(obj->actions_if_less_equal);
+}
+
+int ovs_flow_check_pkt_len_attrs_put(struct nlmsghdr *nlh,
+				     unsigned int attr_type,
+				     struct ovs_flow_check_pkt_len_attrs *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.pkt_len)
+		ynl_attr_put_u16(nlh, OVS_CHECK_PKT_LEN_ATTR_PKT_LEN, obj->pkt_len);
+	if (obj->_present.actions_if_greater)
+		ovs_flow_action_attrs_put(nlh, OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER, obj->actions_if_greater);
+	if (obj->_present.actions_if_less_equal)
+		ovs_flow_action_attrs_put(nlh, OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL, obj->actions_if_less_equal);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int ovs_flow_check_pkt_len_attrs_parse(struct ynl_parse_arg *yarg,
+				       const struct nlattr *nested)
+{
+	struct ovs_flow_check_pkt_len_attrs *dst = yarg->data;
+	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
+
+	parg.ys = yarg->ys;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == OVS_CHECK_PKT_LEN_ATTR_PKT_LEN) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.pkt_len = 1;
+			dst->pkt_len = ynl_attr_get_u16(attr);
+		} else if (type == OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.actions_if_greater = 1;
+
+			parg.rsp_policy = &ovs_flow_action_attrs_nest;
+			parg.data = &dst->actions_if_greater;
+			if (ovs_flow_action_attrs_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		} else if (type == OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.actions_if_less_equal = 1;
+
+			parg.rsp_policy = &ovs_flow_action_attrs_nest;
+			parg.data = &dst->actions_if_less_equal;
+			if (ovs_flow_action_attrs_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		}
+	}
+
+	return 0;
+}
+
+void ovs_flow_dec_ttl_attrs_free(struct ovs_flow_dec_ttl_attrs *obj)
+{
+	if (obj->action)
+		ovs_flow_action_attrs_free(obj->action);
+}
+
+int ovs_flow_dec_ttl_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			       struct ovs_flow_dec_ttl_attrs *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.action)
+		ovs_flow_action_attrs_put(nlh, OVS_DEC_TTL_ATTR_ACTION, obj->action);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int ovs_flow_dec_ttl_attrs_parse(struct ynl_parse_arg *yarg,
+				 const struct nlattr *nested)
+{
+	struct ovs_flow_dec_ttl_attrs *dst = yarg->data;
+	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
+
+	parg.ys = yarg->ys;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == OVS_DEC_TTL_ATTR_ACTION) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.action = 1;
+
+			parg.rsp_policy = &ovs_flow_action_attrs_nest;
+			parg.data = &dst->action;
+			if (ovs_flow_action_attrs_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		}
+	}
+
+	return 0;
+}
+
 void ovs_flow_action_attrs_free(struct ovs_flow_action_attrs *obj)
 {
 	ovs_flow_userspace_attrs_free(&obj->userspace);
@@ -1496,6 +1562,7 @@ void ovs_flow_action_attrs_free(struct ovs_flow_action_attrs *obj)
 	ovs_flow_check_pkt_len_attrs_free(&obj->check_pkt_len);
 	free(obj->add_mpls);
 	ovs_flow_dec_ttl_attrs_free(&obj->dec_ttl);
+	ovs_flow_psample_attrs_free(&obj->psample);
 }
 
 int ovs_flow_action_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
@@ -1550,6 +1617,8 @@ int ovs_flow_action_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put(nlh, OVS_ACTION_ATTR_ADD_MPLS, obj->add_mpls, obj->_present.add_mpls_len);
 	if (obj->_present.dec_ttl)
 		ovs_flow_dec_ttl_attrs_put(nlh, OVS_ACTION_ATTR_DEC_TTL, &obj->dec_ttl);
+	if (obj->_present.psample)
+		ovs_flow_psample_attrs_put(nlh, OVS_ACTION_ATTR_PSAMPLE, &obj->psample);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -1738,6 +1807,15 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 			parg.rsp_policy = &ovs_flow_dec_ttl_attrs_nest;
 			parg.data = &dst->dec_ttl;
 			if (ovs_flow_dec_ttl_attrs_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		} else if (type == OVS_ACTION_ATTR_PSAMPLE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.psample = 1;
+
+			parg.rsp_policy = &ovs_flow_psample_attrs_nest;
+			parg.data = &dst->psample;
+			if (ovs_flow_psample_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		}
 	}

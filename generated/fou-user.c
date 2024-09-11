@@ -39,7 +39,7 @@ const char *fou_encap_type_str(int value)
 }
 
 /* Policies */
-struct ynl_policy_attr fou_policy[FOU_ATTR_MAX + 1] = {
+const struct ynl_policy_attr fou_policy[FOU_ATTR_MAX + 1] = {
 	[FOU_ATTR_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[FOU_ATTR_PORT] = { .name = "port", .type = YNL_PT_U16, },
 	[FOU_ATTR_AF] = { .name = "af", .type = YNL_PT_U8, },
@@ -54,7 +54,7 @@ struct ynl_policy_attr fou_policy[FOU_ATTR_MAX + 1] = {
 	[FOU_ATTR_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest fou_nest = {
+const struct ynl_policy_nest fou_nest = {
 	.max_attr = FOU_ATTR_MAX,
 	.table = fou_policy,
 };

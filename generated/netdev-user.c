@@ -104,17 +104,17 @@ const char *netdev_qstats_scope_str(enum netdev_qstats_scope value)
 }
 
 /* Policies */
-struct ynl_policy_attr netdev_page_pool_info_policy[NETDEV_A_PAGE_POOL_MAX + 1] = {
+const struct ynl_policy_attr netdev_page_pool_info_policy[NETDEV_A_PAGE_POOL_MAX + 1] = {
 	[NETDEV_A_PAGE_POOL_ID] = { .name = "id", .type = YNL_PT_UINT, },
 	[NETDEV_A_PAGE_POOL_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest netdev_page_pool_info_nest = {
+const struct ynl_policy_nest netdev_page_pool_info_nest = {
 	.max_attr = NETDEV_A_PAGE_POOL_MAX,
 	.table = netdev_page_pool_info_policy,
 };
 
-struct ynl_policy_attr netdev_dev_policy[NETDEV_A_DEV_MAX + 1] = {
+const struct ynl_policy_attr netdev_dev_policy[NETDEV_A_DEV_MAX + 1] = {
 	[NETDEV_A_DEV_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[NETDEV_A_DEV_PAD] = { .name = "pad", .type = YNL_PT_IGNORE, },
 	[NETDEV_A_DEV_XDP_FEATURES] = { .name = "xdp-features", .type = YNL_PT_U64, },
@@ -123,12 +123,12 @@ struct ynl_policy_attr netdev_dev_policy[NETDEV_A_DEV_MAX + 1] = {
 	[NETDEV_A_DEV_XSK_FEATURES] = { .name = "xsk-features", .type = YNL_PT_U64, },
 };
 
-struct ynl_policy_nest netdev_dev_nest = {
+const struct ynl_policy_nest netdev_dev_nest = {
 	.max_attr = NETDEV_A_DEV_MAX,
 	.table = netdev_dev_policy,
 };
 
-struct ynl_policy_attr netdev_page_pool_policy[NETDEV_A_PAGE_POOL_MAX + 1] = {
+const struct ynl_policy_attr netdev_page_pool_policy[NETDEV_A_PAGE_POOL_MAX + 1] = {
 	[NETDEV_A_PAGE_POOL_ID] = { .name = "id", .type = YNL_PT_UINT, },
 	[NETDEV_A_PAGE_POOL_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[NETDEV_A_PAGE_POOL_NAPI_ID] = { .name = "napi-id", .type = YNL_PT_UINT, },
@@ -137,12 +137,12 @@ struct ynl_policy_attr netdev_page_pool_policy[NETDEV_A_PAGE_POOL_MAX + 1] = {
 	[NETDEV_A_PAGE_POOL_DETACH_TIME] = { .name = "detach-time", .type = YNL_PT_UINT, },
 };
 
-struct ynl_policy_nest netdev_page_pool_nest = {
+const struct ynl_policy_nest netdev_page_pool_nest = {
 	.max_attr = NETDEV_A_PAGE_POOL_MAX,
 	.table = netdev_page_pool_policy,
 };
 
-struct ynl_policy_attr netdev_page_pool_stats_policy[NETDEV_A_PAGE_POOL_STATS_MAX + 1] = {
+const struct ynl_policy_attr netdev_page_pool_stats_policy[NETDEV_A_PAGE_POOL_STATS_MAX + 1] = {
 	[NETDEV_A_PAGE_POOL_STATS_INFO] = { .name = "info", .type = YNL_PT_NEST, .nest = &netdev_page_pool_info_nest, },
 	[NETDEV_A_PAGE_POOL_STATS_ALLOC_FAST] = { .name = "alloc-fast", .type = YNL_PT_UINT, },
 	[NETDEV_A_PAGE_POOL_STATS_ALLOC_SLOW] = { .name = "alloc-slow", .type = YNL_PT_UINT, },
@@ -157,36 +157,36 @@ struct ynl_policy_attr netdev_page_pool_stats_policy[NETDEV_A_PAGE_POOL_STATS_MA
 	[NETDEV_A_PAGE_POOL_STATS_RECYCLE_RELEASED_REFCNT] = { .name = "recycle-released-refcnt", .type = YNL_PT_UINT, },
 };
 
-struct ynl_policy_nest netdev_page_pool_stats_nest = {
+const struct ynl_policy_nest netdev_page_pool_stats_nest = {
 	.max_attr = NETDEV_A_PAGE_POOL_STATS_MAX,
 	.table = netdev_page_pool_stats_policy,
 };
 
-struct ynl_policy_attr netdev_queue_policy[NETDEV_A_QUEUE_MAX + 1] = {
+const struct ynl_policy_attr netdev_queue_policy[NETDEV_A_QUEUE_MAX + 1] = {
 	[NETDEV_A_QUEUE_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[NETDEV_A_QUEUE_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[NETDEV_A_QUEUE_TYPE] = { .name = "type", .type = YNL_PT_U32, },
 	[NETDEV_A_QUEUE_NAPI_ID] = { .name = "napi-id", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest netdev_queue_nest = {
+const struct ynl_policy_nest netdev_queue_nest = {
 	.max_attr = NETDEV_A_QUEUE_MAX,
 	.table = netdev_queue_policy,
 };
 
-struct ynl_policy_attr netdev_napi_policy[NETDEV_A_NAPI_MAX + 1] = {
+const struct ynl_policy_attr netdev_napi_policy[NETDEV_A_NAPI_MAX + 1] = {
 	[NETDEV_A_NAPI_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_IRQ] = { .name = "irq", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_PID] = { .name = "pid", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest netdev_napi_nest = {
+const struct ynl_policy_nest netdev_napi_nest = {
 	.max_attr = NETDEV_A_NAPI_MAX,
 	.table = netdev_napi_policy,
 };
 
-struct ynl_policy_attr netdev_qstats_policy[NETDEV_A_QSTATS_MAX + 1] = {
+const struct ynl_policy_attr netdev_qstats_policy[NETDEV_A_QSTATS_MAX + 1] = {
 	[NETDEV_A_QSTATS_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[NETDEV_A_QSTATS_QUEUE_TYPE] = { .name = "queue-type", .type = YNL_PT_U32, },
 	[NETDEV_A_QSTATS_QUEUE_ID] = { .name = "queue-id", .type = YNL_PT_U32, },
@@ -220,7 +220,7 @@ struct ynl_policy_attr netdev_qstats_policy[NETDEV_A_QSTATS_MAX + 1] = {
 	[NETDEV_A_QSTATS_TX_WAKE] = { .name = "tx-wake", .type = YNL_PT_UINT, },
 };
 
-struct ynl_policy_nest netdev_qstats_nest = {
+const struct ynl_policy_nest netdev_qstats_nest = {
 	.max_attr = NETDEV_A_QSTATS_MAX,
 	.table = netdev_qstats_policy,
 };

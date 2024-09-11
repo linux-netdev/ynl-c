@@ -66,17 +66,17 @@ const char *handshake_auth_str(enum handshake_auth value)
 }
 
 /* Policies */
-struct ynl_policy_attr handshake_x509_policy[HANDSHAKE_A_X509_MAX + 1] = {
+const struct ynl_policy_attr handshake_x509_policy[HANDSHAKE_A_X509_MAX + 1] = {
 	[HANDSHAKE_A_X509_CERT] = { .name = "cert", .type = YNL_PT_U32, },
 	[HANDSHAKE_A_X509_PRIVKEY] = { .name = "privkey", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest handshake_x509_nest = {
+const struct ynl_policy_nest handshake_x509_nest = {
 	.max_attr = HANDSHAKE_A_X509_MAX,
 	.table = handshake_x509_policy,
 };
 
-struct ynl_policy_attr handshake_accept_policy[HANDSHAKE_A_ACCEPT_MAX + 1] = {
+const struct ynl_policy_attr handshake_accept_policy[HANDSHAKE_A_ACCEPT_MAX + 1] = {
 	[HANDSHAKE_A_ACCEPT_SOCKFD] = { .name = "sockfd", .type = YNL_PT_U32, },
 	[HANDSHAKE_A_ACCEPT_HANDLER_CLASS] = { .name = "handler-class", .type = YNL_PT_U32, },
 	[HANDSHAKE_A_ACCEPT_MESSAGE_TYPE] = { .name = "message-type", .type = YNL_PT_U32, },
@@ -87,18 +87,18 @@ struct ynl_policy_attr handshake_accept_policy[HANDSHAKE_A_ACCEPT_MAX + 1] = {
 	[HANDSHAKE_A_ACCEPT_PEERNAME] = { .name = "peername", .type = YNL_PT_NUL_STR, },
 };
 
-struct ynl_policy_nest handshake_accept_nest = {
+const struct ynl_policy_nest handshake_accept_nest = {
 	.max_attr = HANDSHAKE_A_ACCEPT_MAX,
 	.table = handshake_accept_policy,
 };
 
-struct ynl_policy_attr handshake_done_policy[HANDSHAKE_A_DONE_MAX + 1] = {
+const struct ynl_policy_attr handshake_done_policy[HANDSHAKE_A_DONE_MAX + 1] = {
 	[HANDSHAKE_A_DONE_STATUS] = { .name = "status", .type = YNL_PT_U32, },
 	[HANDSHAKE_A_DONE_SOCKFD] = { .name = "sockfd", .type = YNL_PT_U32, },
 	[HANDSHAKE_A_DONE_REMOTE_AUTH] = { .name = "remote-auth", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest handshake_done_nest = {
+const struct ynl_policy_nest handshake_done_nest = {
 	.max_attr = HANDSHAKE_A_DONE_MAX,
 	.table = handshake_done_policy,
 };

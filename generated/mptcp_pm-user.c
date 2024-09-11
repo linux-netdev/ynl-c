@@ -55,7 +55,7 @@ const char *mptcp_pm_event_type_str(enum mptcp_event_type value)
 }
 
 /* Policies */
-struct ynl_policy_attr mptcp_pm_address_policy[MPTCP_PM_ADDR_ATTR_MAX + 1] = {
+const struct ynl_policy_attr mptcp_pm_address_policy[MPTCP_PM_ADDR_ATTR_MAX + 1] = {
 	[MPTCP_PM_ADDR_ATTR_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[MPTCP_PM_ADDR_ATTR_FAMILY] = { .name = "family", .type = YNL_PT_U16, },
 	[MPTCP_PM_ADDR_ATTR_ID] = { .name = "id", .type = YNL_PT_U8, },
@@ -66,21 +66,21 @@ struct ynl_policy_attr mptcp_pm_address_policy[MPTCP_PM_ADDR_ATTR_MAX + 1] = {
 	[MPTCP_PM_ADDR_ATTR_IF_IDX] = { .name = "if-idx", .type = YNL_PT_U32, },
 };
 
-struct ynl_policy_nest mptcp_pm_address_nest = {
+const struct ynl_policy_nest mptcp_pm_address_nest = {
 	.max_attr = MPTCP_PM_ADDR_ATTR_MAX,
 	.table = mptcp_pm_address_policy,
 };
 
-struct ynl_policy_attr mptcp_pm_endpoint_policy[MPTCP_PM_ENDPOINT_MAX + 1] = {
+const struct ynl_policy_attr mptcp_pm_endpoint_policy[MPTCP_PM_ENDPOINT_MAX + 1] = {
 	[MPTCP_PM_ENDPOINT_ADDR] = { .name = "addr", .type = YNL_PT_NEST, .nest = &mptcp_pm_address_nest, },
 };
 
-struct ynl_policy_nest mptcp_pm_endpoint_nest = {
+const struct ynl_policy_nest mptcp_pm_endpoint_nest = {
 	.max_attr = MPTCP_PM_ENDPOINT_MAX,
 	.table = mptcp_pm_endpoint_policy,
 };
 
-struct ynl_policy_attr mptcp_pm_attr_policy[MPTCP_PM_ATTR_MAX + 1] = {
+const struct ynl_policy_attr mptcp_pm_attr_policy[MPTCP_PM_ATTR_MAX + 1] = {
 	[MPTCP_PM_ATTR_UNSPEC] = { .name = "unspec", .type = YNL_PT_REJECT, },
 	[MPTCP_PM_ATTR_ADDR] = { .name = "addr", .type = YNL_PT_NEST, .nest = &mptcp_pm_address_nest, },
 	[MPTCP_PM_ATTR_RCV_ADD_ADDRS] = { .name = "rcv-add-addrs", .type = YNL_PT_U32, },
@@ -90,7 +90,7 @@ struct ynl_policy_attr mptcp_pm_attr_policy[MPTCP_PM_ATTR_MAX + 1] = {
 	[MPTCP_PM_ATTR_ADDR_REMOTE] = { .name = "addr-remote", .type = YNL_PT_NEST, .nest = &mptcp_pm_address_nest, },
 };
 
-struct ynl_policy_nest mptcp_pm_attr_nest = {
+const struct ynl_policy_nest mptcp_pm_attr_nest = {
 	.max_attr = MPTCP_PM_ATTR_MAX,
 	.table = mptcp_pm_attr_policy,
 };
