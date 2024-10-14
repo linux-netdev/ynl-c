@@ -34,6 +34,16 @@ struct netdev_page_pool_info {
 	__u32 ifindex;
 };
 
+struct netdev_queue_id {
+	struct {
+		__u32 id:1;
+		__u32 type:1;
+	} _present;
+
+	__u32 id;
+	enum netdev_queue_type type;
+};
+
 /* ============== NETDEV_CMD_DEV_GET ============== */
 /* NETDEV_CMD_DEV_GET - do */
 struct netdev_dev_get_req {
@@ -134,6 +144,7 @@ struct netdev_page_pool_get_rsp {
 		__u32 inflight:1;
 		__u32 inflight_mem:1;
 		__u32 detach_time:1;
+		__u32 dmabuf:1;
 	} _present;
 
 	__u64 id;
@@ -142,6 +153,7 @@ struct netdev_page_pool_get_rsp {
 	__u64 inflight;
 	__u64 inflight_mem;
 	__u64 detach_time;
+	__u32 dmabuf;
 };
 
 void netdev_page_pool_get_rsp_free(struct netdev_page_pool_get_rsp *rsp);
@@ -310,12 +322,14 @@ struct netdev_queue_get_rsp {
 		__u32 type:1;
 		__u32 napi_id:1;
 		__u32 ifindex:1;
+		__u32 dmabuf:1;
 	} _present;
 
 	__u32 id;
 	enum netdev_queue_type type;
 	__u32 napi_id;
 	__u32 ifindex;
+	__u32 dmabuf;
 };
 
 void netdev_queue_get_rsp_free(struct netdev_queue_get_rsp *rsp);
@@ -504,5 +518,63 @@ void netdev_qstats_get_rsp_list_free(struct netdev_qstats_get_rsp_list *rsp);
 struct netdev_qstats_get_rsp_list *
 netdev_qstats_get_dump(struct ynl_sock *ys,
 		       struct netdev_qstats_get_req_dump *req);
+
+/* ============== NETDEV_CMD_BIND_RX ============== */
+/* NETDEV_CMD_BIND_RX - do */
+struct netdev_bind_rx_req {
+	struct {
+		__u32 ifindex:1;
+		__u32 fd:1;
+	} _present;
+
+	__u32 ifindex;
+	__u32 fd;
+	unsigned int n_queues;
+	struct netdev_queue_id *queues;
+};
+
+static inline struct netdev_bind_rx_req *netdev_bind_rx_req_alloc(void)
+{
+	return calloc(1, sizeof(struct netdev_bind_rx_req));
+}
+void netdev_bind_rx_req_free(struct netdev_bind_rx_req *req);
+
+static inline void
+netdev_bind_rx_req_set_ifindex(struct netdev_bind_rx_req *req, __u32 ifindex)
+{
+	req->_present.ifindex = 1;
+	req->ifindex = ifindex;
+}
+static inline void
+netdev_bind_rx_req_set_fd(struct netdev_bind_rx_req *req, __u32 fd)
+{
+	req->_present.fd = 1;
+	req->fd = fd;
+}
+static inline void
+__netdev_bind_rx_req_set_queues(struct netdev_bind_rx_req *req,
+				struct netdev_queue_id *queues,
+				unsigned int n_queues)
+{
+	free(req->queues);
+	req->queues = queues;
+	req->n_queues = n_queues;
+}
+
+struct netdev_bind_rx_rsp {
+	struct {
+		__u32 id:1;
+	} _present;
+
+	__u32 id;
+};
+
+void netdev_bind_rx_rsp_free(struct netdev_bind_rx_rsp *rsp);
+
+/*
+ * Bind dmabuf to netdev
+ */
+struct netdev_bind_rx_rsp *
+netdev_bind_rx(struct ynl_sock *ys, struct netdev_bind_rx_req *req);
 
 #endif /* _LINUX_NETDEV_GEN_H */
