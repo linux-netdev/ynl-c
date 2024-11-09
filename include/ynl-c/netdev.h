@@ -404,12 +404,16 @@ struct netdev_napi_get_rsp {
 		__u32 ifindex:1;
 		__u32 irq:1;
 		__u32 pid:1;
+		__u32 defer_hard_irqs:1;
+		__u32 gro_flush_timeout:1;
 	} _present;
 
 	__u32 id;
 	__u32 ifindex;
 	__u32 irq;
 	__u32 pid;
+	__u32 defer_hard_irqs;
+	__u64 gro_flush_timeout;
 };
 
 void netdev_napi_get_rsp_free(struct netdev_napi_get_rsp *rsp);
@@ -576,5 +580,51 @@ void netdev_bind_rx_rsp_free(struct netdev_bind_rx_rsp *rsp);
  */
 struct netdev_bind_rx_rsp *
 netdev_bind_rx(struct ynl_sock *ys, struct netdev_bind_rx_req *req);
+
+/* ============== NETDEV_CMD_NAPI_SET ============== */
+/* NETDEV_CMD_NAPI_SET - do */
+struct netdev_napi_set_req {
+	struct {
+		__u32 id:1;
+		__u32 defer_hard_irqs:1;
+		__u32 gro_flush_timeout:1;
+	} _present;
+
+	__u32 id;
+	__u32 defer_hard_irqs;
+	__u64 gro_flush_timeout;
+};
+
+static inline struct netdev_napi_set_req *netdev_napi_set_req_alloc(void)
+{
+	return calloc(1, sizeof(struct netdev_napi_set_req));
+}
+void netdev_napi_set_req_free(struct netdev_napi_set_req *req);
+
+static inline void
+netdev_napi_set_req_set_id(struct netdev_napi_set_req *req, __u32 id)
+{
+	req->_present.id = 1;
+	req->id = id;
+}
+static inline void
+netdev_napi_set_req_set_defer_hard_irqs(struct netdev_napi_set_req *req,
+					__u32 defer_hard_irqs)
+{
+	req->_present.defer_hard_irqs = 1;
+	req->defer_hard_irqs = defer_hard_irqs;
+}
+static inline void
+netdev_napi_set_req_set_gro_flush_timeout(struct netdev_napi_set_req *req,
+					  __u64 gro_flush_timeout)
+{
+	req->_present.gro_flush_timeout = 1;
+	req->gro_flush_timeout = gro_flush_timeout;
+}
+
+/*
+ * Set configurable NAPI instance settings.
+ */
+int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req);
 
 #endif /* _LINUX_NETDEV_GEN_H */

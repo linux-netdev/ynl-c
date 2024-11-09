@@ -74,6 +74,24 @@ const char *dpll_lock_status_error_str(enum dpll_lock_status_error value)
 	return dpll_lock_status_error_strmap[value];
 }
 
+static const char * const dpll_clock_quality_level_strmap[] = {
+	[1] = "itu-opt1-prc",
+	[2] = "itu-opt1-ssu-a",
+	[3] = "itu-opt1-ssu-b",
+	[4] = "itu-opt1-eec1",
+	[5] = "itu-opt1-prtc",
+	[6] = "itu-opt1-eprtc",
+	[7] = "itu-opt1-eeec",
+	[8] = "itu-opt1-eprc",
+};
+
+const char *dpll_clock_quality_level_str(enum dpll_clock_quality_level value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(dpll_clock_quality_level_strmap))
+		return NULL;
+	return dpll_clock_quality_level_strmap[value];
+}
+
 static const char * const dpll_type_strmap[] = {
 	[1] = "pps",
 	[2] = "eec",
@@ -185,6 +203,7 @@ const struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
 	[DPLL_A_TEMP] = { .name = "temp", .type = YNL_PT_U32, },
 	[DPLL_A_TYPE] = { .name = "type", .type = YNL_PT_U32, },
 	[DPLL_A_LOCK_STATUS_ERROR] = { .name = "lock-status-error", .type = YNL_PT_U32, },
+	[DPLL_A_CLOCK_QUALITY_LEVEL] = { .name = "clock-quality-level", .type = YNL_PT_U32, },
 };
 
 const struct ynl_policy_nest dpll_nest = {

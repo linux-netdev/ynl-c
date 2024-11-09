@@ -26,6 +26,7 @@ static const char * const netdev_op_strmap[] = {
 	[NETDEV_CMD_NAPI_GET] = "napi-get",
 	[NETDEV_CMD_QSTATS_GET] = "qstats-get",
 	[NETDEV_CMD_BIND_RX] = "bind-rx",
+	[NETDEV_CMD_NAPI_SET] = "napi-set",
 };
 
 const char *netdev_op_str(int op)
@@ -192,6 +193,8 @@ const struct ynl_policy_attr netdev_napi_policy[NETDEV_A_NAPI_MAX + 1] = {
 	[NETDEV_A_NAPI_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_IRQ] = { .name = "irq", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_PID] = { .name = "pid", .type = YNL_PT_U32, },
+	[NETDEV_A_NAPI_DEFER_HARD_IRQS] = { .name = "defer-hard-irqs", .type = YNL_PT_U32, },
+	[NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT] = { .name = "gro-flush-timeout", .type = YNL_PT_UINT, },
 };
 
 const struct ynl_policy_nest netdev_napi_nest = {
@@ -940,6 +943,16 @@ int netdev_napi_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.pid = 1;
 			dst->pid = ynl_attr_get_u32(attr);
+		} else if (type == NETDEV_A_NAPI_DEFER_HARD_IRQS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.defer_hard_irqs = 1;
+			dst->defer_hard_irqs = ynl_attr_get_u32(attr);
+		} else if (type == NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.gro_flush_timeout = 1;
+			dst->gro_flush_timeout = ynl_attr_get_uint(attr);
 		}
 	}
 
@@ -1203,6 +1216,36 @@ netdev_bind_rx(struct ynl_sock *ys, struct netdev_bind_rx_req *req)
 err_free:
 	netdev_bind_rx_rsp_free(rsp);
 	return NULL;
+}
+
+/* ============== NETDEV_CMD_NAPI_SET ============== */
+/* NETDEV_CMD_NAPI_SET - do */
+void netdev_napi_set_req_free(struct netdev_napi_set_req *req)
+{
+	free(req);
+}
+
+int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req)
+{
+	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct nlmsghdr *nlh;
+	int err;
+
+	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_NAPI_SET, 1);
+	ys->req_policy = &netdev_napi_nest;
+
+	if (req->_present.id)
+		ynl_attr_put_u32(nlh, NETDEV_A_NAPI_ID, req->id);
+	if (req->_present.defer_hard_irqs)
+		ynl_attr_put_u32(nlh, NETDEV_A_NAPI_DEFER_HARD_IRQS, req->defer_hard_irqs);
+	if (req->_present.gro_flush_timeout)
+		ynl_attr_put_uint(nlh, NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT, req->gro_flush_timeout);
+
+	err = ynl_exec(ys, nlh, &yrs);
+	if (err < 0)
+		return -1;
+
+	return 0;
 }
 
 static const struct ynl_ntf_info netdev_ntf_info[] =  {

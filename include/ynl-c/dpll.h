@@ -20,6 +20,7 @@ const char *dpll_op_str(int op);
 const char *dpll_mode_str(enum dpll_mode value);
 const char *dpll_lock_status_str(enum dpll_lock_status value);
 const char *dpll_lock_status_error_str(enum dpll_lock_status_error value);
+const char *dpll_clock_quality_level_str(enum dpll_clock_quality_level value);
 const char *dpll_type_str(enum dpll_type value);
 const char *dpll_pin_type_str(enum dpll_pin_type value);
 const char *dpll_pin_direction_str(enum dpll_pin_direction value);

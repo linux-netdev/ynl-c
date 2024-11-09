@@ -214,10 +214,14 @@ struct ethtool_bitset {
 		__u32 nomask:1;
 		__u32 size:1;
 		__u32 bits:1;
+		__u32 value_len;
+		__u32 mask_len;
 	} _present;
 
 	__u32 size;
 	struct ethtool_bitset_bits bits;
+	void *value;
+	void *mask;
 };
 
 struct ethtool_stringset_ {
@@ -950,6 +954,26 @@ __ethtool_linkmodes_set_req_set_ours_bits_bit(struct ethtool_linkmodes_set_req *
 	req->ours.bits.n_bit = n_bit;
 }
 static inline void
+ethtool_linkmodes_set_req_set_ours_value(struct ethtool_linkmodes_set_req *req,
+					 const void *value, size_t len)
+{
+	req->_present.ours = 1;
+	free(req->ours.value);
+	req->ours._present.value_len = len;
+	req->ours.value = malloc(req->ours._present.value_len);
+	memcpy(req->ours.value, value, req->ours._present.value_len);
+}
+static inline void
+ethtool_linkmodes_set_req_set_ours_mask(struct ethtool_linkmodes_set_req *req,
+					const void *mask, size_t len)
+{
+	req->_present.ours = 1;
+	free(req->ours.mask);
+	req->ours._present.mask_len = len;
+	req->ours.mask = malloc(req->ours._present.mask_len);
+	memcpy(req->ours.mask, mask, req->ours._present.mask_len);
+}
+static inline void
 ethtool_linkmodes_set_req_set_peer_nomask(struct ethtool_linkmodes_set_req *req)
 {
 	req->_present.peer = 1;
@@ -973,6 +997,26 @@ __ethtool_linkmodes_set_req_set_peer_bits_bit(struct ethtool_linkmodes_set_req *
 	free(req->peer.bits.bit);
 	req->peer.bits.bit = bit;
 	req->peer.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_linkmodes_set_req_set_peer_value(struct ethtool_linkmodes_set_req *req,
+					 const void *value, size_t len)
+{
+	req->_present.peer = 1;
+	free(req->peer.value);
+	req->peer._present.value_len = len;
+	req->peer.value = malloc(req->peer._present.value_len);
+	memcpy(req->peer.value, value, req->peer._present.value_len);
+}
+static inline void
+ethtool_linkmodes_set_req_set_peer_mask(struct ethtool_linkmodes_set_req *req,
+					const void *mask, size_t len)
+{
+	req->_present.peer = 1;
+	free(req->peer.mask);
+	req->peer._present.mask_len = len;
+	req->peer.mask = malloc(req->peer._present.mask_len);
+	memcpy(req->peer.mask, mask, req->peer._present.mask_len);
 }
 static inline void
 ethtool_linkmodes_set_req_set_speed(struct ethtool_linkmodes_set_req *req,
@@ -1391,6 +1435,26 @@ __ethtool_debug_set_req_set_msgmask_bits_bit(struct ethtool_debug_set_req *req,
 	req->msgmask.bits.bit = bit;
 	req->msgmask.bits.n_bit = n_bit;
 }
+static inline void
+ethtool_debug_set_req_set_msgmask_value(struct ethtool_debug_set_req *req,
+					const void *value, size_t len)
+{
+	req->_present.msgmask = 1;
+	free(req->msgmask.value);
+	req->msgmask._present.value_len = len;
+	req->msgmask.value = malloc(req->msgmask._present.value_len);
+	memcpy(req->msgmask.value, value, req->msgmask._present.value_len);
+}
+static inline void
+ethtool_debug_set_req_set_msgmask_mask(struct ethtool_debug_set_req *req,
+				       const void *mask, size_t len)
+{
+	req->_present.msgmask = 1;
+	free(req->msgmask.mask);
+	req->msgmask._present.mask_len = len;
+	req->msgmask.mask = malloc(req->msgmask._present.mask_len);
+	memcpy(req->msgmask.mask, mask, req->msgmask._present.mask_len);
+}
 
 /*
  * Set debug message mask.
@@ -1620,6 +1684,26 @@ __ethtool_wol_set_req_set_modes_bits_bit(struct ethtool_wol_set_req *req,
 	free(req->modes.bits.bit);
 	req->modes.bits.bit = bit;
 	req->modes.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_wol_set_req_set_modes_value(struct ethtool_wol_set_req *req,
+				    const void *value, size_t len)
+{
+	req->_present.modes = 1;
+	free(req->modes.value);
+	req->modes._present.value_len = len;
+	req->modes.value = malloc(req->modes._present.value_len);
+	memcpy(req->modes.value, value, req->modes._present.value_len);
+}
+static inline void
+ethtool_wol_set_req_set_modes_mask(struct ethtool_wol_set_req *req,
+				   const void *mask, size_t len)
+{
+	req->_present.modes = 1;
+	free(req->modes.mask);
+	req->modes._present.mask_len = len;
+	req->modes.mask = malloc(req->modes._present.mask_len);
+	memcpy(req->modes.mask, mask, req->modes._present.mask_len);
 }
 static inline void
 ethtool_wol_set_req_set_sopass(struct ethtool_wol_set_req *req,
@@ -1874,6 +1958,26 @@ __ethtool_features_set_req_set_hw_bits_bit(struct ethtool_features_set_req *req,
 	req->hw.bits.n_bit = n_bit;
 }
 static inline void
+ethtool_features_set_req_set_hw_value(struct ethtool_features_set_req *req,
+				      const void *value, size_t len)
+{
+	req->_present.hw = 1;
+	free(req->hw.value);
+	req->hw._present.value_len = len;
+	req->hw.value = malloc(req->hw._present.value_len);
+	memcpy(req->hw.value, value, req->hw._present.value_len);
+}
+static inline void
+ethtool_features_set_req_set_hw_mask(struct ethtool_features_set_req *req,
+				     const void *mask, size_t len)
+{
+	req->_present.hw = 1;
+	free(req->hw.mask);
+	req->hw._present.mask_len = len;
+	req->hw.mask = malloc(req->hw._present.mask_len);
+	memcpy(req->hw.mask, mask, req->hw._present.mask_len);
+}
+static inline void
 ethtool_features_set_req_set_wanted_nomask(struct ethtool_features_set_req *req)
 {
 	req->_present.wanted = 1;
@@ -1897,6 +2001,26 @@ __ethtool_features_set_req_set_wanted_bits_bit(struct ethtool_features_set_req *
 	free(req->wanted.bits.bit);
 	req->wanted.bits.bit = bit;
 	req->wanted.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_features_set_req_set_wanted_value(struct ethtool_features_set_req *req,
+					  const void *value, size_t len)
+{
+	req->_present.wanted = 1;
+	free(req->wanted.value);
+	req->wanted._present.value_len = len;
+	req->wanted.value = malloc(req->wanted._present.value_len);
+	memcpy(req->wanted.value, value, req->wanted._present.value_len);
+}
+static inline void
+ethtool_features_set_req_set_wanted_mask(struct ethtool_features_set_req *req,
+					 const void *mask, size_t len)
+{
+	req->_present.wanted = 1;
+	free(req->wanted.mask);
+	req->wanted._present.mask_len = len;
+	req->wanted.mask = malloc(req->wanted._present.mask_len);
+	memcpy(req->wanted.mask, mask, req->wanted._present.mask_len);
 }
 static inline void
 ethtool_features_set_req_set_active_nomask(struct ethtool_features_set_req *req)
@@ -1924,6 +2048,26 @@ __ethtool_features_set_req_set_active_bits_bit(struct ethtool_features_set_req *
 	req->active.bits.n_bit = n_bit;
 }
 static inline void
+ethtool_features_set_req_set_active_value(struct ethtool_features_set_req *req,
+					  const void *value, size_t len)
+{
+	req->_present.active = 1;
+	free(req->active.value);
+	req->active._present.value_len = len;
+	req->active.value = malloc(req->active._present.value_len);
+	memcpy(req->active.value, value, req->active._present.value_len);
+}
+static inline void
+ethtool_features_set_req_set_active_mask(struct ethtool_features_set_req *req,
+					 const void *mask, size_t len)
+{
+	req->_present.active = 1;
+	free(req->active.mask);
+	req->active._present.mask_len = len;
+	req->active.mask = malloc(req->active._present.mask_len);
+	memcpy(req->active.mask, mask, req->active._present.mask_len);
+}
+static inline void
 ethtool_features_set_req_set_nochange_nomask(struct ethtool_features_set_req *req)
 {
 	req->_present.nochange = 1;
@@ -1947,6 +2091,26 @@ __ethtool_features_set_req_set_nochange_bits_bit(struct ethtool_features_set_req
 	free(req->nochange.bits.bit);
 	req->nochange.bits.bit = bit;
 	req->nochange.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_features_set_req_set_nochange_value(struct ethtool_features_set_req *req,
+					    const void *value, size_t len)
+{
+	req->_present.nochange = 1;
+	free(req->nochange.value);
+	req->nochange._present.value_len = len;
+	req->nochange.value = malloc(req->nochange._present.value_len);
+	memcpy(req->nochange.value, value, req->nochange._present.value_len);
+}
+static inline void
+ethtool_features_set_req_set_nochange_mask(struct ethtool_features_set_req *req,
+					   const void *mask, size_t len)
+{
+	req->_present.nochange = 1;
+	free(req->nochange.mask);
+	req->nochange._present.mask_len = len;
+	req->nochange.mask = malloc(req->nochange._present.mask_len);
+	memcpy(req->nochange.mask, mask, req->nochange._present.mask_len);
 }
 
 struct ethtool_features_set_rsp {
@@ -2198,6 +2362,26 @@ __ethtool_privflags_set_req_set_flags_bits_bit(struct ethtool_privflags_set_req 
 	free(req->flags.bits.bit);
 	req->flags.bits.bit = bit;
 	req->flags.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_privflags_set_req_set_flags_value(struct ethtool_privflags_set_req *req,
+					  const void *value, size_t len)
+{
+	req->_present.flags = 1;
+	free(req->flags.value);
+	req->flags._present.value_len = len;
+	req->flags.value = malloc(req->flags._present.value_len);
+	memcpy(req->flags.value, value, req->flags._present.value_len);
+}
+static inline void
+ethtool_privflags_set_req_set_flags_mask(struct ethtool_privflags_set_req *req,
+					 const void *mask, size_t len)
+{
+	req->_present.flags = 1;
+	free(req->flags.mask);
+	req->flags._present.mask_len = len;
+	req->flags.mask = malloc(req->flags._present.mask_len);
+	memcpy(req->flags.mask, mask, req->flags._present.mask_len);
 }
 
 /*
@@ -3890,6 +4074,26 @@ __ethtool_eee_set_req_set_modes_ours_bits_bit(struct ethtool_eee_set_req *req,
 	req->modes_ours.bits.n_bit = n_bit;
 }
 static inline void
+ethtool_eee_set_req_set_modes_ours_value(struct ethtool_eee_set_req *req,
+					 const void *value, size_t len)
+{
+	req->_present.modes_ours = 1;
+	free(req->modes_ours.value);
+	req->modes_ours._present.value_len = len;
+	req->modes_ours.value = malloc(req->modes_ours._present.value_len);
+	memcpy(req->modes_ours.value, value, req->modes_ours._present.value_len);
+}
+static inline void
+ethtool_eee_set_req_set_modes_ours_mask(struct ethtool_eee_set_req *req,
+					const void *mask, size_t len)
+{
+	req->_present.modes_ours = 1;
+	free(req->modes_ours.mask);
+	req->modes_ours._present.mask_len = len;
+	req->modes_ours.mask = malloc(req->modes_ours._present.mask_len);
+	memcpy(req->modes_ours.mask, mask, req->modes_ours._present.mask_len);
+}
+static inline void
 ethtool_eee_set_req_set_modes_peer_nomask(struct ethtool_eee_set_req *req)
 {
 	req->_present.modes_peer = 1;
@@ -3913,6 +4117,26 @@ __ethtool_eee_set_req_set_modes_peer_bits_bit(struct ethtool_eee_set_req *req,
 	free(req->modes_peer.bits.bit);
 	req->modes_peer.bits.bit = bit;
 	req->modes_peer.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_eee_set_req_set_modes_peer_value(struct ethtool_eee_set_req *req,
+					 const void *value, size_t len)
+{
+	req->_present.modes_peer = 1;
+	free(req->modes_peer.value);
+	req->modes_peer._present.value_len = len;
+	req->modes_peer.value = malloc(req->modes_peer._present.value_len);
+	memcpy(req->modes_peer.value, value, req->modes_peer._present.value_len);
+}
+static inline void
+ethtool_eee_set_req_set_modes_peer_mask(struct ethtool_eee_set_req *req,
+					const void *mask, size_t len)
+{
+	req->_present.modes_peer = 1;
+	free(req->modes_peer.mask);
+	req->modes_peer._present.mask_len = len;
+	req->modes_peer.mask = malloc(req->modes_peer._present.mask_len);
+	memcpy(req->modes_peer.mask, mask, req->modes_peer._present.mask_len);
 }
 static inline void
 ethtool_eee_set_req_set_active(struct ethtool_eee_set_req *req, __u8 active)
@@ -4574,6 +4798,26 @@ __ethtool_fec_set_req_set_modes_bits_bit(struct ethtool_fec_set_req *req,
 	free(req->modes.bits.bit);
 	req->modes.bits.bit = bit;
 	req->modes.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_fec_set_req_set_modes_value(struct ethtool_fec_set_req *req,
+				    const void *value, size_t len)
+{
+	req->_present.modes = 1;
+	free(req->modes.value);
+	req->modes._present.value_len = len;
+	req->modes.value = malloc(req->modes._present.value_len);
+	memcpy(req->modes.value, value, req->modes._present.value_len);
+}
+static inline void
+ethtool_fec_set_req_set_modes_mask(struct ethtool_fec_set_req *req,
+				   const void *mask, size_t len)
+{
+	req->_present.modes = 1;
+	free(req->modes.mask);
+	req->modes._present.mask_len = len;
+	req->modes.mask = malloc(req->modes._present.mask_len);
+	memcpy(req->modes.mask, mask, req->modes._present.mask_len);
 }
 static inline void
 ethtool_fec_set_req_set_auto_(struct ethtool_fec_set_req *req, __u8 auto_)
@@ -6452,6 +6696,17 @@ void ethtool_phy_get_list_free(struct ethtool_phy_get_list *rsp);
 
 struct ethtool_phy_get_list *
 ethtool_phy_get_dump(struct ynl_sock *ys, struct ethtool_phy_get_req_dump *req);
+
+/* ETHTOOL_MSG_PHY_GET - notify */
+struct ethtool_phy_get_ntf {
+	__u16 family;
+	__u8 cmd;
+	struct ynl_ntf_base_type *next;
+	void (*free)(struct ethtool_phy_get_ntf *ntf);
+	struct ethtool_phy_get_rsp obj __attribute__((aligned(8)));
+};
+
+void ethtool_phy_get_ntf_free(struct ethtool_phy_get_ntf *rsp);
 
 /* ETHTOOL_MSG_CABLE_TEST_NTF - event */
 struct ethtool_cable_test_ntf_rsp {

@@ -60,6 +60,7 @@ static const char * const ethtool_op_strmap[] = {
 	[43] = "mm-ntf",
 	[44] = "module-fw-flash-ntf",
 	[ETHTOOL_MSG_PHY_GET] = "phy-get",
+	[46] = "phy-ntf",
 };
 
 const char *ethtool_op_str(int op)
@@ -341,6 +342,8 @@ const struct ynl_policy_attr ethtool_bitset_policy[ETHTOOL_A_BITSET_MAX + 1] = {
 	[ETHTOOL_A_BITSET_NOMASK] = { .name = "nomask", .type = YNL_PT_FLAG, },
 	[ETHTOOL_A_BITSET_SIZE] = { .name = "size", .type = YNL_PT_U32, },
 	[ETHTOOL_A_BITSET_BITS] = { .name = "bits", .type = YNL_PT_NEST, .nest = &ethtool_bitset_bits_nest, },
+	[ETHTOOL_A_BITSET_VALUE] = { .name = "value", .type = YNL_PT_BINARY,},
+	[ETHTOOL_A_BITSET_MASK] = { .name = "mask", .type = YNL_PT_BINARY,},
 };
 
 const struct ynl_policy_nest ethtool_bitset_nest = {
@@ -1598,6 +1601,8 @@ int ethtool_strings_parse(struct ynl_parse_arg *yarg,
 void ethtool_bitset_free(struct ethtool_bitset *obj)
 {
 	ethtool_bitset_bits_free(&obj->bits);
+	free(obj->value);
+	free(obj->mask);
 }
 
 int ethtool_bitset_put(struct nlmsghdr *nlh, unsigned int attr_type,
@@ -1612,6 +1617,10 @@ int ethtool_bitset_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_u32(nlh, ETHTOOL_A_BITSET_SIZE, obj->size);
 	if (obj->_present.bits)
 		ethtool_bitset_bits_put(nlh, ETHTOOL_A_BITSET_BITS, &obj->bits);
+	if (obj->_present.value_len)
+		ynl_attr_put(nlh, ETHTOOL_A_BITSET_VALUE, obj->value, obj->_present.value_len);
+	if (obj->_present.mask_len)
+		ynl_attr_put(nlh, ETHTOOL_A_BITSET_MASK, obj->mask, obj->_present.mask_len);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -1647,6 +1656,26 @@ int ethtool_bitset_parse(struct ynl_parse_arg *yarg,
 			parg.data = &dst->bits;
 			if (ethtool_bitset_bits_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
+		} else if (type == ETHTOOL_A_BITSET_VALUE) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = ynl_attr_data_len(attr);
+			dst->_present.value_len = len;
+			dst->value = malloc(len);
+			memcpy(dst->value, ynl_attr_data(attr), len);
+		} else if (type == ETHTOOL_A_BITSET_MASK) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = ynl_attr_data_len(attr);
+			dst->_present.mask_len = len;
+			dst->mask = malloc(len);
+			memcpy(dst->mask, ynl_attr_data(attr), len);
 		}
 	}
 
@@ -7038,6 +7067,17 @@ free_list:
 	return NULL;
 }
 
+/* ETHTOOL_MSG_PHY_GET - notify */
+void ethtool_phy_get_ntf_free(struct ethtool_phy_get_ntf *rsp)
+{
+	ethtool_header_free(&rsp->obj.header);
+	free(rsp->obj.drvname);
+	free(rsp->obj.name);
+	free(rsp->obj.upstream_sfp_name);
+	free(rsp->obj.downstream_sfp_name);
+	free(rsp);
+}
+
 /* ETHTOOL_MSG_CABLE_TEST_NTF - event */
 int ethtool_cable_test_ntf_rsp_parse(const struct nlmsghdr *nlh,
 				     struct ynl_parse_arg *yarg)
@@ -7298,6 +7338,12 @@ static const struct ynl_ntf_info ethtool_ntf_info[] =  {
 		.cb		= ethtool_module_fw_flash_ntf_rsp_parse,
 		.policy		= &ethtool_module_fw_flash_nest,
 		.free		= (void *)ethtool_module_fw_flash_ntf_free,
+	},
+	[ETHTOOL_MSG_PHY_NTF] =  {
+		.alloc_sz	= sizeof(struct ethtool_phy_get_ntf),
+		.cb		= ethtool_phy_get_rsp_parse,
+		.policy		= &ethtool_phy_nest,
+		.free		= (void *)ethtool_phy_get_ntf_free,
 	},
 };
 
