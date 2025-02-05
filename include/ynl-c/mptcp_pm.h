@@ -383,7 +383,7 @@ mptcp_pm_flush_addrs_req_set_addr_if_idx(struct mptcp_pm_flush_addrs_req *req,
 }
 
 /*
- * flush addresses
+ * Flush addresses
  */
 int mptcp_pm_flush_addrs(struct ynl_sock *ys,
 			 struct mptcp_pm_flush_addrs_req *req);
@@ -711,7 +711,7 @@ mptcp_pm_announce_req_set_token(struct mptcp_pm_announce_req *req, __u32 token)
 }
 
 /*
- * announce new sf
+ * Announce new address
  */
 int mptcp_pm_announce(struct ynl_sock *ys, struct mptcp_pm_announce_req *req);
 
@@ -747,7 +747,7 @@ mptcp_pm_remove_req_set_loc_id(struct mptcp_pm_remove_req *req, __u8 loc_id)
 }
 
 /*
- * announce removal
+ * Announce removal
  */
 int mptcp_pm_remove(struct ynl_sock *ys, struct mptcp_pm_remove_req *req);
 
@@ -898,7 +898,7 @@ mptcp_pm_subflow_create_req_set_addr_remote_if_idx(struct mptcp_pm_subflow_creat
 }
 
 /*
- * todo
+ * Create subflow
  */
 int mptcp_pm_subflow_create(struct ynl_sock *ys,
 			    struct mptcp_pm_subflow_create_req *req);
@@ -1051,7 +1051,7 @@ mptcp_pm_subflow_destroy_req_set_addr_remote_if_idx(struct mptcp_pm_subflow_dest
 }
 
 /*
- * todo
+ * Destroy subflow
  */
 int mptcp_pm_subflow_destroy(struct ynl_sock *ys,
 			     struct mptcp_pm_subflow_destroy_req *req);

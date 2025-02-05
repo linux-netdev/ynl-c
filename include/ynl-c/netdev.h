@@ -406,6 +406,7 @@ struct netdev_napi_get_rsp {
 		__u32 pid:1;
 		__u32 defer_hard_irqs:1;
 		__u32 gro_flush_timeout:1;
+		__u32 irq_suspend_timeout:1;
 	} _present;
 
 	__u32 id;
@@ -414,6 +415,7 @@ struct netdev_napi_get_rsp {
 	__u32 pid;
 	__u32 defer_hard_irqs;
 	__u64 gro_flush_timeout;
+	__u64 irq_suspend_timeout;
 };
 
 void netdev_napi_get_rsp_free(struct netdev_napi_get_rsp *rsp);
@@ -588,11 +590,13 @@ struct netdev_napi_set_req {
 		__u32 id:1;
 		__u32 defer_hard_irqs:1;
 		__u32 gro_flush_timeout:1;
+		__u32 irq_suspend_timeout:1;
 	} _present;
 
 	__u32 id;
 	__u32 defer_hard_irqs;
 	__u64 gro_flush_timeout;
+	__u64 irq_suspend_timeout;
 };
 
 static inline struct netdev_napi_set_req *netdev_napi_set_req_alloc(void)
@@ -620,6 +624,13 @@ netdev_napi_set_req_set_gro_flush_timeout(struct netdev_napi_set_req *req,
 {
 	req->_present.gro_flush_timeout = 1;
 	req->gro_flush_timeout = gro_flush_timeout;
+}
+static inline void
+netdev_napi_set_req_set_irq_suspend_timeout(struct netdev_napi_set_req *req,
+					    __u64 irq_suspend_timeout)
+{
+	req->_present.irq_suspend_timeout = 1;
+	req->irq_suspend_timeout = irq_suspend_timeout;
 }
 
 /*

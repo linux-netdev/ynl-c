@@ -195,6 +195,7 @@ const struct ynl_policy_attr netdev_napi_policy[NETDEV_A_NAPI_MAX + 1] = {
 	[NETDEV_A_NAPI_PID] = { .name = "pid", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_DEFER_HARD_IRQS] = { .name = "defer-hard-irqs", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT] = { .name = "gro-flush-timeout", .type = YNL_PT_UINT, },
+	[NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT] = { .name = "irq-suspend-timeout", .type = YNL_PT_UINT, },
 };
 
 const struct ynl_policy_nest netdev_napi_nest = {
@@ -953,6 +954,11 @@ int netdev_napi_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.gro_flush_timeout = 1;
 			dst->gro_flush_timeout = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.irq_suspend_timeout = 1;
+			dst->irq_suspend_timeout = ynl_attr_get_uint(attr);
 		}
 	}
 
@@ -1240,6 +1246,8 @@ int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req)
 		ynl_attr_put_u32(nlh, NETDEV_A_NAPI_DEFER_HARD_IRQS, req->defer_hard_irqs);
 	if (req->_present.gro_flush_timeout)
 		ynl_attr_put_uint(nlh, NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT, req->gro_flush_timeout);
+	if (req->_present.irq_suspend_timeout)
+		ynl_attr_put_uint(nlh, NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT, req->irq_suspend_timeout);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
