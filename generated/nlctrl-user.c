@@ -385,14 +385,20 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 			const struct nlattr *attr2;
 
 			attr_mcast_groups = attr;
-			ynl_attr_for_each_nested(attr2, attr)
+			ynl_attr_for_each_nested(attr2, attr) {
+				if (ynl_attr_validate(yarg, attr2))
+					return YNL_PARSE_CB_ERROR;
 				dst->n_mcast_groups++;
+			}
 		} else if (type == CTRL_ATTR_OPS) {
 			const struct nlattr *attr2;
 
 			attr_ops = attr;
-			ynl_attr_for_each_nested(attr2, attr)
+			ynl_attr_for_each_nested(attr2, attr) {
+				if (ynl_attr_validate(yarg, attr2))
+					return YNL_PARSE_CB_ERROR;
 				dst->n_ops++;
+			}
 		} else if (type == CTRL_ATTR_VERSION) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -504,10 +510,10 @@ free_list:
 
 /* ============== CTRL_CMD_GETPOLICY ============== */
 /* CTRL_CMD_GETPOLICY - dump */
-int nlctrl_getpolicy_rsp_dump_parse(const struct nlmsghdr *nlh,
-				    struct ynl_parse_arg *yarg)
+int nlctrl_getpolicy_rsp_parse(const struct nlmsghdr *nlh,
+			       struct ynl_parse_arg *yarg)
 {
-	struct nlctrl_getpolicy_rsp_dump *dst;
+	struct nlctrl_getpolicy_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 
@@ -556,15 +562,15 @@ int nlctrl_getpolicy_rsp_dump_parse(const struct nlmsghdr *nlh,
 	return YNL_PARSE_CB_OK;
 }
 
-void nlctrl_getpolicy_req_dump_free(struct nlctrl_getpolicy_req_dump *req)
+void nlctrl_getpolicy_req_free(struct nlctrl_getpolicy_req *req)
 {
 	free(req->family_name);
 	free(req);
 }
 
-void nlctrl_getpolicy_rsp_list_free(struct nlctrl_getpolicy_rsp_list *rsp)
+void nlctrl_getpolicy_list_free(struct nlctrl_getpolicy_list *rsp)
 {
-	struct nlctrl_getpolicy_rsp_list *next = rsp;
+	struct nlctrl_getpolicy_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
 		rsp = next;
@@ -574,9 +580,8 @@ void nlctrl_getpolicy_rsp_list_free(struct nlctrl_getpolicy_rsp_list *rsp)
 	}
 }
 
-struct nlctrl_getpolicy_rsp_list *
-nlctrl_getpolicy_dump(struct ynl_sock *ys,
-		      struct nlctrl_getpolicy_req_dump *req)
+struct nlctrl_getpolicy_list *
+nlctrl_getpolicy_dump(struct ynl_sock *ys, struct nlctrl_getpolicy_req *req)
 {
 	struct ynl_dump_state yds = {};
 	struct nlmsghdr *nlh;
@@ -585,8 +590,8 @@ nlctrl_getpolicy_dump(struct ynl_sock *ys,
 	yds.yarg.ys = ys;
 	yds.yarg.rsp_policy = &nlctrl_ctrl_attrs_nest;
 	yds.yarg.data = NULL;
-	yds.alloc_sz = sizeof(struct nlctrl_getpolicy_rsp_list);
-	yds.cb = nlctrl_getpolicy_rsp_dump_parse;
+	yds.alloc_sz = sizeof(struct nlctrl_getpolicy_list);
+	yds.cb = nlctrl_getpolicy_rsp_parse;
 	yds.rsp_cmd = CTRL_CMD_GETPOLICY;
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, CTRL_CMD_GETPOLICY, 1);
@@ -606,7 +611,7 @@ nlctrl_getpolicy_dump(struct ynl_sock *ys,
 	return yds.first;
 
 free_list:
-	nlctrl_getpolicy_rsp_list_free(yds.first);
+	nlctrl_getpolicy_list_free(yds.first);
 	return NULL;
 }
 

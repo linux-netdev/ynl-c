@@ -4952,10 +4952,10 @@ int devlink_region_del(struct ynl_sock *ys, struct devlink_region_del_req *req)
 
 /* ============== DEVLINK_CMD_REGION_READ ============== */
 /* DEVLINK_CMD_REGION_READ - dump */
-int devlink_region_read_rsp_dump_parse(const struct nlmsghdr *nlh,
-				       struct ynl_parse_arg *yarg)
+int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
+				  struct ynl_parse_arg *yarg)
 {
-	struct devlink_region_read_rsp_dump *dst;
+	struct devlink_region_read_rsp *dst;
 	const struct nlattr *attr;
 
 	dst = yarg->data;
@@ -5007,8 +5007,7 @@ int devlink_region_read_rsp_dump_parse(const struct nlmsghdr *nlh,
 	return YNL_PARSE_CB_OK;
 }
 
-void
-devlink_region_read_req_dump_free(struct devlink_region_read_req_dump *req)
+void devlink_region_read_req_free(struct devlink_region_read_req *req)
 {
 	free(req->bus_name);
 	free(req->dev_name);
@@ -5016,10 +5015,9 @@ devlink_region_read_req_dump_free(struct devlink_region_read_req_dump *req)
 	free(req);
 }
 
-void
-devlink_region_read_rsp_list_free(struct devlink_region_read_rsp_list *rsp)
+void devlink_region_read_list_free(struct devlink_region_read_list *rsp)
 {
-	struct devlink_region_read_rsp_list *next = rsp;
+	struct devlink_region_read_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
 		rsp = next;
@@ -5032,9 +5030,9 @@ devlink_region_read_rsp_list_free(struct devlink_region_read_rsp_list *rsp)
 	}
 }
 
-struct devlink_region_read_rsp_list *
+struct devlink_region_read_list *
 devlink_region_read_dump(struct ynl_sock *ys,
-			 struct devlink_region_read_req_dump *req)
+			 struct devlink_region_read_req *req)
 {
 	struct ynl_dump_state yds = {};
 	struct nlmsghdr *nlh;
@@ -5043,8 +5041,8 @@ devlink_region_read_dump(struct ynl_sock *ys,
 	yds.yarg.ys = ys;
 	yds.yarg.rsp_policy = &devlink_nest;
 	yds.yarg.data = NULL;
-	yds.alloc_sz = sizeof(struct devlink_region_read_rsp_list);
-	yds.cb = devlink_region_read_rsp_dump_parse;
+	yds.alloc_sz = sizeof(struct devlink_region_read_list);
+	yds.cb = devlink_region_read_rsp_parse;
 	yds.rsp_cmd = DEVLINK_CMD_REGION_READ;
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_REGION_READ, 1);
@@ -5074,7 +5072,7 @@ devlink_region_read_dump(struct ynl_sock *ys,
 	return yds.first;
 
 free_list:
-	devlink_region_read_rsp_list_free(yds.first);
+	devlink_region_read_list_free(yds.first);
 	return NULL;
 }
 
@@ -5275,6 +5273,7 @@ void devlink_info_get_rsp_free(struct devlink_info_get_rsp *rsp)
 	for (i = 0; i < rsp->n_info_version_stored; i++)
 		devlink_dl_info_version_free(&rsp->info_version_stored[i]);
 	free(rsp->info_version_stored);
+	free(rsp->info_board_serial_number);
 	free(rsp);
 }
 
@@ -5352,6 +5351,17 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 			n_info_version_running++;
 		} else if (type == DEVLINK_ATTR_INFO_VERSION_STORED) {
 			n_info_version_stored++;
+		} else if (type == DEVLINK_ATTR_INFO_BOARD_SERIAL_NUMBER) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_present.info_board_serial_number_len = len;
+			dst->info_board_serial_number = malloc(len + 1);
+			memcpy(dst->info_board_serial_number, ynl_attr_get_str(attr), len);
+			dst->info_board_serial_number[len] = 0;
 		}
 	}
 
@@ -5458,6 +5468,7 @@ void devlink_info_get_list_free(struct devlink_info_get_list *rsp)
 		for (i = 0; i < rsp->obj.n_info_version_stored; i++)
 			devlink_dl_info_version_free(&rsp->obj.info_version_stored[i]);
 		free(rsp->obj.info_version_stored);
+		free(rsp->obj.info_board_serial_number);
 		free(rsp);
 	}
 }
@@ -5781,10 +5792,10 @@ int devlink_health_reporter_diagnose(struct ynl_sock *ys,
 
 /* ============== DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET ============== */
 /* DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET - dump */
-int devlink_health_reporter_dump_get_rsp_dump_parse(const struct nlmsghdr *nlh,
-						    struct ynl_parse_arg *yarg)
+int devlink_health_reporter_dump_get_rsp_parse(const struct nlmsghdr *nlh,
+					       struct ynl_parse_arg *yarg)
 {
-	struct devlink_health_reporter_dump_get_rsp_dump *dst;
+	struct devlink_health_reporter_dump_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 
@@ -5810,7 +5821,7 @@ int devlink_health_reporter_dump_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 }
 
 void
-devlink_health_reporter_dump_get_req_dump_free(struct devlink_health_reporter_dump_get_req_dump *req)
+devlink_health_reporter_dump_get_req_free(struct devlink_health_reporter_dump_get_req *req)
 {
 	free(req->bus_name);
 	free(req->dev_name);
@@ -5819,9 +5830,9 @@ devlink_health_reporter_dump_get_req_dump_free(struct devlink_health_reporter_du
 }
 
 void
-devlink_health_reporter_dump_get_rsp_list_free(struct devlink_health_reporter_dump_get_rsp_list *rsp)
+devlink_health_reporter_dump_get_list_free(struct devlink_health_reporter_dump_get_list *rsp)
 {
-	struct devlink_health_reporter_dump_get_rsp_list *next = rsp;
+	struct devlink_health_reporter_dump_get_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
 		rsp = next;
@@ -5832,9 +5843,9 @@ devlink_health_reporter_dump_get_rsp_list_free(struct devlink_health_reporter_du
 	}
 }
 
-struct devlink_health_reporter_dump_get_rsp_list *
+struct devlink_health_reporter_dump_get_list *
 devlink_health_reporter_dump_get_dump(struct ynl_sock *ys,
-				      struct devlink_health_reporter_dump_get_req_dump *req)
+				      struct devlink_health_reporter_dump_get_req *req)
 {
 	struct ynl_dump_state yds = {};
 	struct nlmsghdr *nlh;
@@ -5843,8 +5854,8 @@ devlink_health_reporter_dump_get_dump(struct ynl_sock *ys,
 	yds.yarg.ys = ys;
 	yds.yarg.rsp_policy = &devlink_nest;
 	yds.yarg.data = NULL;
-	yds.alloc_sz = sizeof(struct devlink_health_reporter_dump_get_rsp_list);
-	yds.cb = devlink_health_reporter_dump_get_rsp_dump_parse;
+	yds.alloc_sz = sizeof(struct devlink_health_reporter_dump_get_list);
+	yds.cb = devlink_health_reporter_dump_get_rsp_parse;
 	yds.rsp_cmd = DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET;
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET, 1);
@@ -5866,7 +5877,7 @@ devlink_health_reporter_dump_get_dump(struct ynl_sock *ys,
 	return yds.first;
 
 free_list:
-	devlink_health_reporter_dump_get_rsp_list_free(yds.first);
+	devlink_health_reporter_dump_get_list_free(yds.first);
 	return NULL;
 }
 

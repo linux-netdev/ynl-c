@@ -54,6 +54,8 @@ struct dpll_pin_parent_device {
 	__s64 phase_offset;
 };
 
+void dpll_pin_parent_device_free(struct dpll_pin_parent_device *obj);
+
 struct dpll_pin_parent_pin {
 	struct {
 		__u32 parent_id:1;
@@ -63,6 +65,8 @@ struct dpll_pin_parent_pin {
 	__u32 parent_id;
 	enum dpll_pin_state state;
 };
+
+void dpll_pin_parent_pin_free(struct dpll_pin_parent_pin *obj);
 
 /* ============== DPLL_CMD_DEVICE_ID_GET ============== */
 /* DPLL_CMD_DEVICE_ID_GET - do */
@@ -519,6 +523,10 @@ __dpll_pin_set_req_set_parent_device(struct dpll_pin_set_req *req,
 				     struct dpll_pin_parent_device *parent_device,
 				     unsigned int n_parent_device)
 {
+	unsigned int i;
+
+	for (i = 0; i < req->n_parent_device; i++)
+		dpll_pin_parent_device_free(&req->parent_device[i]);
 	free(req->parent_device);
 	req->parent_device = parent_device;
 	req->n_parent_device = n_parent_device;
@@ -528,6 +536,10 @@ __dpll_pin_set_req_set_parent_pin(struct dpll_pin_set_req *req,
 				  struct dpll_pin_parent_pin *parent_pin,
 				  unsigned int n_parent_pin)
 {
+	unsigned int i;
+
+	for (i = 0; i < req->n_parent_pin; i++)
+		dpll_pin_parent_pin_free(&req->parent_pin[i]);
 	free(req->parent_pin);
 	req->parent_pin = parent_pin;
 	req->n_parent_pin = n_parent_pin;

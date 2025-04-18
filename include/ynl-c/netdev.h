@@ -24,6 +24,9 @@ const char *netdev_queue_type_str(enum netdev_queue_type value);
 const char *netdev_qstats_scope_str(enum netdev_qstats_scope value);
 
 /* Common nested types */
+struct netdev_io_uring_provider_info {
+};
+
 struct netdev_page_pool_info {
 	struct {
 		__u32 id:1;
@@ -32,6 +35,9 @@ struct netdev_page_pool_info {
 
 	__u64 id;
 	__u32 ifindex;
+};
+
+struct netdev_xsk_info {
 };
 
 struct netdev_queue_id {
@@ -43,6 +49,8 @@ struct netdev_queue_id {
 	__u32 id;
 	enum netdev_queue_type type;
 };
+
+void netdev_queue_id_free(struct netdev_queue_id *obj);
 
 /* ============== NETDEV_CMD_DEV_GET ============== */
 /* NETDEV_CMD_DEV_GET - do */
@@ -145,6 +153,7 @@ struct netdev_page_pool_get_rsp {
 		__u32 inflight_mem:1;
 		__u32 detach_time:1;
 		__u32 dmabuf:1;
+		__u32 io_uring:1;
 	} _present;
 
 	__u64 id;
@@ -154,6 +163,7 @@ struct netdev_page_pool_get_rsp {
 	__u64 inflight_mem;
 	__u64 detach_time;
 	__u32 dmabuf;
+	struct netdev_io_uring_provider_info io_uring;
 };
 
 void netdev_page_pool_get_rsp_free(struct netdev_page_pool_get_rsp *rsp);
@@ -323,6 +333,8 @@ struct netdev_queue_get_rsp {
 		__u32 napi_id:1;
 		__u32 ifindex:1;
 		__u32 dmabuf:1;
+		__u32 io_uring:1;
+		__u32 xsk:1;
 	} _present;
 
 	__u32 id;
@@ -330,6 +342,8 @@ struct netdev_queue_get_rsp {
 	__u32 napi_id;
 	__u32 ifindex;
 	__u32 dmabuf;
+	struct netdev_io_uring_provider_info io_uring;
+	struct netdev_xsk_info xsk;
 };
 
 void netdev_queue_get_rsp_free(struct netdev_queue_get_rsp *rsp);
@@ -462,7 +476,7 @@ netdev_napi_get_dump(struct ynl_sock *ys, struct netdev_napi_get_req_dump *req);
 
 /* ============== NETDEV_CMD_QSTATS_GET ============== */
 /* NETDEV_CMD_QSTATS_GET - dump */
-struct netdev_qstats_get_req_dump {
+struct netdev_qstats_get_req {
 	struct {
 		__u32 ifindex:1;
 		__u32 scope:1;
@@ -472,29 +486,27 @@ struct netdev_qstats_get_req_dump {
 	__u64 scope;
 };
 
-static inline struct netdev_qstats_get_req_dump *
-netdev_qstats_get_req_dump_alloc(void)
+static inline struct netdev_qstats_get_req *netdev_qstats_get_req_alloc(void)
 {
-	return calloc(1, sizeof(struct netdev_qstats_get_req_dump));
+	return calloc(1, sizeof(struct netdev_qstats_get_req));
 }
-void netdev_qstats_get_req_dump_free(struct netdev_qstats_get_req_dump *req);
+void netdev_qstats_get_req_free(struct netdev_qstats_get_req *req);
 
 static inline void
-netdev_qstats_get_req_dump_set_ifindex(struct netdev_qstats_get_req_dump *req,
-				       __u32 ifindex)
+netdev_qstats_get_req_set_ifindex(struct netdev_qstats_get_req *req,
+				  __u32 ifindex)
 {
 	req->_present.ifindex = 1;
 	req->ifindex = ifindex;
 }
 static inline void
-netdev_qstats_get_req_dump_set_scope(struct netdev_qstats_get_req_dump *req,
-				     __u64 scope)
+netdev_qstats_get_req_set_scope(struct netdev_qstats_get_req *req, __u64 scope)
 {
 	req->_present.scope = 1;
 	req->scope = scope;
 }
 
-struct netdev_qstats_get_rsp_dump {
+struct netdev_qstats_get_rsp {
 	struct {
 		__u32 ifindex:1;
 		__u32 queue_type:1;
@@ -514,16 +526,15 @@ struct netdev_qstats_get_rsp_dump {
 	__u64 tx_bytes;
 };
 
-struct netdev_qstats_get_rsp_list {
-	struct netdev_qstats_get_rsp_list *next;
-	struct netdev_qstats_get_rsp_dump obj __attribute__((aligned(8)));
+struct netdev_qstats_get_list {
+	struct netdev_qstats_get_list *next;
+	struct netdev_qstats_get_rsp obj __attribute__((aligned(8)));
 };
 
-void netdev_qstats_get_rsp_list_free(struct netdev_qstats_get_rsp_list *rsp);
+void netdev_qstats_get_list_free(struct netdev_qstats_get_list *rsp);
 
-struct netdev_qstats_get_rsp_list *
-netdev_qstats_get_dump(struct ynl_sock *ys,
-		       struct netdev_qstats_get_req_dump *req);
+struct netdev_qstats_get_list *
+netdev_qstats_get_dump(struct ynl_sock *ys, struct netdev_qstats_get_req *req);
 
 /* ============== NETDEV_CMD_BIND_RX ============== */
 /* NETDEV_CMD_BIND_RX - do */
@@ -562,6 +573,10 @@ __netdev_bind_rx_req_set_queues(struct netdev_bind_rx_req *req,
 				struct netdev_queue_id *queues,
 				unsigned int n_queues)
 {
+	unsigned int i;
+
+	for (i = 0; i < req->n_queues; i++)
+		netdev_queue_id_free(&req->queues[i]);
 	free(req->queues);
 	req->queues = queues;
 	req->n_queues = n_queues;

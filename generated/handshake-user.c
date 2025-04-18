@@ -296,6 +296,7 @@ int handshake_done(struct ynl_sock *ys, struct handshake_done_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, HANDSHAKE_CMD_DONE, 1);
@@ -305,7 +306,7 @@ int handshake_done(struct ynl_sock *ys, struct handshake_done_req *req)
 		ynl_attr_put_u32(nlh, HANDSHAKE_A_DONE_STATUS, req->status);
 	if (req->_present.sockfd)
 		ynl_attr_put_s32(nlh, HANDSHAKE_A_DONE_SOCKFD, req->sockfd);
-	for (unsigned int i = 0; i < req->n_remote_auth; i++)
+	for (i = 0; i < req->n_remote_auth; i++)
 		ynl_attr_put_u32(nlh, HANDSHAKE_A_DONE_REMOTE_AUTH, req->remote_auth[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);

@@ -478,6 +478,7 @@ net_shaper_group(struct ynl_sock *ys, struct net_shaper_group_req *req)
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct net_shaper_group_rsp *rsp;
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NET_SHAPER_CMD_GROUP, 1);
@@ -502,7 +503,7 @@ net_shaper_group(struct ynl_sock *ys, struct net_shaper_group_req *req)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_PRIORITY, req->priority);
 	if (req->_present.weight)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_WEIGHT, req->weight);
-	for (unsigned int i = 0; i < req->n_leaves; i++)
+	for (i = 0; i < req->n_leaves; i++)
 		net_shaper_leaf_info_put(nlh, NET_SHAPER_A_LEAVES, &req->leaves[i]);
 
 	rsp = calloc(1, sizeof(*rsp));

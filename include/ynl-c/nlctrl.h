@@ -151,7 +151,7 @@ struct nlctrl_getfamily_list *nlctrl_getfamily_dump(struct ynl_sock *ys);
 
 /* ============== CTRL_CMD_GETPOLICY ============== */
 /* CTRL_CMD_GETPOLICY - dump */
-struct nlctrl_getpolicy_req_dump {
+struct nlctrl_getpolicy_req {
 	struct {
 		__u32 family_name_len;
 		__u32 family_id:1;
@@ -163,16 +163,15 @@ struct nlctrl_getpolicy_req_dump {
 	__u32 op;
 };
 
-static inline struct nlctrl_getpolicy_req_dump *
-nlctrl_getpolicy_req_dump_alloc(void)
+static inline struct nlctrl_getpolicy_req *nlctrl_getpolicy_req_alloc(void)
 {
-	return calloc(1, sizeof(struct nlctrl_getpolicy_req_dump));
+	return calloc(1, sizeof(struct nlctrl_getpolicy_req));
 }
-void nlctrl_getpolicy_req_dump_free(struct nlctrl_getpolicy_req_dump *req);
+void nlctrl_getpolicy_req_free(struct nlctrl_getpolicy_req *req);
 
 static inline void
-nlctrl_getpolicy_req_dump_set_family_name(struct nlctrl_getpolicy_req_dump *req,
-					  const char *family_name)
+nlctrl_getpolicy_req_set_family_name(struct nlctrl_getpolicy_req *req,
+				     const char *family_name)
 {
 	free(req->family_name);
 	req->_present.family_name_len = strlen(family_name);
@@ -181,21 +180,20 @@ nlctrl_getpolicy_req_dump_set_family_name(struct nlctrl_getpolicy_req_dump *req,
 	req->family_name[req->_present.family_name_len] = 0;
 }
 static inline void
-nlctrl_getpolicy_req_dump_set_family_id(struct nlctrl_getpolicy_req_dump *req,
-					__u16 family_id)
+nlctrl_getpolicy_req_set_family_id(struct nlctrl_getpolicy_req *req,
+				   __u16 family_id)
 {
 	req->_present.family_id = 1;
 	req->family_id = family_id;
 }
 static inline void
-nlctrl_getpolicy_req_dump_set_op(struct nlctrl_getpolicy_req_dump *req,
-				 __u32 op)
+nlctrl_getpolicy_req_set_op(struct nlctrl_getpolicy_req *req, __u32 op)
 {
 	req->_present.op = 1;
 	req->op = op;
 }
 
-struct nlctrl_getpolicy_rsp_dump {
+struct nlctrl_getpolicy_rsp {
 	struct {
 		__u32 family_id:1;
 		__u32 op_policy:1;
@@ -207,15 +205,14 @@ struct nlctrl_getpolicy_rsp_dump {
 	struct nlctrl_policy_attrs policy;
 };
 
-struct nlctrl_getpolicy_rsp_list {
-	struct nlctrl_getpolicy_rsp_list *next;
-	struct nlctrl_getpolicy_rsp_dump obj __attribute__((aligned(8)));
+struct nlctrl_getpolicy_list {
+	struct nlctrl_getpolicy_list *next;
+	struct nlctrl_getpolicy_rsp obj __attribute__((aligned(8)));
 };
 
-void nlctrl_getpolicy_rsp_list_free(struct nlctrl_getpolicy_rsp_list *rsp);
+void nlctrl_getpolicy_list_free(struct nlctrl_getpolicy_list *rsp);
 
-struct nlctrl_getpolicy_rsp_list *
-nlctrl_getpolicy_dump(struct ynl_sock *ys,
-		      struct nlctrl_getpolicy_req_dump *req);
+struct nlctrl_getpolicy_list *
+nlctrl_getpolicy_dump(struct ynl_sock *ys, struct nlctrl_getpolicy_req *req);
 
 #endif /* _LINUX_NLCTRL_GEN_H */

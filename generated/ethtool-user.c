@@ -907,7 +907,7 @@ const struct ynl_policy_attr ethtool_tsconfig_policy[ETHTOOL_A_TSCONFIG_MAX + 1]
 	[ETHTOOL_A_TSCONFIG_HWTSTAMP_PROVIDER] = { .name = "hwtstamp-provider", .type = YNL_PT_NEST, .nest = &ethtool_ts_hwtstamp_provider_nest, },
 	[ETHTOOL_A_TSCONFIG_TX_TYPES] = { .name = "tx-types", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 	[ETHTOOL_A_TSCONFIG_RX_FILTERS] = { .name = "rx-filters", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
-	[ETHTOOL_A_TSCONFIG_HWTSTAMP_FLAGS] = { .name = "hwtstamp-flags", .type = YNL_PT_U32, },
+	[ETHTOOL_A_TSCONFIG_HWTSTAMP_FLAGS] = { .name = "hwtstamp-flags", .type = YNL_PT_NEST, .nest = &ethtool_bitset_nest, },
 };
 
 const struct ynl_policy_nest ethtool_tsconfig_nest = {
@@ -1530,9 +1530,10 @@ int ethtool_profile_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			struct ethtool_profile *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (unsigned int i = 0; i < obj->n_irq_moderation; i++)
+	for (i = 0; i < obj->n_irq_moderation; i++)
 		ethtool_irq_moderation_put(nlh, ETHTOOL_A_PROFILE_IRQ_MODERATION, &obj->irq_moderation[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1634,9 +1635,10 @@ int ethtool_bitset_bits_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			    struct ethtool_bitset_bits *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (unsigned int i = 0; i < obj->n_bit; i++)
+	for (i = 0; i < obj->n_bit; i++)
 		ethtool_bitset_bit_put(nlh, ETHTOOL_A_BITSET_BITS_BIT, &obj->bit[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1696,9 +1698,10 @@ int ethtool_strings_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			struct ethtool_strings *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (unsigned int i = 0; i < obj->n_string; i++)
+	for (i = 0; i < obj->n_string; i++)
 		ethtool_string_put(nlh, ETHTOOL_A_STRINGS_STRING, &obj->string[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1842,13 +1845,14 @@ int ethtool_stringset_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			  struct ethtool_stringset_ *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.id)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_STRINGSET_ID, obj->id);
 	if (obj->_present.count)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_STRINGSET_COUNT, obj->count);
-	for (unsigned int i = 0; i < obj->n_strings; i++)
+	for (i = 0; i < obj->n_strings; i++)
 		ethtool_strings_put(nlh, ETHTOOL_A_STRINGSET_STRINGS, &obj->strings[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1982,9 +1986,10 @@ int ethtool_stringsets_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			   struct ethtool_stringsets *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (unsigned int i = 0; i < obj->n_stringset; i++)
+	for (i = 0; i < obj->n_stringset; i++)
 		ethtool_stringset_put(nlh, ETHTOOL_A_STRINGSETS_STRINGSET, &obj->stringset[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -7270,6 +7275,7 @@ void ethtool_tsconfig_get_rsp_free(struct ethtool_tsconfig_get_rsp *rsp)
 	ethtool_ts_hwtstamp_provider_free(&rsp->hwtstamp_provider);
 	ethtool_bitset_free(&rsp->tx_types);
 	ethtool_bitset_free(&rsp->rx_filters);
+	ethtool_bitset_free(&rsp->hwtstamp_flags);
 	free(rsp);
 }
 
@@ -7326,7 +7332,11 @@ int ethtool_tsconfig_get_rsp_parse(const struct nlmsghdr *nlh,
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.hwtstamp_flags = 1;
-			dst->hwtstamp_flags = ynl_attr_get_u32(attr);
+
+			parg.rsp_policy = &ethtool_bitset_nest;
+			parg.data = &dst->hwtstamp_flags;
+			if (ethtool_bitset_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
 		}
 	}
 
@@ -7384,6 +7394,7 @@ void ethtool_tsconfig_get_list_free(struct ethtool_tsconfig_get_list *rsp)
 		ethtool_ts_hwtstamp_provider_free(&rsp->obj.hwtstamp_provider);
 		ethtool_bitset_free(&rsp->obj.tx_types);
 		ethtool_bitset_free(&rsp->obj.rx_filters);
+		ethtool_bitset_free(&rsp->obj.hwtstamp_flags);
 		free(rsp);
 	}
 }
@@ -7428,6 +7439,7 @@ void ethtool_tsconfig_set_req_free(struct ethtool_tsconfig_set_req *req)
 	ethtool_ts_hwtstamp_provider_free(&req->hwtstamp_provider);
 	ethtool_bitset_free(&req->tx_types);
 	ethtool_bitset_free(&req->rx_filters);
+	ethtool_bitset_free(&req->hwtstamp_flags);
 	free(req);
 }
 
@@ -7437,6 +7449,7 @@ void ethtool_tsconfig_set_rsp_free(struct ethtool_tsconfig_set_rsp *rsp)
 	ethtool_ts_hwtstamp_provider_free(&rsp->hwtstamp_provider);
 	ethtool_bitset_free(&rsp->tx_types);
 	ethtool_bitset_free(&rsp->rx_filters);
+	ethtool_bitset_free(&rsp->hwtstamp_flags);
 	free(rsp);
 }
 
@@ -7493,7 +7506,11 @@ int ethtool_tsconfig_set_rsp_parse(const struct nlmsghdr *nlh,
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.hwtstamp_flags = 1;
-			dst->hwtstamp_flags = ynl_attr_get_u32(attr);
+
+			parg.rsp_policy = &ethtool_bitset_nest;
+			parg.data = &dst->hwtstamp_flags;
+			if (ethtool_bitset_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
 		}
 	}
 
@@ -7521,7 +7538,7 @@ ethtool_tsconfig_set(struct ynl_sock *ys, struct ethtool_tsconfig_set_req *req)
 	if (req->_present.rx_filters)
 		ethtool_bitset_put(nlh, ETHTOOL_A_TSCONFIG_RX_FILTERS, &req->rx_filters);
 	if (req->_present.hwtstamp_flags)
-		ynl_attr_put_u32(nlh, ETHTOOL_A_TSCONFIG_HWTSTAMP_FLAGS, req->hwtstamp_flags);
+		ethtool_bitset_put(nlh, ETHTOOL_A_TSCONFIG_HWTSTAMP_FLAGS, &req->hwtstamp_flags);
 
 	rsp = calloc(1, sizeof(*rsp));
 	yrs.yarg.data = rsp;

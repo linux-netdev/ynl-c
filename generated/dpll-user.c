@@ -1085,6 +1085,7 @@ int dpll_pin_set(struct ynl_sock *ys, struct dpll_pin_set_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_PIN_SET, 1);
@@ -1100,9 +1101,9 @@ int dpll_pin_set(struct ynl_sock *ys, struct dpll_pin_set_req *req)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_PRIO, req->prio);
 	if (req->_present.state)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_STATE, req->state);
-	for (unsigned int i = 0; i < req->n_parent_device; i++)
+	for (i = 0; i < req->n_parent_device; i++)
 		dpll_pin_parent_device_put(nlh, DPLL_A_PIN_PARENT_DEVICE, &req->parent_device[i]);
-	for (unsigned int i = 0; i < req->n_parent_pin; i++)
+	for (i = 0; i < req->n_parent_pin; i++)
 		dpll_pin_parent_pin_put(nlh, DPLL_A_PIN_PARENT_PIN, &req->parent_pin[i]);
 	if (req->_present.phase_adjust)
 		ynl_attr_put_s32(nlh, DPLL_A_PIN_PHASE_ADJUST, req->phase_adjust);

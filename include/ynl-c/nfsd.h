@@ -30,6 +30,8 @@ struct nfsd_version {
 	__u32 minor;
 };
 
+void nfsd_version_free(struct nfsd_version *obj);
+
 struct nfsd_sock {
 	struct {
 		__u32 addr_len;
@@ -40,9 +42,11 @@ struct nfsd_sock {
 	char *transport_name;
 };
 
+void nfsd_sock_free(struct nfsd_sock *obj);
+
 /* ============== NFSD_CMD_RPC_STATUS_GET ============== */
 /* NFSD_CMD_RPC_STATUS_GET - dump */
-struct nfsd_rpc_status_get_rsp_dump {
+struct nfsd_rpc_status_get_rsp {
 	struct {
 		__u32 xid:1;
 		__u32 flags:1;
@@ -74,16 +78,14 @@ struct nfsd_rpc_status_get_rsp_dump {
 	__u32 *compound_ops;
 };
 
-struct nfsd_rpc_status_get_rsp_list {
-	struct nfsd_rpc_status_get_rsp_list *next;
-	struct nfsd_rpc_status_get_rsp_dump obj __attribute__((aligned(8)));
+struct nfsd_rpc_status_get_list {
+	struct nfsd_rpc_status_get_list *next;
+	struct nfsd_rpc_status_get_rsp obj __attribute__((aligned(8)));
 };
 
-void
-nfsd_rpc_status_get_rsp_list_free(struct nfsd_rpc_status_get_rsp_list *rsp);
+void nfsd_rpc_status_get_list_free(struct nfsd_rpc_status_get_list *rsp);
 
-struct nfsd_rpc_status_get_rsp_list *
-nfsd_rpc_status_get_dump(struct ynl_sock *ys);
+struct nfsd_rpc_status_get_list *nfsd_rpc_status_get_dump(struct ynl_sock *ys);
 
 /* ============== NFSD_CMD_THREADS_SET ============== */
 /* NFSD_CMD_THREADS_SET - do */
@@ -187,6 +189,10 @@ __nfsd_version_set_req_set_version(struct nfsd_version_set_req *req,
 				   struct nfsd_version *version,
 				   unsigned int n_version)
 {
+	unsigned int i;
+
+	for (i = 0; i < req->n_version; i++)
+		nfsd_version_free(&req->version[i]);
 	free(req->version);
 	req->version = version;
 	req->n_version = n_version;
@@ -229,6 +235,10 @@ static inline void
 __nfsd_listener_set_req_set_addr(struct nfsd_listener_set_req *req,
 				 struct nfsd_sock *addr, unsigned int n_addr)
 {
+	unsigned int i;
+
+	for (i = 0; i < req->n_addr; i++)
+		nfsd_sock_free(&req->addr[i]);
 	free(req->addr);
 	req->addr = addr;
 	req->n_addr = n_addr;

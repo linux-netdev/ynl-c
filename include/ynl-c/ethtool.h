@@ -144,6 +144,8 @@ struct ethtool_irq_moderation {
 	__u32 comps;
 };
 
+void ethtool_irq_moderation_free(struct ethtool_irq_moderation *obj);
+
 struct ethtool_cable_result {
 	struct {
 		__u32 pair:1;
@@ -179,6 +181,8 @@ struct ethtool_bitset_bit {
 	char *name;
 };
 
+void ethtool_bitset_bit_free(struct ethtool_bitset_bit *obj);
+
 struct ethtool_tunnel_udp_entry {
 	struct {
 		__u32 port:1;
@@ -198,6 +202,8 @@ struct ethtool_string {
 	__u32 index;
 	char *value;
 };
+
+void ethtool_string_free(struct ethtool_string *obj);
 
 struct ethtool_profile {
 	unsigned int n_irq_moderation;
@@ -223,6 +229,8 @@ struct ethtool_strings {
 	unsigned int n_string;
 	struct ethtool_string *string;
 };
+
+void ethtool_strings_free(struct ethtool_strings *obj);
 
 struct ethtool_bitset {
 	struct {
@@ -250,6 +258,8 @@ struct ethtool_stringset_ {
 	unsigned int n_strings;
 	struct ethtool_strings *strings;
 };
+
+void ethtool_stringset_free(struct ethtool_stringset_ *obj);
 
 struct ethtool_tunnel_udp_table {
 	struct {
@@ -335,7 +345,11 @@ __ethtool_strset_get_req_set_stringsets_stringset(struct ethtool_strset_get_req 
 						  struct ethtool_stringset_ *stringset,
 						  unsigned int n_stringset)
 {
+	unsigned int i;
+
 	req->_present.stringsets = 1;
+	for (i = 0; i < req->stringsets.n_stringset; i++)
+		ethtool_stringset_free(&req->stringsets.stringset[i]);
 	free(req->stringsets.stringset);
 	req->stringsets.stringset = stringset;
 	req->stringsets.n_stringset = n_stringset;
@@ -423,7 +437,11 @@ __ethtool_strset_get_req_dump_set_stringsets_stringset(struct ethtool_strset_get
 						       struct ethtool_stringset_ *stringset,
 						       unsigned int n_stringset)
 {
+	unsigned int i;
+
 	req->_present.stringsets = 1;
+	for (i = 0; i < req->stringsets.n_stringset; i++)
+		ethtool_stringset_free(&req->stringsets.stringset[i]);
 	free(req->stringsets.stringset);
 	req->stringsets.stringset = stringset;
 	req->stringsets.n_stringset = n_stringset;
@@ -962,8 +980,12 @@ __ethtool_linkmodes_set_req_set_ours_bits_bit(struct ethtool_linkmodes_set_req *
 					      struct ethtool_bitset_bit *bit,
 					      unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.ours = 1;
 	req->ours._present.bits = 1;
+	for (i = 0; i < req->ours.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->ours.bits.bit[i]);
 	free(req->ours.bits.bit);
 	req->ours.bits.bit = bit;
 	req->ours.bits.n_bit = n_bit;
@@ -1007,8 +1029,12 @@ __ethtool_linkmodes_set_req_set_peer_bits_bit(struct ethtool_linkmodes_set_req *
 					      struct ethtool_bitset_bit *bit,
 					      unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.peer = 1;
 	req->peer._present.bits = 1;
+	for (i = 0; i < req->peer.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->peer.bits.bit[i]);
 	free(req->peer.bits.bit);
 	req->peer.bits.bit = bit;
 	req->peer.bits.n_bit = n_bit;
@@ -1444,8 +1470,12 @@ __ethtool_debug_set_req_set_msgmask_bits_bit(struct ethtool_debug_set_req *req,
 					     struct ethtool_bitset_bit *bit,
 					     unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.msgmask = 1;
 	req->msgmask._present.bits = 1;
+	for (i = 0; i < req->msgmask.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->msgmask.bits.bit[i]);
 	free(req->msgmask.bits.bit);
 	req->msgmask.bits.bit = bit;
 	req->msgmask.bits.n_bit = n_bit;
@@ -1694,8 +1724,12 @@ __ethtool_wol_set_req_set_modes_bits_bit(struct ethtool_wol_set_req *req,
 					 struct ethtool_bitset_bit *bit,
 					 unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.modes = 1;
 	req->modes._present.bits = 1;
+	for (i = 0; i < req->modes.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->modes.bits.bit[i]);
 	free(req->modes.bits.bit);
 	req->modes.bits.bit = bit;
 	req->modes.bits.n_bit = n_bit;
@@ -1966,8 +2000,12 @@ __ethtool_features_set_req_set_hw_bits_bit(struct ethtool_features_set_req *req,
 					   struct ethtool_bitset_bit *bit,
 					   unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.hw = 1;
 	req->hw._present.bits = 1;
+	for (i = 0; i < req->hw.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->hw.bits.bit[i]);
 	free(req->hw.bits.bit);
 	req->hw.bits.bit = bit;
 	req->hw.bits.n_bit = n_bit;
@@ -2011,8 +2049,12 @@ __ethtool_features_set_req_set_wanted_bits_bit(struct ethtool_features_set_req *
 					       struct ethtool_bitset_bit *bit,
 					       unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.wanted = 1;
 	req->wanted._present.bits = 1;
+	for (i = 0; i < req->wanted.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->wanted.bits.bit[i]);
 	free(req->wanted.bits.bit);
 	req->wanted.bits.bit = bit;
 	req->wanted.bits.n_bit = n_bit;
@@ -2056,8 +2098,12 @@ __ethtool_features_set_req_set_active_bits_bit(struct ethtool_features_set_req *
 					       struct ethtool_bitset_bit *bit,
 					       unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.active = 1;
 	req->active._present.bits = 1;
+	for (i = 0; i < req->active.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->active.bits.bit[i]);
 	free(req->active.bits.bit);
 	req->active.bits.bit = bit;
 	req->active.bits.n_bit = n_bit;
@@ -2101,8 +2147,12 @@ __ethtool_features_set_req_set_nochange_bits_bit(struct ethtool_features_set_req
 						 struct ethtool_bitset_bit *bit,
 						 unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.nochange = 1;
 	req->nochange._present.bits = 1;
+	for (i = 0; i < req->nochange.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->nochange.bits.bit[i]);
 	free(req->nochange.bits.bit);
 	req->nochange.bits.bit = bit;
 	req->nochange.bits.n_bit = n_bit;
@@ -2372,8 +2422,12 @@ __ethtool_privflags_set_req_set_flags_bits_bit(struct ethtool_privflags_set_req 
 					       struct ethtool_bitset_bit *bit,
 					       unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.flags = 1;
 	req->flags._present.bits = 1;
+	for (i = 0; i < req->flags.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->flags.bits.bit[i]);
 	free(req->flags.bits.bit);
 	req->flags.bits.bit = bit;
 	req->flags.bits.n_bit = n_bit;
@@ -3586,7 +3640,11 @@ __ethtool_coalesce_set_req_set_rx_profile_irq_moderation(struct ethtool_coalesce
 							 struct ethtool_irq_moderation *irq_moderation,
 							 unsigned int n_irq_moderation)
 {
+	unsigned int i;
+
 	req->_present.rx_profile = 1;
+	for (i = 0; i < req->rx_profile.n_irq_moderation; i++)
+		ethtool_irq_moderation_free(&req->rx_profile.irq_moderation[i]);
 	free(req->rx_profile.irq_moderation);
 	req->rx_profile.irq_moderation = irq_moderation;
 	req->rx_profile.n_irq_moderation = n_irq_moderation;
@@ -3596,7 +3654,11 @@ __ethtool_coalesce_set_req_set_tx_profile_irq_moderation(struct ethtool_coalesce
 							 struct ethtool_irq_moderation *irq_moderation,
 							 unsigned int n_irq_moderation)
 {
+	unsigned int i;
+
 	req->_present.tx_profile = 1;
+	for (i = 0; i < req->tx_profile.n_irq_moderation; i++)
+		ethtool_irq_moderation_free(&req->tx_profile.irq_moderation[i]);
 	free(req->tx_profile.irq_moderation);
 	req->tx_profile.irq_moderation = irq_moderation;
 	req->tx_profile.n_irq_moderation = n_irq_moderation;
@@ -4104,8 +4166,12 @@ __ethtool_eee_set_req_set_modes_ours_bits_bit(struct ethtool_eee_set_req *req,
 					      struct ethtool_bitset_bit *bit,
 					      unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.modes_ours = 1;
 	req->modes_ours._present.bits = 1;
+	for (i = 0; i < req->modes_ours.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->modes_ours.bits.bit[i]);
 	free(req->modes_ours.bits.bit);
 	req->modes_ours.bits.bit = bit;
 	req->modes_ours.bits.n_bit = n_bit;
@@ -4149,8 +4215,12 @@ __ethtool_eee_set_req_set_modes_peer_bits_bit(struct ethtool_eee_set_req *req,
 					      struct ethtool_bitset_bit *bit,
 					      unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.modes_peer = 1;
 	req->modes_peer._present.bits = 1;
+	for (i = 0; i < req->modes_peer.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->modes_peer.bits.bit[i]);
 	free(req->modes_peer.bits.bit);
 	req->modes_peer.bits.bit = bit;
 	req->modes_peer.bits.n_bit = n_bit;
@@ -4868,8 +4938,12 @@ __ethtool_fec_set_req_set_modes_bits_bit(struct ethtool_fec_set_req *req,
 					 struct ethtool_bitset_bit *bit,
 					 unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.modes = 1;
 	req->modes._present.bits = 1;
+	for (i = 0; i < req->modes.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->modes.bits.bit[i]);
 	free(req->modes.bits.bit);
 	req->modes.bits.bit = bit;
 	req->modes.bits.n_bit = n_bit;
@@ -6849,7 +6923,7 @@ struct ethtool_tsconfig_get_rsp {
 	struct ethtool_ts_hwtstamp_provider hwtstamp_provider;
 	struct ethtool_bitset tx_types;
 	struct ethtool_bitset rx_filters;
-	__u32 hwtstamp_flags;
+	struct ethtool_bitset hwtstamp_flags;
 };
 
 void ethtool_tsconfig_get_rsp_free(struct ethtool_tsconfig_get_rsp *rsp);
@@ -6939,7 +7013,7 @@ struct ethtool_tsconfig_set_req {
 	struct ethtool_ts_hwtstamp_provider hwtstamp_provider;
 	struct ethtool_bitset tx_types;
 	struct ethtool_bitset rx_filters;
-	__u32 hwtstamp_flags;
+	struct ethtool_bitset hwtstamp_flags;
 };
 
 static inline struct ethtool_tsconfig_set_req *
@@ -7019,8 +7093,12 @@ __ethtool_tsconfig_set_req_set_tx_types_bits_bit(struct ethtool_tsconfig_set_req
 						 struct ethtool_bitset_bit *bit,
 						 unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.tx_types = 1;
 	req->tx_types._present.bits = 1;
+	for (i = 0; i < req->tx_types.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->tx_types.bits.bit[i]);
 	free(req->tx_types.bits.bit);
 	req->tx_types.bits.bit = bit;
 	req->tx_types.bits.n_bit = n_bit;
@@ -7064,8 +7142,12 @@ __ethtool_tsconfig_set_req_set_rx_filters_bits_bit(struct ethtool_tsconfig_set_r
 						   struct ethtool_bitset_bit *bit,
 						   unsigned int n_bit)
 {
+	unsigned int i;
+
 	req->_present.rx_filters = 1;
 	req->rx_filters._present.bits = 1;
+	for (i = 0; i < req->rx_filters.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->rx_filters.bits.bit[i]);
 	free(req->rx_filters.bits.bit);
 	req->rx_filters.bits.bit = bit;
 	req->rx_filters.bits.n_bit = n_bit;
@@ -7091,11 +7173,54 @@ ethtool_tsconfig_set_req_set_rx_filters_mask(struct ethtool_tsconfig_set_req *re
 	memcpy(req->rx_filters.mask, mask, req->rx_filters._present.mask_len);
 }
 static inline void
-ethtool_tsconfig_set_req_set_hwtstamp_flags(struct ethtool_tsconfig_set_req *req,
-					    __u32 hwtstamp_flags)
+ethtool_tsconfig_set_req_set_hwtstamp_flags_nomask(struct ethtool_tsconfig_set_req *req)
 {
 	req->_present.hwtstamp_flags = 1;
-	req->hwtstamp_flags = hwtstamp_flags;
+	req->hwtstamp_flags._present.nomask = 1;
+}
+static inline void
+ethtool_tsconfig_set_req_set_hwtstamp_flags_size(struct ethtool_tsconfig_set_req *req,
+						 __u32 size)
+{
+	req->_present.hwtstamp_flags = 1;
+	req->hwtstamp_flags._present.size = 1;
+	req->hwtstamp_flags.size = size;
+}
+static inline void
+__ethtool_tsconfig_set_req_set_hwtstamp_flags_bits_bit(struct ethtool_tsconfig_set_req *req,
+						       struct ethtool_bitset_bit *bit,
+						       unsigned int n_bit)
+{
+	unsigned int i;
+
+	req->_present.hwtstamp_flags = 1;
+	req->hwtstamp_flags._present.bits = 1;
+	for (i = 0; i < req->hwtstamp_flags.bits.n_bit; i++)
+		ethtool_bitset_bit_free(&req->hwtstamp_flags.bits.bit[i]);
+	free(req->hwtstamp_flags.bits.bit);
+	req->hwtstamp_flags.bits.bit = bit;
+	req->hwtstamp_flags.bits.n_bit = n_bit;
+}
+static inline void
+ethtool_tsconfig_set_req_set_hwtstamp_flags_value(struct ethtool_tsconfig_set_req *req,
+						  const void *value,
+						  size_t len)
+{
+	req->_present.hwtstamp_flags = 1;
+	free(req->hwtstamp_flags.value);
+	req->hwtstamp_flags._present.value_len = len;
+	req->hwtstamp_flags.value = malloc(req->hwtstamp_flags._present.value_len);
+	memcpy(req->hwtstamp_flags.value, value, req->hwtstamp_flags._present.value_len);
+}
+static inline void
+ethtool_tsconfig_set_req_set_hwtstamp_flags_mask(struct ethtool_tsconfig_set_req *req,
+						 const void *mask, size_t len)
+{
+	req->_present.hwtstamp_flags = 1;
+	free(req->hwtstamp_flags.mask);
+	req->hwtstamp_flags._present.mask_len = len;
+	req->hwtstamp_flags.mask = malloc(req->hwtstamp_flags._present.mask_len);
+	memcpy(req->hwtstamp_flags.mask, mask, req->hwtstamp_flags._present.mask_len);
 }
 
 struct ethtool_tsconfig_set_rsp {
@@ -7111,7 +7236,7 @@ struct ethtool_tsconfig_set_rsp {
 	struct ethtool_ts_hwtstamp_provider hwtstamp_provider;
 	struct ethtool_bitset tx_types;
 	struct ethtool_bitset rx_filters;
-	__u32 hwtstamp_flags;
+	struct ethtool_bitset hwtstamp_flags;
 };
 
 void ethtool_tsconfig_set_rsp_free(struct ethtool_tsconfig_set_rsp *rsp);

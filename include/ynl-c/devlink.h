@@ -3054,7 +3054,7 @@ int devlink_region_del(struct ynl_sock *ys, struct devlink_region_del_req *req);
 
 /* ============== DEVLINK_CMD_REGION_READ ============== */
 /* DEVLINK_CMD_REGION_READ - dump */
-struct devlink_region_read_req_dump {
+struct devlink_region_read_req {
 	struct {
 		__u32 bus_name_len;
 		__u32 dev_name_len;
@@ -3075,17 +3075,16 @@ struct devlink_region_read_req_dump {
 	__u64 region_chunk_len;
 };
 
-static inline struct devlink_region_read_req_dump *
-devlink_region_read_req_dump_alloc(void)
+static inline struct devlink_region_read_req *
+devlink_region_read_req_alloc(void)
 {
-	return calloc(1, sizeof(struct devlink_region_read_req_dump));
+	return calloc(1, sizeof(struct devlink_region_read_req));
 }
-void
-devlink_region_read_req_dump_free(struct devlink_region_read_req_dump *req);
+void devlink_region_read_req_free(struct devlink_region_read_req *req);
 
 static inline void
-devlink_region_read_req_dump_set_bus_name(struct devlink_region_read_req_dump *req,
-					  const char *bus_name)
+devlink_region_read_req_set_bus_name(struct devlink_region_read_req *req,
+				     const char *bus_name)
 {
 	free(req->bus_name);
 	req->_present.bus_name_len = strlen(bus_name);
@@ -3094,8 +3093,8 @@ devlink_region_read_req_dump_set_bus_name(struct devlink_region_read_req_dump *r
 	req->bus_name[req->_present.bus_name_len] = 0;
 }
 static inline void
-devlink_region_read_req_dump_set_dev_name(struct devlink_region_read_req_dump *req,
-					  const char *dev_name)
+devlink_region_read_req_set_dev_name(struct devlink_region_read_req *req,
+				     const char *dev_name)
 {
 	free(req->dev_name);
 	req->_present.dev_name_len = strlen(dev_name);
@@ -3104,15 +3103,15 @@ devlink_region_read_req_dump_set_dev_name(struct devlink_region_read_req_dump *r
 	req->dev_name[req->_present.dev_name_len] = 0;
 }
 static inline void
-devlink_region_read_req_dump_set_port_index(struct devlink_region_read_req_dump *req,
-					    __u32 port_index)
+devlink_region_read_req_set_port_index(struct devlink_region_read_req *req,
+				       __u32 port_index)
 {
 	req->_present.port_index = 1;
 	req->port_index = port_index;
 }
 static inline void
-devlink_region_read_req_dump_set_region_name(struct devlink_region_read_req_dump *req,
-					     const char *region_name)
+devlink_region_read_req_set_region_name(struct devlink_region_read_req *req,
+					const char *region_name)
 {
 	free(req->region_name);
 	req->_present.region_name_len = strlen(region_name);
@@ -3121,33 +3120,33 @@ devlink_region_read_req_dump_set_region_name(struct devlink_region_read_req_dump
 	req->region_name[req->_present.region_name_len] = 0;
 }
 static inline void
-devlink_region_read_req_dump_set_region_snapshot_id(struct devlink_region_read_req_dump *req,
-						    __u32 region_snapshot_id)
+devlink_region_read_req_set_region_snapshot_id(struct devlink_region_read_req *req,
+					       __u32 region_snapshot_id)
 {
 	req->_present.region_snapshot_id = 1;
 	req->region_snapshot_id = region_snapshot_id;
 }
 static inline void
-devlink_region_read_req_dump_set_region_direct(struct devlink_region_read_req_dump *req)
+devlink_region_read_req_set_region_direct(struct devlink_region_read_req *req)
 {
 	req->_present.region_direct = 1;
 }
 static inline void
-devlink_region_read_req_dump_set_region_chunk_addr(struct devlink_region_read_req_dump *req,
-						   __u64 region_chunk_addr)
+devlink_region_read_req_set_region_chunk_addr(struct devlink_region_read_req *req,
+					      __u64 region_chunk_addr)
 {
 	req->_present.region_chunk_addr = 1;
 	req->region_chunk_addr = region_chunk_addr;
 }
 static inline void
-devlink_region_read_req_dump_set_region_chunk_len(struct devlink_region_read_req_dump *req,
-						  __u64 region_chunk_len)
+devlink_region_read_req_set_region_chunk_len(struct devlink_region_read_req *req,
+					     __u64 region_chunk_len)
 {
 	req->_present.region_chunk_len = 1;
 	req->region_chunk_len = region_chunk_len;
 }
 
-struct devlink_region_read_rsp_dump {
+struct devlink_region_read_rsp {
 	struct {
 		__u32 bus_name_len;
 		__u32 dev_name_len;
@@ -3161,17 +3160,16 @@ struct devlink_region_read_rsp_dump {
 	char *region_name;
 };
 
-struct devlink_region_read_rsp_list {
-	struct devlink_region_read_rsp_list *next;
-	struct devlink_region_read_rsp_dump obj __attribute__((aligned(8)));
+struct devlink_region_read_list {
+	struct devlink_region_read_list *next;
+	struct devlink_region_read_rsp obj __attribute__((aligned(8)));
 };
 
-void
-devlink_region_read_rsp_list_free(struct devlink_region_read_rsp_list *rsp);
+void devlink_region_read_list_free(struct devlink_region_read_list *rsp);
 
-struct devlink_region_read_rsp_list *
+struct devlink_region_read_list *
 devlink_region_read_dump(struct ynl_sock *ys,
-			 struct devlink_region_read_req_dump *req);
+			 struct devlink_region_read_req *req);
 
 /* ============== DEVLINK_CMD_PORT_PARAM_GET ============== */
 /* DEVLINK_CMD_PORT_PARAM_GET - do */
@@ -3354,6 +3352,7 @@ struct devlink_info_get_rsp {
 		__u32 dev_name_len;
 		__u32 info_driver_name_len;
 		__u32 info_serial_number_len;
+		__u32 info_board_serial_number_len;
 	} _present;
 
 	char *bus_name;
@@ -3366,6 +3365,7 @@ struct devlink_info_get_rsp {
 	struct devlink_dl_info_version *info_version_running;
 	unsigned int n_info_version_stored;
 	struct devlink_dl_info_version *info_version_stored;
+	char *info_board_serial_number;
 };
 
 void devlink_info_get_rsp_free(struct devlink_info_get_rsp *rsp);
@@ -3766,7 +3766,7 @@ int devlink_health_reporter_diagnose(struct ynl_sock *ys,
 
 /* ============== DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET ============== */
 /* DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET - dump */
-struct devlink_health_reporter_dump_get_req_dump {
+struct devlink_health_reporter_dump_get_req {
 	struct {
 		__u32 bus_name_len;
 		__u32 dev_name_len;
@@ -3780,17 +3780,17 @@ struct devlink_health_reporter_dump_get_req_dump {
 	char *health_reporter_name;
 };
 
-static inline struct devlink_health_reporter_dump_get_req_dump *
-devlink_health_reporter_dump_get_req_dump_alloc(void)
+static inline struct devlink_health_reporter_dump_get_req *
+devlink_health_reporter_dump_get_req_alloc(void)
 {
-	return calloc(1, sizeof(struct devlink_health_reporter_dump_get_req_dump));
+	return calloc(1, sizeof(struct devlink_health_reporter_dump_get_req));
 }
 void
-devlink_health_reporter_dump_get_req_dump_free(struct devlink_health_reporter_dump_get_req_dump *req);
+devlink_health_reporter_dump_get_req_free(struct devlink_health_reporter_dump_get_req *req);
 
 static inline void
-devlink_health_reporter_dump_get_req_dump_set_bus_name(struct devlink_health_reporter_dump_get_req_dump *req,
-						       const char *bus_name)
+devlink_health_reporter_dump_get_req_set_bus_name(struct devlink_health_reporter_dump_get_req *req,
+						  const char *bus_name)
 {
 	free(req->bus_name);
 	req->_present.bus_name_len = strlen(bus_name);
@@ -3799,8 +3799,8 @@ devlink_health_reporter_dump_get_req_dump_set_bus_name(struct devlink_health_rep
 	req->bus_name[req->_present.bus_name_len] = 0;
 }
 static inline void
-devlink_health_reporter_dump_get_req_dump_set_dev_name(struct devlink_health_reporter_dump_get_req_dump *req,
-						       const char *dev_name)
+devlink_health_reporter_dump_get_req_set_dev_name(struct devlink_health_reporter_dump_get_req *req,
+						  const char *dev_name)
 {
 	free(req->dev_name);
 	req->_present.dev_name_len = strlen(dev_name);
@@ -3809,15 +3809,15 @@ devlink_health_reporter_dump_get_req_dump_set_dev_name(struct devlink_health_rep
 	req->dev_name[req->_present.dev_name_len] = 0;
 }
 static inline void
-devlink_health_reporter_dump_get_req_dump_set_port_index(struct devlink_health_reporter_dump_get_req_dump *req,
-							 __u32 port_index)
+devlink_health_reporter_dump_get_req_set_port_index(struct devlink_health_reporter_dump_get_req *req,
+						    __u32 port_index)
 {
 	req->_present.port_index = 1;
 	req->port_index = port_index;
 }
 static inline void
-devlink_health_reporter_dump_get_req_dump_set_health_reporter_name(struct devlink_health_reporter_dump_get_req_dump *req,
-								   const char *health_reporter_name)
+devlink_health_reporter_dump_get_req_set_health_reporter_name(struct devlink_health_reporter_dump_get_req *req,
+							      const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
 	req->_present.health_reporter_name_len = strlen(health_reporter_name);
@@ -3826,7 +3826,7 @@ devlink_health_reporter_dump_get_req_dump_set_health_reporter_name(struct devlin
 	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
 }
 
-struct devlink_health_reporter_dump_get_rsp_dump {
+struct devlink_health_reporter_dump_get_rsp {
 	struct {
 		__u32 fmsg:1;
 	} _present;
@@ -3834,17 +3834,17 @@ struct devlink_health_reporter_dump_get_rsp_dump {
 	struct devlink_dl_fmsg fmsg;
 };
 
-struct devlink_health_reporter_dump_get_rsp_list {
-	struct devlink_health_reporter_dump_get_rsp_list *next;
-	struct devlink_health_reporter_dump_get_rsp_dump obj __attribute__((aligned(8)));
+struct devlink_health_reporter_dump_get_list {
+	struct devlink_health_reporter_dump_get_list *next;
+	struct devlink_health_reporter_dump_get_rsp obj __attribute__((aligned(8)));
 };
 
 void
-devlink_health_reporter_dump_get_rsp_list_free(struct devlink_health_reporter_dump_get_rsp_list *rsp);
+devlink_health_reporter_dump_get_list_free(struct devlink_health_reporter_dump_get_list *rsp);
 
-struct devlink_health_reporter_dump_get_rsp_list *
+struct devlink_health_reporter_dump_get_list *
 devlink_health_reporter_dump_get_dump(struct ynl_sock *ys,
-				      struct devlink_health_reporter_dump_get_req_dump *req);
+				      struct devlink_health_reporter_dump_get_req *req);
 
 /* ============== DEVLINK_CMD_HEALTH_REPORTER_DUMP_CLEAR ============== */
 /* DEVLINK_CMD_HEALTH_REPORTER_DUMP_CLEAR - do */

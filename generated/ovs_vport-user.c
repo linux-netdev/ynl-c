@@ -409,5 +409,5 @@ free_list:
 
 const struct ynl_family ynl_ovs_vport_family =  {
 	.name		= "ovs_vport",
-	.hdr_len	= sizeof(struct genlmsghdr),
+	.hdr_len	= sizeof(struct genlmsghdr) + sizeof(struct ovs_header),
 };

@@ -223,10 +223,10 @@ int nfsd_sock_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 
 /* ============== NFSD_CMD_RPC_STATUS_GET ============== */
 /* NFSD_CMD_RPC_STATUS_GET - dump */
-int nfsd_rpc_status_get_rsp_dump_parse(const struct nlmsghdr *nlh,
-				       struct ynl_parse_arg *yarg)
+int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
+				  struct ynl_parse_arg *yarg)
 {
-	struct nfsd_rpc_status_get_rsp_dump *dst;
+	struct nfsd_rpc_status_get_rsp *dst;
 	unsigned int n_compound_ops = 0;
 	const struct nlattr *attr;
 	int i;
@@ -329,10 +329,9 @@ int nfsd_rpc_status_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 	return YNL_PARSE_CB_OK;
 }
 
-void
-nfsd_rpc_status_get_rsp_list_free(struct nfsd_rpc_status_get_rsp_list *rsp)
+void nfsd_rpc_status_get_list_free(struct nfsd_rpc_status_get_list *rsp)
 {
-	struct nfsd_rpc_status_get_rsp_list *next = rsp;
+	struct nfsd_rpc_status_get_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
 		rsp = next;
@@ -345,8 +344,7 @@ nfsd_rpc_status_get_rsp_list_free(struct nfsd_rpc_status_get_rsp_list *rsp)
 	}
 }
 
-struct nfsd_rpc_status_get_rsp_list *
-nfsd_rpc_status_get_dump(struct ynl_sock *ys)
+struct nfsd_rpc_status_get_list *nfsd_rpc_status_get_dump(struct ynl_sock *ys)
 {
 	struct ynl_dump_state yds = {};
 	struct nlmsghdr *nlh;
@@ -355,8 +353,8 @@ nfsd_rpc_status_get_dump(struct ynl_sock *ys)
 	yds.yarg.ys = ys;
 	yds.yarg.rsp_policy = &nfsd_rpc_status_nest;
 	yds.yarg.data = NULL;
-	yds.alloc_sz = sizeof(struct nfsd_rpc_status_get_rsp_list);
-	yds.cb = nfsd_rpc_status_get_rsp_dump_parse;
+	yds.alloc_sz = sizeof(struct nfsd_rpc_status_get_list);
+	yds.cb = nfsd_rpc_status_get_rsp_parse;
 	yds.rsp_cmd = NFSD_CMD_RPC_STATUS_GET;
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NFSD_CMD_RPC_STATUS_GET, 1);
@@ -368,7 +366,7 @@ nfsd_rpc_status_get_dump(struct ynl_sock *ys)
 	return yds.first;
 
 free_list:
-	nfsd_rpc_status_get_rsp_list_free(yds.first);
+	nfsd_rpc_status_get_list_free(yds.first);
 	return NULL;
 }
 
@@ -385,12 +383,13 @@ int nfsd_threads_set(struct ynl_sock *ys, struct nfsd_threads_set_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_THREADS_SET, 1);
 	ys->req_policy = &nfsd_server_nest;
 
-	for (unsigned int i = 0; i < req->n_threads; i++)
+	for (i = 0; i < req->n_threads; i++)
 		ynl_attr_put_u32(nlh, NFSD_A_SERVER_THREADS, req->threads[i]);
 	if (req->_present.gracetime)
 		ynl_attr_put_u32(nlh, NFSD_A_SERVER_GRACETIME, req->gracetime);
@@ -515,12 +514,13 @@ int nfsd_version_set(struct ynl_sock *ys, struct nfsd_version_set_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_VERSION_SET, 1);
 	ys->req_policy = &nfsd_server_proto_nest;
 
-	for (unsigned int i = 0; i < req->n_version; i++)
+	for (i = 0; i < req->n_version; i++)
 		nfsd_version_put(nlh, NFSD_A_SERVER_PROTO_VERSION, &req->version[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -626,12 +626,13 @@ int nfsd_listener_set(struct ynl_sock *ys, struct nfsd_listener_set_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_LISTENER_SET, 1);
 	ys->req_policy = &nfsd_server_sock_nest;
 
-	for (unsigned int i = 0; i < req->n_addr; i++)
+	for (i = 0; i < req->n_addr; i++)
 		nfsd_sock_put(nlh, NFSD_A_SERVER_SOCK_ADDR, &req->addr[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);

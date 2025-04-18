@@ -71,6 +71,7 @@ const char *netdev_xdp_rx_metadata_str(enum netdev_xdp_rx_metadata value)
 static const char * const netdev_xsk_flags_strmap[] = {
 	[0] = "tx-timestamp",
 	[1] = "tx-checksum",
+	[2] = "tx-launch-time-fifo",
 };
 
 const char *netdev_xsk_flags_str(enum netdev_xsk_flags value)
@@ -106,6 +107,14 @@ const char *netdev_qstats_scope_str(enum netdev_qstats_scope value)
 }
 
 /* Policies */
+const struct ynl_policy_attr netdev_io_uring_provider_info_policy[NETDEV_A_IO_URING_PROVIDER_INFO_MAX + 1] = {
+};
+
+const struct ynl_policy_nest netdev_io_uring_provider_info_nest = {
+	.max_attr = NETDEV_A_IO_URING_PROVIDER_INFO_MAX,
+	.table = netdev_io_uring_provider_info_policy,
+};
+
 const struct ynl_policy_attr netdev_page_pool_info_policy[NETDEV_A_PAGE_POOL_MAX + 1] = {
 	[NETDEV_A_PAGE_POOL_ID] = { .name = "id", .type = YNL_PT_UINT, },
 	[NETDEV_A_PAGE_POOL_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
@@ -114,6 +123,14 @@ const struct ynl_policy_attr netdev_page_pool_info_policy[NETDEV_A_PAGE_POOL_MAX
 const struct ynl_policy_nest netdev_page_pool_info_nest = {
 	.max_attr = NETDEV_A_PAGE_POOL_MAX,
 	.table = netdev_page_pool_info_policy,
+};
+
+const struct ynl_policy_attr netdev_xsk_info_policy[NETDEV_A_XSK_INFO_MAX + 1] = {
+};
+
+const struct ynl_policy_nest netdev_xsk_info_nest = {
+	.max_attr = NETDEV_A_XSK_INFO_MAX,
+	.table = netdev_xsk_info_policy,
 };
 
 const struct ynl_policy_attr netdev_queue_id_policy[NETDEV_A_QUEUE_MAX + 1] = {
@@ -148,6 +165,7 @@ const struct ynl_policy_attr netdev_page_pool_policy[NETDEV_A_PAGE_POOL_MAX + 1]
 	[NETDEV_A_PAGE_POOL_INFLIGHT_MEM] = { .name = "inflight-mem", .type = YNL_PT_UINT, },
 	[NETDEV_A_PAGE_POOL_DETACH_TIME] = { .name = "detach-time", .type = YNL_PT_UINT, },
 	[NETDEV_A_PAGE_POOL_DMABUF] = { .name = "dmabuf", .type = YNL_PT_U32, },
+	[NETDEV_A_PAGE_POOL_IO_URING] = { .name = "io-uring", .type = YNL_PT_NEST, .nest = &netdev_io_uring_provider_info_nest, },
 };
 
 const struct ynl_policy_nest netdev_page_pool_nest = {
@@ -181,6 +199,8 @@ const struct ynl_policy_attr netdev_queue_policy[NETDEV_A_QUEUE_MAX + 1] = {
 	[NETDEV_A_QUEUE_TYPE] = { .name = "type", .type = YNL_PT_U32, },
 	[NETDEV_A_QUEUE_NAPI_ID] = { .name = "napi-id", .type = YNL_PT_U32, },
 	[NETDEV_A_QUEUE_DMABUF] = { .name = "dmabuf", .type = YNL_PT_U32, },
+	[NETDEV_A_QUEUE_IO_URING] = { .name = "io-uring", .type = YNL_PT_NEST, .nest = &netdev_io_uring_provider_info_nest, },
+	[NETDEV_A_QUEUE_XSK] = { .name = "xsk", .type = YNL_PT_NEST, .nest = &netdev_xsk_info_nest, },
 };
 
 const struct ynl_policy_nest netdev_queue_nest = {
@@ -255,6 +275,17 @@ const struct ynl_policy_nest netdev_dmabuf_nest = {
 };
 
 /* Common nested types */
+void
+netdev_io_uring_provider_info_free(struct netdev_io_uring_provider_info *obj)
+{
+}
+
+int netdev_io_uring_provider_info_parse(struct ynl_parse_arg *yarg,
+					const struct nlattr *nested)
+{
+	return 0;
+}
+
 void netdev_page_pool_info_free(struct netdev_page_pool_info *obj)
 {
 }
@@ -296,6 +327,16 @@ int netdev_page_pool_info_parse(struct ynl_parse_arg *yarg,
 		}
 	}
 
+	return 0;
+}
+
+void netdev_xsk_info_free(struct netdev_xsk_info *obj)
+{
+}
+
+int netdev_xsk_info_parse(struct ynl_parse_arg *yarg,
+			  const struct nlattr *nested)
+{
 	return 0;
 }
 
@@ -457,6 +498,7 @@ void netdev_page_pool_get_req_free(struct netdev_page_pool_get_req *req)
 
 void netdev_page_pool_get_rsp_free(struct netdev_page_pool_get_rsp *rsp)
 {
+	netdev_io_uring_provider_info_free(&rsp->io_uring);
 	free(rsp);
 }
 
@@ -465,8 +507,10 @@ int netdev_page_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct netdev_page_pool_get_rsp *dst;
 	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
 
 	dst = yarg->data;
+	parg.ys = yarg->ys;
 
 	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 		unsigned int type = ynl_attr_type(attr);
@@ -506,6 +550,15 @@ int netdev_page_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.dmabuf = 1;
 			dst->dmabuf = ynl_attr_get_u32(attr);
+		} else if (type == NETDEV_A_PAGE_POOL_IO_URING) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.io_uring = 1;
+
+			parg.rsp_policy = &netdev_io_uring_provider_info_nest;
+			parg.data = &dst->io_uring;
+			if (netdev_io_uring_provider_info_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
 		}
 	}
 
@@ -552,6 +605,7 @@ void netdev_page_pool_get_list_free(struct netdev_page_pool_get_list *rsp)
 		rsp = next;
 		next = rsp->next;
 
+		netdev_io_uring_provider_info_free(&rsp->obj.io_uring);
 		free(rsp);
 	}
 }
@@ -586,6 +640,7 @@ free_list:
 /* NETDEV_CMD_PAGE_POOL_GET - notify */
 void netdev_page_pool_get_ntf_free(struct netdev_page_pool_get_ntf *rsp)
 {
+	netdev_io_uring_provider_info_free(&rsp->obj.io_uring);
 	free(rsp);
 }
 
@@ -771,6 +826,8 @@ void netdev_queue_get_req_free(struct netdev_queue_get_req *req)
 
 void netdev_queue_get_rsp_free(struct netdev_queue_get_rsp *rsp)
 {
+	netdev_io_uring_provider_info_free(&rsp->io_uring);
+	netdev_xsk_info_free(&rsp->xsk);
 	free(rsp);
 }
 
@@ -779,8 +836,10 @@ int netdev_queue_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct netdev_queue_get_rsp *dst;
 	const struct nlattr *attr;
+	struct ynl_parse_arg parg;
 
 	dst = yarg->data;
+	parg.ys = yarg->ys;
 
 	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 		unsigned int type = ynl_attr_type(attr);
@@ -810,6 +869,24 @@ int netdev_queue_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.dmabuf = 1;
 			dst->dmabuf = ynl_attr_get_u32(attr);
+		} else if (type == NETDEV_A_QUEUE_IO_URING) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.io_uring = 1;
+
+			parg.rsp_policy = &netdev_io_uring_provider_info_nest;
+			parg.data = &dst->io_uring;
+			if (netdev_io_uring_provider_info_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
+		} else if (type == NETDEV_A_QUEUE_XSK) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.xsk = 1;
+
+			parg.rsp_policy = &netdev_xsk_info_nest;
+			parg.data = &dst->xsk;
+			if (netdev_xsk_info_parse(&parg, attr))
+				return YNL_PARSE_CB_ERROR;
 		}
 	}
 
@@ -865,6 +942,8 @@ void netdev_queue_get_list_free(struct netdev_queue_get_list *rsp)
 		rsp = next;
 		next = rsp->next;
 
+		netdev_io_uring_provider_info_free(&rsp->obj.io_uring);
+		netdev_xsk_info_free(&rsp->obj.xsk);
 		free(rsp);
 	}
 }
@@ -1047,10 +1126,10 @@ free_list:
 
 /* ============== NETDEV_CMD_QSTATS_GET ============== */
 /* NETDEV_CMD_QSTATS_GET - dump */
-int netdev_qstats_get_rsp_dump_parse(const struct nlmsghdr *nlh,
-				     struct ynl_parse_arg *yarg)
+int netdev_qstats_get_rsp_parse(const struct nlmsghdr *nlh,
+				struct ynl_parse_arg *yarg)
 {
-	struct netdev_qstats_get_rsp_dump *dst;
+	struct netdev_qstats_get_rsp *dst;
 	const struct nlattr *attr;
 
 	dst = yarg->data;
@@ -1099,14 +1178,14 @@ int netdev_qstats_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 	return YNL_PARSE_CB_OK;
 }
 
-void netdev_qstats_get_req_dump_free(struct netdev_qstats_get_req_dump *req)
+void netdev_qstats_get_req_free(struct netdev_qstats_get_req *req)
 {
 	free(req);
 }
 
-void netdev_qstats_get_rsp_list_free(struct netdev_qstats_get_rsp_list *rsp)
+void netdev_qstats_get_list_free(struct netdev_qstats_get_list *rsp)
 {
-	struct netdev_qstats_get_rsp_list *next = rsp;
+	struct netdev_qstats_get_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
 		rsp = next;
@@ -1116,9 +1195,8 @@ void netdev_qstats_get_rsp_list_free(struct netdev_qstats_get_rsp_list *rsp)
 	}
 }
 
-struct netdev_qstats_get_rsp_list *
-netdev_qstats_get_dump(struct ynl_sock *ys,
-		       struct netdev_qstats_get_req_dump *req)
+struct netdev_qstats_get_list *
+netdev_qstats_get_dump(struct ynl_sock *ys, struct netdev_qstats_get_req *req)
 {
 	struct ynl_dump_state yds = {};
 	struct nlmsghdr *nlh;
@@ -1127,8 +1205,8 @@ netdev_qstats_get_dump(struct ynl_sock *ys,
 	yds.yarg.ys = ys;
 	yds.yarg.rsp_policy = &netdev_qstats_nest;
 	yds.yarg.data = NULL;
-	yds.alloc_sz = sizeof(struct netdev_qstats_get_rsp_list);
-	yds.cb = netdev_qstats_get_rsp_dump_parse;
+	yds.alloc_sz = sizeof(struct netdev_qstats_get_list);
+	yds.cb = netdev_qstats_get_rsp_parse;
 	yds.rsp_cmd = NETDEV_CMD_QSTATS_GET;
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NETDEV_CMD_QSTATS_GET, 1);
@@ -1146,7 +1224,7 @@ netdev_qstats_get_dump(struct ynl_sock *ys,
 	return yds.first;
 
 free_list:
-	netdev_qstats_get_rsp_list_free(yds.first);
+	netdev_qstats_get_list_free(yds.first);
 	return NULL;
 }
 
@@ -1195,6 +1273,7 @@ netdev_bind_rx(struct ynl_sock *ys, struct netdev_bind_rx_req *req)
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct netdev_bind_rx_rsp *rsp;
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_BIND_RX, 1);
@@ -1205,7 +1284,7 @@ netdev_bind_rx(struct ynl_sock *ys, struct netdev_bind_rx_req *req)
 		ynl_attr_put_u32(nlh, NETDEV_A_DMABUF_IFINDEX, req->ifindex);
 	if (req->_present.fd)
 		ynl_attr_put_u32(nlh, NETDEV_A_DMABUF_FD, req->fd);
-	for (unsigned int i = 0; i < req->n_queues; i++)
+	for (i = 0; i < req->n_queues; i++)
 		netdev_queue_id_put(nlh, NETDEV_A_DMABUF_QUEUES, &req->queues[i]);
 
 	rsp = calloc(1, sizeof(*rsp));

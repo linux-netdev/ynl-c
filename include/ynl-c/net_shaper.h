@@ -43,6 +43,8 @@ struct net_shaper_leaf_info {
 	__u32 weight;
 };
 
+void net_shaper_leaf_info_free(struct net_shaper_leaf_info *obj);
+
 /* ============== NET_SHAPER_CMD_GET ============== */
 /* NET_SHAPER_CMD_GET - do */
 struct net_shaper_get_req {
@@ -419,6 +421,10 @@ __net_shaper_group_req_set_leaves(struct net_shaper_group_req *req,
 				  struct net_shaper_leaf_info *leaves,
 				  unsigned int n_leaves)
 {
+	unsigned int i;
+
+	for (i = 0; i < req->n_leaves; i++)
+		net_shaper_leaf_info_free(&req->leaves[i]);
 	free(req->leaves);
 	req->leaves = leaves;
 	req->n_leaves = n_leaves;
