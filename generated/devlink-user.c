@@ -317,6 +317,24 @@ const char *devlink_trap_type_str(enum devlink_trap_type value)
 	return devlink_trap_type_strmap[value];
 }
 
+static const char * const devlink_var_attr_type_strmap[] = {
+	[1] = "u8",
+	[2] = "u16",
+	[3] = "u32",
+	[4] = "u64",
+	[5] = "string",
+	[6] = "flag",
+	[10] = "nul_string",
+	[11] = "binary",
+};
+
+const char *devlink_var_attr_type_str(enum devlink_var_attr_type value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(devlink_var_attr_type_strmap))
+		return NULL;
+	return devlink_var_attr_type_strmap[value];
+}
+
 /* Policies */
 const struct ynl_policy_attr devlink_dl_dpipe_match_policy[DEVLINK_ATTR_MAX + 1] = {
 	[DEVLINK_ATTR_DPIPE_MATCH_TYPE] = { .name = "dpipe-match-type", .type = YNL_PT_U32, },
@@ -937,7 +955,7 @@ devlink_dl_dpipe_match_value_free(struct devlink_dl_dpipe_match_value *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_match; i++)
+	for (i = 0; i < obj->_count.dpipe_match; i++)
 		devlink_dl_dpipe_match_free(&obj->dpipe_match[i]);
 	free(obj->dpipe_match);
 	free(obj->dpipe_value);
@@ -970,7 +988,7 @@ int devlink_dl_dpipe_match_value_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dpipe_value_len = len;
+			dst->_len.dpipe_value = len;
 			dst->dpipe_value = malloc(len);
 			memcpy(dst->dpipe_value, ynl_attr_data(attr), len);
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE_MASK) {
@@ -980,7 +998,7 @@ int devlink_dl_dpipe_match_value_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dpipe_value_mask_len = len;
+			dst->_len.dpipe_value_mask = len;
 			dst->dpipe_value_mask = malloc(len);
 			memcpy(dst->dpipe_value_mask, ynl_attr_data(attr), len);
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE_MAPPING) {
@@ -993,7 +1011,7 @@ int devlink_dl_dpipe_match_value_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_match) {
 		dst->dpipe_match = calloc(n_dpipe_match, sizeof(*dst->dpipe_match));
-		dst->n_dpipe_match = n_dpipe_match;
+		dst->_count.dpipe_match = n_dpipe_match;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_match_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1058,7 +1076,7 @@ devlink_dl_dpipe_action_value_free(struct devlink_dl_dpipe_action_value *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_action; i++)
+	for (i = 0; i < obj->_count.dpipe_action; i++)
 		devlink_dl_dpipe_action_free(&obj->dpipe_action[i]);
 	free(obj->dpipe_action);
 	free(obj->dpipe_value);
@@ -1091,7 +1109,7 @@ int devlink_dl_dpipe_action_value_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dpipe_value_len = len;
+			dst->_len.dpipe_value = len;
 			dst->dpipe_value = malloc(len);
 			memcpy(dst->dpipe_value, ynl_attr_data(attr), len);
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE_MASK) {
@@ -1101,7 +1119,7 @@ int devlink_dl_dpipe_action_value_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dpipe_value_mask_len = len;
+			dst->_len.dpipe_value_mask = len;
 			dst->dpipe_value_mask = malloc(len);
 			memcpy(dst->dpipe_value_mask, ynl_attr_data(attr), len);
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE_MAPPING) {
@@ -1114,7 +1132,7 @@ int devlink_dl_dpipe_action_value_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_action) {
 		dst->dpipe_action = calloc(n_dpipe_action, sizeof(*dst->dpipe_action));
-		dst->n_dpipe_action = n_dpipe_action;
+		dst->_count.dpipe_action = n_dpipe_action;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_action_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1151,7 +1169,7 @@ int devlink_dl_dpipe_field_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dpipe_field_name_len = len;
+			dst->_len.dpipe_field_name = len;
 			dst->dpipe_field_name = malloc(len + 1);
 			memcpy(dst->dpipe_field_name, ynl_attr_get_str(attr), len);
 			dst->dpipe_field_name[len] = 0;
@@ -1197,7 +1215,7 @@ int devlink_dl_resource_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.resource_name_len = len;
+			dst->_len.resource_name = len;
 			dst->resource_name = malloc(len + 1);
 			memcpy(dst->resource_name, ynl_attr_get_str(attr), len);
 			dst->resource_name[len] = 0;
@@ -1288,7 +1306,7 @@ int devlink_dl_info_version_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.info_version_name_len = len;
+			dst->_len.info_version_name = len;
 			dst->info_version_name = malloc(len + 1);
 			memcpy(dst->info_version_name, ynl_attr_get_str(attr), len);
 			dst->info_version_name[len] = 0;
@@ -1299,7 +1317,7 @@ int devlink_dl_info_version_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.info_version_value_len = len;
+			dst->_len.info_version_value = len;
 			dst->info_version_value = malloc(len + 1);
 			memcpy(dst->info_version_value, ynl_attr_get_str(attr), len);
 			dst->info_version_value[len] = 0;
@@ -1346,7 +1364,7 @@ int devlink_dl_fmsg_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.fmsg_obj_name_len = len;
+			dst->_len.fmsg_obj_name = len;
 			dst->fmsg_obj_name = malloc(len + 1);
 			memcpy(dst->fmsg_obj_name, ynl_attr_get_str(attr), len);
 			dst->fmsg_obj_name[len] = 0;
@@ -1380,8 +1398,8 @@ int devlink_dl_port_function_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	struct nlattr *nest;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.hw_addr_len)
-		ynl_attr_put(nlh, DEVLINK_PORT_FUNCTION_ATTR_HW_ADDR, obj->hw_addr, obj->_present.hw_addr_len);
+	if (obj->_len.hw_addr)
+		ynl_attr_put(nlh, DEVLINK_PORT_FUNCTION_ATTR_HW_ADDR, obj->hw_addr, obj->_len.hw_addr);
 	if (obj->_present.state)
 		ynl_attr_put_u8(nlh, DEVLINK_PORT_FN_ATTR_STATE, obj->state);
 	if (obj->_present.opstate)
@@ -1427,7 +1445,7 @@ void devlink_dl_reload_act_stats_free(struct devlink_dl_reload_act_stats *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_reload_stats_entry; i++)
+	for (i = 0; i < obj->_count.reload_stats_entry; i++)
 		devlink_dl_reload_stats_entry_free(&obj->reload_stats_entry[i]);
 	free(obj->reload_stats_entry);
 }
@@ -1456,7 +1474,7 @@ int devlink_dl_reload_act_stats_parse(struct ynl_parse_arg *yarg,
 
 	if (n_reload_stats_entry) {
 		dst->reload_stats_entry = calloc(n_reload_stats_entry, sizeof(*dst->reload_stats_entry));
-		dst->n_reload_stats_entry = n_reload_stats_entry;
+		dst->_count.reload_stats_entry = n_reload_stats_entry;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_reload_stats_entry_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1500,7 +1518,7 @@ devlink_dl_dpipe_table_matches_free(struct devlink_dl_dpipe_table_matches *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_match; i++)
+	for (i = 0; i < obj->_count.dpipe_match; i++)
 		devlink_dl_dpipe_match_free(&obj->dpipe_match[i]);
 	free(obj->dpipe_match);
 }
@@ -1529,7 +1547,7 @@ int devlink_dl_dpipe_table_matches_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_match) {
 		dst->dpipe_match = calloc(n_dpipe_match, sizeof(*dst->dpipe_match));
-		dst->n_dpipe_match = n_dpipe_match;
+		dst->_count.dpipe_match = n_dpipe_match;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_match_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1550,7 +1568,7 @@ devlink_dl_dpipe_table_actions_free(struct devlink_dl_dpipe_table_actions *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_action; i++)
+	for (i = 0; i < obj->_count.dpipe_action; i++)
 		devlink_dl_dpipe_action_free(&obj->dpipe_action[i]);
 	free(obj->dpipe_action);
 }
@@ -1579,7 +1597,7 @@ int devlink_dl_dpipe_table_actions_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_action) {
 		dst->dpipe_action = calloc(n_dpipe_action, sizeof(*dst->dpipe_action));
-		dst->n_dpipe_action = n_dpipe_action;
+		dst->_count.dpipe_action = n_dpipe_action;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_action_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1600,7 +1618,7 @@ devlink_dl_dpipe_entry_match_values_free(struct devlink_dl_dpipe_entry_match_val
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_match_value; i++)
+	for (i = 0; i < obj->_count.dpipe_match_value; i++)
 		devlink_dl_dpipe_match_value_free(&obj->dpipe_match_value[i]);
 	free(obj->dpipe_match_value);
 }
@@ -1629,7 +1647,7 @@ int devlink_dl_dpipe_entry_match_values_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_match_value) {
 		dst->dpipe_match_value = calloc(n_dpipe_match_value, sizeof(*dst->dpipe_match_value));
-		dst->n_dpipe_match_value = n_dpipe_match_value;
+		dst->_count.dpipe_match_value = n_dpipe_match_value;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_match_value_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1650,7 +1668,7 @@ devlink_dl_dpipe_entry_action_values_free(struct devlink_dl_dpipe_entry_action_v
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_action_value; i++)
+	for (i = 0; i < obj->_count.dpipe_action_value; i++)
 		devlink_dl_dpipe_action_value_free(&obj->dpipe_action_value[i]);
 	free(obj->dpipe_action_value);
 }
@@ -1679,7 +1697,7 @@ int devlink_dl_dpipe_entry_action_values_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_action_value) {
 		dst->dpipe_action_value = calloc(n_dpipe_action_value, sizeof(*dst->dpipe_action_value));
-		dst->n_dpipe_action_value = n_dpipe_action_value;
+		dst->_count.dpipe_action_value = n_dpipe_action_value;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_action_value_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1700,7 +1718,7 @@ devlink_dl_dpipe_header_fields_free(struct devlink_dl_dpipe_header_fields *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_field; i++)
+	for (i = 0; i < obj->_count.dpipe_field; i++)
 		devlink_dl_dpipe_field_free(&obj->dpipe_field[i]);
 	free(obj->dpipe_field);
 }
@@ -1729,7 +1747,7 @@ int devlink_dl_dpipe_header_fields_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_field) {
 		dst->dpipe_field = calloc(n_dpipe_field, sizeof(*dst->dpipe_field));
-		dst->n_dpipe_field = n_dpipe_field;
+		dst->_count.dpipe_field = n_dpipe_field;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_field_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1749,7 +1767,7 @@ void devlink_dl_resource_list_free(struct devlink_dl_resource_list *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_resource; i++)
+	for (i = 0; i < obj->_count.resource; i++)
 		devlink_dl_resource_free(&obj->resource[i]);
 	free(obj->resource);
 }
@@ -1778,7 +1796,7 @@ int devlink_dl_resource_list_parse(struct ynl_parse_arg *yarg,
 
 	if (n_resource) {
 		dst->resource = calloc(n_resource, sizeof(*dst->resource));
-		dst->n_resource = n_resource;
+		dst->_count.resource = n_resource;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_resource_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1808,7 +1826,7 @@ void devlink_dl_reload_act_info_free(struct devlink_dl_reload_act_info *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_reload_action_stats; i++)
+	for (i = 0; i < obj->_count.reload_action_stats; i++)
 		devlink_dl_reload_act_stats_free(&obj->reload_action_stats[i]);
 	free(obj->reload_action_stats);
 }
@@ -1842,7 +1860,7 @@ int devlink_dl_reload_act_info_parse(struct ynl_parse_arg *yarg,
 
 	if (n_reload_action_stats) {
 		dst->reload_action_stats = calloc(n_reload_action_stats, sizeof(*dst->reload_action_stats));
-		dst->n_reload_action_stats = n_reload_action_stats;
+		dst->_count.reload_action_stats = n_reload_action_stats;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_reload_act_stats_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1884,7 +1902,7 @@ int devlink_dl_dpipe_table_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dpipe_table_name_len = len;
+			dst->_len.dpipe_table_name = len;
 			dst->dpipe_table_name = malloc(len + 1);
 			memcpy(dst->dpipe_table_name, ynl_attr_get_str(attr), len);
 			dst->dpipe_table_name[len] = 0;
@@ -2009,7 +2027,7 @@ int devlink_dl_dpipe_header_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dpipe_header_name_len = len;
+			dst->_len.dpipe_header_name = len;
 			dst->dpipe_header_name = malloc(len + 1);
 			memcpy(dst->dpipe_header_name, ynl_attr_get_str(attr), len);
 			dst->dpipe_header_name[len] = 0;
@@ -2042,7 +2060,7 @@ void devlink_dl_reload_stats_free(struct devlink_dl_reload_stats *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_reload_action_info; i++)
+	for (i = 0; i < obj->_count.reload_action_info; i++)
 		devlink_dl_reload_act_info_free(&obj->reload_action_info[i]);
 	free(obj->reload_action_info);
 }
@@ -2071,7 +2089,7 @@ int devlink_dl_reload_stats_parse(struct ynl_parse_arg *yarg,
 
 	if (n_reload_action_info) {
 		dst->reload_action_info = calloc(n_reload_action_info, sizeof(*dst->reload_action_info));
-		dst->n_reload_action_info = n_reload_action_info;
+		dst->_count.reload_action_info = n_reload_action_info;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_reload_act_info_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -2091,7 +2109,7 @@ void devlink_dl_dpipe_tables_free(struct devlink_dl_dpipe_tables *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_table; i++)
+	for (i = 0; i < obj->_count.dpipe_table; i++)
 		devlink_dl_dpipe_table_free(&obj->dpipe_table[i]);
 	free(obj->dpipe_table);
 }
@@ -2120,7 +2138,7 @@ int devlink_dl_dpipe_tables_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_table) {
 		dst->dpipe_table = calloc(n_dpipe_table, sizeof(*dst->dpipe_table));
-		dst->n_dpipe_table = n_dpipe_table;
+		dst->_count.dpipe_table = n_dpipe_table;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_table_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -2140,7 +2158,7 @@ void devlink_dl_dpipe_entries_free(struct devlink_dl_dpipe_entries *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_entry; i++)
+	for (i = 0; i < obj->_count.dpipe_entry; i++)
 		devlink_dl_dpipe_entry_free(&obj->dpipe_entry[i]);
 	free(obj->dpipe_entry);
 }
@@ -2169,7 +2187,7 @@ int devlink_dl_dpipe_entries_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_entry) {
 		dst->dpipe_entry = calloc(n_dpipe_entry, sizeof(*dst->dpipe_entry));
-		dst->n_dpipe_entry = n_dpipe_entry;
+		dst->_count.dpipe_entry = n_dpipe_entry;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_entry_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -2189,7 +2207,7 @@ void devlink_dl_dpipe_headers_free(struct devlink_dl_dpipe_headers *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_dpipe_header; i++)
+	for (i = 0; i < obj->_count.dpipe_header; i++)
 		devlink_dl_dpipe_header_free(&obj->dpipe_header[i]);
 	free(obj->dpipe_header);
 }
@@ -2218,7 +2236,7 @@ int devlink_dl_dpipe_headers_parse(struct ynl_parse_arg *yarg,
 
 	if (n_dpipe_header) {
 		dst->dpipe_header = calloc(n_dpipe_header, sizeof(*dst->dpipe_header));
-		dst->n_dpipe_header = n_dpipe_header;
+		dst->_count.dpipe_header = n_dpipe_header;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_dpipe_header_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -2313,7 +2331,7 @@ int devlink_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -2324,7 +2342,7 @@ int devlink_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -2358,11 +2376,12 @@ devlink_get(struct ynl_sock *ys, struct devlink_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -2457,7 +2476,7 @@ int devlink_port_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -2468,7 +2487,7 @@ int devlink_port_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -2493,11 +2512,12 @@ devlink_port_get(struct ynl_sock *ys, struct devlink_port_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -2537,7 +2557,7 @@ int devlink_port_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -2548,7 +2568,7 @@ int devlink_port_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -2601,10 +2621,11 @@ devlink_port_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_PORT_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -2636,10 +2657,11 @@ int devlink_port_set(struct ynl_sock *ys, struct devlink_port_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -2689,7 +2711,7 @@ int devlink_port_new_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -2700,7 +2722,7 @@ int devlink_port_new_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -2725,11 +2747,12 @@ devlink_port_new(struct ynl_sock *ys, struct devlink_port_new_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_NEW, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -2775,10 +2798,11 @@ int devlink_port_del(struct ynl_sock *ys, struct devlink_port_del_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_DEL, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -2807,10 +2831,11 @@ int devlink_port_split(struct ynl_sock *ys, struct devlink_port_split_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_SPLIT, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -2842,10 +2867,11 @@ int devlink_port_unsplit(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_UNSPLIT, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -2891,7 +2917,7 @@ int devlink_sb_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -2902,7 +2928,7 @@ int devlink_sb_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -2927,11 +2953,12 @@ devlink_sb_get(struct ynl_sock *ys, struct devlink_sb_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.sb_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_SB_INDEX, req->sb_index);
@@ -2990,10 +3017,11 @@ devlink_sb_get_dump(struct ynl_sock *ys, struct devlink_sb_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_SB_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -3041,7 +3069,7 @@ int devlink_sb_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -3052,7 +3080,7 @@ int devlink_sb_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -3082,11 +3110,12 @@ devlink_sb_pool_get(struct ynl_sock *ys, struct devlink_sb_pool_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_POOL_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.sb_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_SB_INDEX, req->sb_index);
@@ -3149,10 +3178,11 @@ devlink_sb_pool_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_SB_POOL_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -3184,10 +3214,11 @@ int devlink_sb_pool_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_POOL_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.sb_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_SB_INDEX, req->sb_index);
@@ -3241,7 +3272,7 @@ int devlink_sb_port_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -3252,7 +3283,7 @@ int devlink_sb_port_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -3288,11 +3319,12 @@ devlink_sb_port_pool_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_PORT_POOL_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -3358,10 +3390,11 @@ devlink_sb_port_pool_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_SB_PORT_POOL_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -3394,10 +3427,11 @@ int devlink_sb_port_pool_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_PORT_POOL_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -3451,7 +3485,7 @@ int devlink_sb_tc_pool_bind_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -3462,7 +3496,7 @@ int devlink_sb_tc_pool_bind_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -3503,11 +3537,12 @@ devlink_sb_tc_pool_bind_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_TC_POOL_BIND_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -3575,10 +3610,11 @@ devlink_sb_tc_pool_bind_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_SB_TC_POOL_BIND_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -3611,10 +3647,11 @@ int devlink_sb_tc_pool_bind_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_TC_POOL_BIND_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -3654,10 +3691,11 @@ int devlink_sb_occ_snapshot(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_OCC_SNAPSHOT, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.sb_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_SB_INDEX, req->sb_index);
@@ -3688,10 +3726,11 @@ int devlink_sb_occ_max_clear(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SB_OCC_MAX_CLEAR, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.sb_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_SB_INDEX, req->sb_index);
@@ -3737,7 +3776,7 @@ int devlink_eswitch_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -3748,7 +3787,7 @@ int devlink_eswitch_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -3783,11 +3822,12 @@ devlink_eswitch_get(struct ynl_sock *ys, struct devlink_eswitch_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_ESWITCH_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -3824,10 +3864,11 @@ int devlink_eswitch_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_ESWITCH_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.eswitch_mode)
 		ynl_attr_put_u16(nlh, DEVLINK_ATTR_ESWITCH_MODE, req->eswitch_mode);
@@ -3881,7 +3922,7 @@ int devlink_dpipe_table_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -3892,7 +3933,7 @@ int devlink_dpipe_table_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -3922,13 +3963,14 @@ devlink_dpipe_table_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_DPIPE_TABLE_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.dpipe_table_name_len)
+	if (req->_len.dpipe_table_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DPIPE_TABLE_NAME, req->dpipe_table_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -3987,7 +4029,7 @@ int devlink_dpipe_entries_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -3998,7 +4040,7 @@ int devlink_dpipe_entries_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4028,13 +4070,14 @@ devlink_dpipe_entries_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_DPIPE_ENTRIES_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.dpipe_table_name_len)
+	if (req->_len.dpipe_table_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DPIPE_TABLE_NAME, req->dpipe_table_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -4092,7 +4135,7 @@ int devlink_dpipe_headers_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4103,7 +4146,7 @@ int devlink_dpipe_headers_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4133,11 +4176,12 @@ devlink_dpipe_headers_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_DPIPE_HEADERS_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -4176,12 +4220,13 @@ int devlink_dpipe_table_counters_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_DPIPE_TABLE_COUNTERS_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.dpipe_table_name_len)
+	if (req->_len.dpipe_table_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DPIPE_TABLE_NAME, req->dpipe_table_name);
 	if (req->_present.dpipe_table_counters_enabled)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_DPIPE_TABLE_COUNTERS_ENABLED, req->dpipe_table_counters_enabled);
@@ -4211,10 +4256,11 @@ int devlink_resource_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RESOURCE_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.resource_id)
 		ynl_attr_put_u64(nlh, DEVLINK_ATTR_RESOURCE_ID, req->resource_id);
@@ -4265,7 +4311,7 @@ int devlink_resource_dump_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4276,7 +4322,7 @@ int devlink_resource_dump_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4306,11 +4352,12 @@ devlink_resource_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RESOURCE_DUMP, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -4363,7 +4410,7 @@ int devlink_reload_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4374,7 +4421,7 @@ int devlink_reload_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4399,11 +4446,12 @@ devlink_reload(struct ynl_sock *ys, struct devlink_reload_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RELOAD, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.reload_action)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_RELOAD_ACTION, req->reload_action);
@@ -4468,7 +4516,7 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4479,7 +4527,7 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4490,7 +4538,7 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.param_name_len = len;
+			dst->_len.param_name = len;
 			dst->param_name = malloc(len + 1);
 			memcpy(dst->param_name, ynl_attr_get_str(attr), len);
 			dst->param_name[len] = 0;
@@ -4510,13 +4558,14 @@ devlink_param_get(struct ynl_sock *ys, struct devlink_param_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PARAM_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.param_name_len)
+	if (req->_len.param_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_PARAM_NAME, req->param_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -4575,10 +4624,11 @@ devlink_param_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_PARAM_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -4610,12 +4660,13 @@ int devlink_param_set(struct ynl_sock *ys, struct devlink_param_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PARAM_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.param_name_len)
+	if (req->_len.param_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_PARAM_NAME, req->param_name);
 	if (req->_present.param_type)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_PARAM_TYPE, req->param_type);
@@ -4665,7 +4716,7 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4676,7 +4727,7 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4692,7 +4743,7 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.region_name_len = len;
+			dst->_len.region_name = len;
 			dst->region_name = malloc(len + 1);
 			memcpy(dst->region_name, ynl_attr_get_str(attr), len);
 			dst->region_name[len] = 0;
@@ -4712,15 +4763,16 @@ devlink_region_get(struct ynl_sock *ys, struct devlink_region_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_REGION_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.region_name_len)
+	if (req->_len.region_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_REGION_NAME, req->region_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -4779,10 +4831,11 @@ devlink_region_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_REGION_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -4832,7 +4885,7 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4843,7 +4896,7 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4859,7 +4912,7 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.region_name_len = len;
+			dst->_len.region_name = len;
 			dst->region_name = malloc(len + 1);
 			memcpy(dst->region_name, ynl_attr_get_str(attr), len);
 			dst->region_name[len] = 0;
@@ -4884,15 +4937,16 @@ devlink_region_new(struct ynl_sock *ys, struct devlink_region_new_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_REGION_NEW, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.region_name_len)
+	if (req->_len.region_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_REGION_NAME, req->region_name);
 	if (req->_present.region_snapshot_id)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_REGION_SNAPSHOT_ID, req->region_snapshot_id);
@@ -4931,14 +4985,15 @@ int devlink_region_del(struct ynl_sock *ys, struct devlink_region_del_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_REGION_DEL, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.region_name_len)
+	if (req->_len.region_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_REGION_NAME, req->region_name);
 	if (req->_present.region_snapshot_id)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_REGION_SNAPSHOT_ID, req->region_snapshot_id);
@@ -4970,7 +5025,7 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -4981,7 +5036,7 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -4997,7 +5052,7 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.region_name_len = len;
+			dst->_len.region_name = len;
 			dst->region_name = malloc(len + 1);
 			memcpy(dst->region_name, ynl_attr_get_str(attr), len);
 			dst->region_name[len] = 0;
@@ -5047,14 +5102,15 @@ devlink_region_read_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_REGION_READ, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.region_name_len)
+	if (req->_len.region_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_REGION_NAME, req->region_name);
 	if (req->_present.region_snapshot_id)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_REGION_SNAPSHOT_ID, req->region_snapshot_id);
@@ -5110,7 +5166,7 @@ int devlink_port_param_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -5121,7 +5177,7 @@ int devlink_port_param_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -5147,11 +5203,12 @@ devlink_port_param_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_PARAM_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -5232,10 +5289,11 @@ int devlink_port_param_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_PORT_PARAM_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -5264,13 +5322,13 @@ void devlink_info_get_rsp_free(struct devlink_info_get_rsp *rsp)
 	free(rsp->dev_name);
 	free(rsp->info_driver_name);
 	free(rsp->info_serial_number);
-	for (i = 0; i < rsp->n_info_version_fixed; i++)
+	for (i = 0; i < rsp->_count.info_version_fixed; i++)
 		devlink_dl_info_version_free(&rsp->info_version_fixed[i]);
 	free(rsp->info_version_fixed);
-	for (i = 0; i < rsp->n_info_version_running; i++)
+	for (i = 0; i < rsp->_count.info_version_running; i++)
 		devlink_dl_info_version_free(&rsp->info_version_running[i]);
 	free(rsp->info_version_running);
-	for (i = 0; i < rsp->n_info_version_stored; i++)
+	for (i = 0; i < rsp->_count.info_version_stored; i++)
 		devlink_dl_info_version_free(&rsp->info_version_stored[i]);
 	free(rsp->info_version_stored);
 	free(rsp->info_board_serial_number);
@@ -5308,7 +5366,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -5319,7 +5377,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -5330,7 +5388,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.info_driver_name_len = len;
+			dst->_len.info_driver_name = len;
 			dst->info_driver_name = malloc(len + 1);
 			memcpy(dst->info_driver_name, ynl_attr_get_str(attr), len);
 			dst->info_driver_name[len] = 0;
@@ -5341,7 +5399,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.info_serial_number_len = len;
+			dst->_len.info_serial_number = len;
 			dst->info_serial_number = malloc(len + 1);
 			memcpy(dst->info_serial_number, ynl_attr_get_str(attr), len);
 			dst->info_serial_number[len] = 0;
@@ -5358,7 +5416,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.info_board_serial_number_len = len;
+			dst->_len.info_board_serial_number = len;
 			dst->info_board_serial_number = malloc(len + 1);
 			memcpy(dst->info_board_serial_number, ynl_attr_get_str(attr), len);
 			dst->info_board_serial_number[len] = 0;
@@ -5367,7 +5425,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_info_version_fixed) {
 		dst->info_version_fixed = calloc(n_info_version_fixed, sizeof(*dst->info_version_fixed));
-		dst->n_info_version_fixed = n_info_version_fixed;
+		dst->_count.info_version_fixed = n_info_version_fixed;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_info_version_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -5381,7 +5439,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_info_version_running) {
 		dst->info_version_running = calloc(n_info_version_running, sizeof(*dst->info_version_running));
-		dst->n_info_version_running = n_info_version_running;
+		dst->_count.info_version_running = n_info_version_running;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_info_version_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -5395,7 +5453,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_info_version_stored) {
 		dst->info_version_stored = calloc(n_info_version_stored, sizeof(*dst->info_version_stored));
-		dst->n_info_version_stored = n_info_version_stored;
+		dst->_count.info_version_stored = n_info_version_stored;
 		i = 0;
 		parg.rsp_policy = &devlink_dl_info_version_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -5421,11 +5479,12 @@ devlink_info_get(struct ynl_sock *ys, struct devlink_info_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_INFO_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -5459,13 +5518,13 @@ void devlink_info_get_list_free(struct devlink_info_get_list *rsp)
 		free(rsp->obj.dev_name);
 		free(rsp->obj.info_driver_name);
 		free(rsp->obj.info_serial_number);
-		for (i = 0; i < rsp->obj.n_info_version_fixed; i++)
+		for (i = 0; i < rsp->obj._count.info_version_fixed; i++)
 			devlink_dl_info_version_free(&rsp->obj.info_version_fixed[i]);
 		free(rsp->obj.info_version_fixed);
-		for (i = 0; i < rsp->obj.n_info_version_running; i++)
+		for (i = 0; i < rsp->obj._count.info_version_running; i++)
 			devlink_dl_info_version_free(&rsp->obj.info_version_running[i]);
 		free(rsp->obj.info_version_running);
-		for (i = 0; i < rsp->obj.n_info_version_stored; i++)
+		for (i = 0; i < rsp->obj._count.info_version_stored; i++)
 			devlink_dl_info_version_free(&rsp->obj.info_version_stored[i]);
 		free(rsp->obj.info_version_stored);
 		free(rsp->obj.info_board_serial_number);
@@ -5537,7 +5596,7 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -5548,7 +5607,7 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -5564,7 +5623,7 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.health_reporter_name_len = len;
+			dst->_len.health_reporter_name = len;
 			dst->health_reporter_name = malloc(len + 1);
 			memcpy(dst->health_reporter_name, ynl_attr_get_str(attr), len);
 			dst->health_reporter_name[len] = 0;
@@ -5585,15 +5644,16 @@ devlink_health_reporter_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -5654,10 +5714,11 @@ devlink_health_reporter_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
@@ -5693,14 +5754,15 @@ int devlink_health_reporter_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 	if (req->_present.health_reporter_graceful_period)
 		ynl_attr_put_u64(nlh, DEVLINK_ATTR_HEALTH_REPORTER_GRACEFUL_PERIOD, req->health_reporter_graceful_period);
@@ -5736,14 +5798,15 @@ int devlink_health_reporter_recover(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_RECOVER, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -5773,14 +5836,15 @@ int devlink_health_reporter_diagnose(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_DIAGNOSE, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -5860,14 +5924,15 @@ devlink_health_reporter_dump_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -5901,14 +5966,15 @@ int devlink_health_reporter_dump_clear(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_DUMP_CLEAR, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -5938,14 +6004,15 @@ int devlink_flash_update(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_FLASH_UPDATE, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.flash_update_file_name_len)
+	if (req->_len.flash_update_file_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_FLASH_UPDATE_FILE_NAME, req->flash_update_file_name);
-	if (req->_present.flash_update_component_len)
+	if (req->_len.flash_update_component)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_FLASH_UPDATE_COMPONENT, req->flash_update_component);
 	if (req->_present.flash_update_overwrite_mask)
 		ynl_attr_put(nlh, DEVLINK_ATTR_FLASH_UPDATE_OVERWRITE_MASK, &req->flash_update_overwrite_mask, sizeof(struct nla_bitfield32));
@@ -5993,7 +6060,7 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -6004,7 +6071,7 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -6015,7 +6082,7 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.trap_name_len = len;
+			dst->_len.trap_name = len;
 			dst->trap_name = malloc(len + 1);
 			memcpy(dst->trap_name, ynl_attr_get_str(attr), len);
 			dst->trap_name[len] = 0;
@@ -6035,13 +6102,14 @@ devlink_trap_get(struct ynl_sock *ys, struct devlink_trap_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_TRAP_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.trap_name_len)
+	if (req->_len.trap_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_TRAP_NAME, req->trap_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -6100,10 +6168,11 @@ devlink_trap_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_TRAP_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -6135,12 +6204,13 @@ int devlink_trap_set(struct ynl_sock *ys, struct devlink_trap_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_TRAP_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.trap_name_len)
+	if (req->_len.trap_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_TRAP_NAME, req->trap_name);
 	if (req->_present.trap_action)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_TRAP_ACTION, req->trap_action);
@@ -6188,7 +6258,7 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -6199,7 +6269,7 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -6210,7 +6280,7 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.trap_group_name_len = len;
+			dst->_len.trap_group_name = len;
 			dst->trap_group_name = malloc(len + 1);
 			memcpy(dst->trap_group_name, ynl_attr_get_str(attr), len);
 			dst->trap_group_name[len] = 0;
@@ -6231,13 +6301,14 @@ devlink_trap_group_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_TRAP_GROUP_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.trap_group_name_len)
+	if (req->_len.trap_group_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_TRAP_GROUP_NAME, req->trap_group_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -6297,10 +6368,11 @@ devlink_trap_group_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_TRAP_GROUP_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -6333,12 +6405,13 @@ int devlink_trap_group_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_TRAP_GROUP_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.trap_group_name_len)
+	if (req->_len.trap_group_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_TRAP_GROUP_NAME, req->trap_group_name);
 	if (req->_present.trap_action)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_TRAP_ACTION, req->trap_action);
@@ -6388,7 +6461,7 @@ int devlink_trap_policer_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -6399,7 +6472,7 @@ int devlink_trap_policer_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -6425,11 +6498,12 @@ devlink_trap_policer_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_TRAP_POLICER_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.trap_policer_id)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_TRAP_POLICER_ID, req->trap_policer_id);
@@ -6491,10 +6565,11 @@ devlink_trap_policer_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_TRAP_POLICER_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -6527,10 +6602,11 @@ int devlink_trap_policer_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_TRAP_POLICER_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.trap_policer_id)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_TRAP_POLICER_ID, req->trap_policer_id);
@@ -6566,14 +6642,15 @@ int devlink_health_reporter_test(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_HEALTH_REPORTER_TEST, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.health_reporter_name_len)
+	if (req->_len.health_reporter_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_HEALTH_REPORTER_NAME, req->health_reporter_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -6619,7 +6696,7 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -6630,7 +6707,7 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -6646,7 +6723,7 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.rate_node_name_len = len;
+			dst->_len.rate_node_name = len;
 			dst->rate_node_name = malloc(len + 1);
 			memcpy(dst->rate_node_name, ynl_attr_get_str(attr), len);
 			dst->rate_node_name[len] = 0;
@@ -6666,15 +6743,16 @@ devlink_rate_get(struct ynl_sock *ys, struct devlink_rate_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RATE_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);
-	if (req->_present.rate_node_name_len)
+	if (req->_len.rate_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_NODE_NAME, req->rate_node_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -6733,10 +6811,11 @@ devlink_rate_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_RATE_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -6769,12 +6848,13 @@ int devlink_rate_set(struct ynl_sock *ys, struct devlink_rate_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RATE_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.rate_node_name_len)
+	if (req->_len.rate_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_NODE_NAME, req->rate_node_name);
 	if (req->_present.rate_tx_share)
 		ynl_attr_put_u64(nlh, DEVLINK_ATTR_RATE_TX_SHARE, req->rate_tx_share);
@@ -6784,7 +6864,7 @@ int devlink_rate_set(struct ynl_sock *ys, struct devlink_rate_set_req *req)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_RATE_TX_PRIORITY, req->rate_tx_priority);
 	if (req->_present.rate_tx_weight)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_RATE_TX_WEIGHT, req->rate_tx_weight);
-	if (req->_present.rate_parent_node_name_len)
+	if (req->_len.rate_parent_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_PARENT_NODE_NAME, req->rate_parent_node_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -6813,12 +6893,13 @@ int devlink_rate_new(struct ynl_sock *ys, struct devlink_rate_new_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RATE_NEW, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.rate_node_name_len)
+	if (req->_len.rate_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_NODE_NAME, req->rate_node_name);
 	if (req->_present.rate_tx_share)
 		ynl_attr_put_u64(nlh, DEVLINK_ATTR_RATE_TX_SHARE, req->rate_tx_share);
@@ -6828,7 +6909,7 @@ int devlink_rate_new(struct ynl_sock *ys, struct devlink_rate_new_req *req)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_RATE_TX_PRIORITY, req->rate_tx_priority);
 	if (req->_present.rate_tx_weight)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_RATE_TX_WEIGHT, req->rate_tx_weight);
-	if (req->_present.rate_parent_node_name_len)
+	if (req->_len.rate_parent_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_PARENT_NODE_NAME, req->rate_parent_node_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -6856,12 +6937,13 @@ int devlink_rate_del(struct ynl_sock *ys, struct devlink_rate_del_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RATE_DEL, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
-	if (req->_present.rate_node_name_len)
+	if (req->_len.rate_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_NODE_NAME, req->rate_node_name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -6905,7 +6987,7 @@ int devlink_linecard_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -6916,7 +6998,7 @@ int devlink_linecard_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -6941,11 +7023,12 @@ devlink_linecard_get(struct ynl_sock *ys, struct devlink_linecard_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_LINECARD_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.linecard_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_LINECARD_INDEX, req->linecard_index);
@@ -7006,10 +7089,11 @@ devlink_linecard_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DEVLINK_CMD_LINECARD_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -7042,14 +7126,15 @@ int devlink_linecard_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_LINECARD_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.linecard_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_LINECARD_INDEX, req->linecard_index);
-	if (req->_present.linecard_type_len)
+	if (req->_len.linecard_type)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_LINECARD_TYPE, req->linecard_type);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -7093,7 +7178,7 @@ int devlink_selftests_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.bus_name_len = len;
+			dst->_len.bus_name = len;
 			dst->bus_name = malloc(len + 1);
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
@@ -7104,7 +7189,7 @@ int devlink_selftests_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -7125,11 +7210,12 @@ devlink_selftests_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SELFTESTS_GET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &devlink_nest;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -7209,10 +7295,11 @@ int devlink_selftests_run(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_SELFTESTS_RUN, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.selftests)
 		devlink_dl_selftest_id_put(nlh, DEVLINK_ATTR_SELFTESTS, &req->selftests);
@@ -7243,10 +7330,11 @@ int devlink_notify_filter_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_NOTIFY_FILTER_SET, 1);
 	ys->req_policy = &devlink_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.bus_name_len)
+	if (req->_len.bus_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_BUS_NAME, req->bus_name);
-	if (req->_present.dev_name_len)
+	if (req->_len.dev_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_DEV_NAME, req->dev_name);
 	if (req->_present.port_index)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_PORT_INDEX, req->port_index);

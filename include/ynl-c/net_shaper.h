@@ -321,6 +321,9 @@ struct net_shaper_group_req {
 		__u32 priority:1;
 		__u32 weight:1;
 	} _present;
+	struct {
+		__u32 leaves;
+	} _count;
 
 	__u32 ifindex;
 	struct net_shaper_handle parent;
@@ -331,7 +334,6 @@ struct net_shaper_group_req {
 	__u64 burst;
 	__u32 priority;
 	__u32 weight;
-	unsigned int n_leaves;
 	struct net_shaper_leaf_info *leaves;
 };
 
@@ -423,11 +425,11 @@ __net_shaper_group_req_set_leaves(struct net_shaper_group_req *req,
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_leaves; i++)
+	for (i = 0; i < req->_count.leaves; i++)
 		net_shaper_leaf_info_free(&req->leaves[i]);
 	free(req->leaves);
 	req->leaves = leaves;
-	req->n_leaves = n_leaves;
+	req->_count.leaves = n_leaves;
 }
 
 struct net_shaper_group_rsp {

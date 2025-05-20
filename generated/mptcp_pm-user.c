@@ -113,8 +113,8 @@ int mptcp_pm_address_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_u8(nlh, MPTCP_PM_ADDR_ATTR_ID, obj->id);
 	if (obj->_present.addr4)
 		ynl_attr_put_u32(nlh, MPTCP_PM_ADDR_ATTR_ADDR4, obj->addr4);
-	if (obj->_present.addr6_len)
-		ynl_attr_put(nlh, MPTCP_PM_ADDR_ATTR_ADDR6, obj->addr6, obj->_present.addr6_len);
+	if (obj->_len.addr6)
+		ynl_attr_put(nlh, MPTCP_PM_ADDR_ATTR_ADDR6, obj->addr6, obj->_len.addr6);
 	if (obj->_present.port)
 		ynl_attr_put_u16(nlh, MPTCP_PM_ADDR_ATTR_PORT, obj->port);
 	if (obj->_present.flags)
@@ -157,7 +157,7 @@ int mptcp_pm_address_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.addr6_len = len;
+			dst->_len.addr6 = len;
 			dst->addr6 = malloc(len);
 			memcpy(dst->addr6, ynl_attr_data(attr), len);
 		} else if (type == MPTCP_PM_ADDR_ATTR_PORT) {
@@ -197,6 +197,7 @@ int mptcp_pm_add_addr(struct ynl_sock *ys, struct mptcp_pm_add_addr_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_ADD_ADDR, 1);
 	ys->req_policy = &mptcp_pm_endpoint_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ENDPOINT_ADDR, &req->addr);
@@ -224,6 +225,7 @@ int mptcp_pm_del_addr(struct ynl_sock *ys, struct mptcp_pm_del_addr_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_DEL_ADDR, 1);
 	ys->req_policy = &mptcp_pm_endpoint_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ENDPOINT_ADDR, &req->addr);
@@ -287,6 +289,7 @@ mptcp_pm_get_addr(struct ynl_sock *ys, struct mptcp_pm_get_addr_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_GET_ADDR, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &mptcp_pm_attr_nest;
 
 	if (req->_present.addr)
@@ -367,6 +370,7 @@ int mptcp_pm_flush_addrs(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_FLUSH_ADDRS, 1);
 	ys->req_policy = &mptcp_pm_endpoint_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ENDPOINT_ADDR, &req->addr);
@@ -394,6 +398,7 @@ int mptcp_pm_set_limits(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_SET_LIMITS, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.rcv_add_addrs)
 		ynl_attr_put_u32(nlh, MPTCP_PM_ATTR_RCV_ADD_ADDRS, req->rcv_add_addrs);
@@ -456,6 +461,7 @@ mptcp_pm_get_limits(struct ynl_sock *ys, struct mptcp_pm_get_limits_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_GET_LIMITS, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &mptcp_pm_attr_nest;
 
 	if (req->_present.rcv_add_addrs)
@@ -496,6 +502,7 @@ int mptcp_pm_set_flags(struct ynl_sock *ys, struct mptcp_pm_set_flags_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_SET_FLAGS, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ATTR_ADDR, &req->addr);
@@ -527,6 +534,7 @@ int mptcp_pm_announce(struct ynl_sock *ys, struct mptcp_pm_announce_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_ANNOUNCE, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ATTR_ADDR, &req->addr);
@@ -555,6 +563,7 @@ int mptcp_pm_remove(struct ynl_sock *ys, struct mptcp_pm_remove_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_REMOVE, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.token)
 		ynl_attr_put_u32(nlh, MPTCP_PM_ATTR_TOKEN, req->token);
@@ -586,6 +595,7 @@ int mptcp_pm_subflow_create(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_SUBFLOW_CREATE, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ATTR_ADDR, &req->addr);
@@ -620,6 +630,7 @@ int mptcp_pm_subflow_destroy(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, MPTCP_PM_CMD_SUBFLOW_DESTROY, 1);
 	ys->req_policy = &mptcp_pm_attr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr)
 		mptcp_pm_address_put(nlh, MPTCP_PM_ATTR_ADDR, &req->addr);

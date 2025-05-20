@@ -27,6 +27,7 @@ static const char * const netdev_op_strmap[] = {
 	[NETDEV_CMD_QSTATS_GET] = "qstats-get",
 	[NETDEV_CMD_BIND_RX] = "bind-rx",
 	[NETDEV_CMD_NAPI_SET] = "napi-set",
+	[NETDEV_CMD_BIND_TX] = "bind-tx",
 };
 
 const char *netdev_op_str(int op)
@@ -423,6 +424,7 @@ netdev_dev_get(struct ynl_sock *ys, struct netdev_dev_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_DEV_GET, 1);
 	ys->req_policy = &netdev_dev_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &netdev_dev_nest;
 
 	if (req->_present.ifindex)
@@ -575,6 +577,7 @@ netdev_page_pool_get(struct ynl_sock *ys, struct netdev_page_pool_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_PAGE_POOL_GET, 1);
 	ys->req_policy = &netdev_page_pool_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &netdev_page_pool_nest;
 
 	if (req->_present.id)
@@ -754,6 +757,7 @@ netdev_page_pool_stats_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_PAGE_POOL_STATS_GET, 1);
 	ys->req_policy = &netdev_page_pool_stats_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &netdev_page_pool_stats_nest;
 
 	if (req->_present.info)
@@ -903,6 +907,7 @@ netdev_queue_get(struct ynl_sock *ys, struct netdev_queue_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_QUEUE_GET, 1);
 	ys->req_policy = &netdev_queue_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &netdev_queue_nest;
 
 	if (req->_present.ifindex)
@@ -965,6 +970,7 @@ netdev_queue_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NETDEV_CMD_QUEUE_GET, 1);
 	ys->req_policy = &netdev_queue_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NETDEV_A_QUEUE_IFINDEX, req->ifindex);
@@ -1054,6 +1060,7 @@ netdev_napi_get(struct ynl_sock *ys, struct netdev_napi_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_NAPI_GET, 1);
 	ys->req_policy = &netdev_napi_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &netdev_napi_nest;
 
 	if (req->_present.id)
@@ -1109,6 +1116,7 @@ netdev_napi_get_dump(struct ynl_sock *ys, struct netdev_napi_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NETDEV_CMD_NAPI_GET, 1);
 	ys->req_policy = &netdev_napi_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NETDEV_A_NAPI_IFINDEX, req->ifindex);
@@ -1211,6 +1219,7 @@ netdev_qstats_get_dump(struct ynl_sock *ys, struct netdev_qstats_get_req *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NETDEV_CMD_QSTATS_GET, 1);
 	ys->req_policy = &netdev_qstats_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NETDEV_A_QSTATS_IFINDEX, req->ifindex);
@@ -1234,7 +1243,7 @@ void netdev_bind_rx_req_free(struct netdev_bind_rx_req *req)
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_queues; i++)
+	for (i = 0; i < req->_count.queues; i++)
 		netdev_queue_id_free(&req->queues[i]);
 	free(req->queues);
 	free(req);
@@ -1278,13 +1287,14 @@ netdev_bind_rx(struct ynl_sock *ys, struct netdev_bind_rx_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_BIND_RX, 1);
 	ys->req_policy = &netdev_dmabuf_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &netdev_dmabuf_nest;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NETDEV_A_DMABUF_IFINDEX, req->ifindex);
 	if (req->_present.fd)
 		ynl_attr_put_u32(nlh, NETDEV_A_DMABUF_FD, req->fd);
-	for (i = 0; i < req->n_queues; i++)
+	for (i = 0; i < req->_count.queues; i++)
 		netdev_queue_id_put(nlh, NETDEV_A_DMABUF_QUEUES, &req->queues[i]);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -1318,6 +1328,7 @@ int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_NAPI_SET, 1);
 	ys->req_policy = &netdev_napi_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.id)
 		ynl_attr_put_u32(nlh, NETDEV_A_NAPI_ID, req->id);
@@ -1333,6 +1344,74 @@ int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req)
 		return -1;
 
 	return 0;
+}
+
+/* ============== NETDEV_CMD_BIND_TX ============== */
+/* NETDEV_CMD_BIND_TX - do */
+void netdev_bind_tx_req_free(struct netdev_bind_tx_req *req)
+{
+	free(req);
+}
+
+void netdev_bind_tx_rsp_free(struct netdev_bind_tx_rsp *rsp)
+{
+	free(rsp);
+}
+
+int netdev_bind_tx_rsp_parse(const struct nlmsghdr *nlh,
+			     struct ynl_parse_arg *yarg)
+{
+	struct netdev_bind_tx_rsp *dst;
+	const struct nlattr *attr;
+
+	dst = yarg->data;
+
+	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == NETDEV_A_DMABUF_ID) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.id = 1;
+			dst->id = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return YNL_PARSE_CB_OK;
+}
+
+struct netdev_bind_tx_rsp *
+netdev_bind_tx(struct ynl_sock *ys, struct netdev_bind_tx_req *req)
+{
+	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
+	struct netdev_bind_tx_rsp *rsp;
+	struct nlmsghdr *nlh;
+	int err;
+
+	nlh = ynl_gemsg_start_req(ys, ys->family_id, NETDEV_CMD_BIND_TX, 1);
+	ys->req_policy = &netdev_dmabuf_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
+	yrs.yarg.rsp_policy = &netdev_dmabuf_nest;
+
+	if (req->_present.ifindex)
+		ynl_attr_put_u32(nlh, NETDEV_A_DMABUF_IFINDEX, req->ifindex);
+	if (req->_present.fd)
+		ynl_attr_put_u32(nlh, NETDEV_A_DMABUF_FD, req->fd);
+
+	rsp = calloc(1, sizeof(*rsp));
+	yrs.yarg.data = rsp;
+	yrs.cb = netdev_bind_tx_rsp_parse;
+	yrs.rsp_cmd = NETDEV_CMD_BIND_TX;
+
+	err = ynl_exec(ys, nlh, &yrs);
+	if (err < 0)
+		goto err_free;
+
+	return rsp;
+
+err_free:
+	netdev_bind_tx_rsp_free(rsp);
+	return NULL;
 }
 
 static const struct ynl_ntf_info netdev_ntf_info[] =  {

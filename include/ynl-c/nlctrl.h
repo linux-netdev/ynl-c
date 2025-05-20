@@ -34,9 +34,11 @@ struct nlctrl_op_attrs {
 
 struct nlctrl_mcast_group_attrs {
 	struct {
-		__u32 name_len;
 		__u32 id:1;
 	} _present;
+	struct {
+		__u32 name;
+	} _len;
 
 	__u32 idx;
 	char *name;
@@ -88,8 +90,8 @@ struct nlctrl_op_policy_attrs {
 /* CTRL_CMD_GETFAMILY - do */
 struct nlctrl_getfamily_req {
 	struct {
-		__u32 family_name_len;
-	} _present;
+		__u32 family_name;
+	} _len;
 
 	char *family_name;
 };
@@ -105,28 +107,32 @@ nlctrl_getfamily_req_set_family_name(struct nlctrl_getfamily_req *req,
 				     const char *family_name)
 {
 	free(req->family_name);
-	req->_present.family_name_len = strlen(family_name);
-	req->family_name = malloc(req->_present.family_name_len + 1);
-	memcpy(req->family_name, family_name, req->_present.family_name_len);
-	req->family_name[req->_present.family_name_len] = 0;
+	req->_len.family_name = strlen(family_name);
+	req->family_name = malloc(req->_len.family_name + 1);
+	memcpy(req->family_name, family_name, req->_len.family_name);
+	req->family_name[req->_len.family_name] = 0;
 }
 
 struct nlctrl_getfamily_rsp {
 	struct {
 		__u32 family_id:1;
-		__u32 family_name_len;
 		__u32 hdrsize:1;
 		__u32 maxattr:1;
 		__u32 version:1;
 	} _present;
+	struct {
+		__u32 family_name;
+	} _len;
+	struct {
+		__u32 mcast_groups;
+		__u32 ops;
+	} _count;
 
 	__u16 family_id;
 	char *family_name;
 	__u32 hdrsize;
 	__u32 maxattr;
-	unsigned int n_mcast_groups;
 	struct nlctrl_mcast_group_attrs *mcast_groups;
-	unsigned int n_ops;
 	struct nlctrl_op_attrs *ops;
 	__u32 version;
 };
@@ -153,10 +159,12 @@ struct nlctrl_getfamily_list *nlctrl_getfamily_dump(struct ynl_sock *ys);
 /* CTRL_CMD_GETPOLICY - dump */
 struct nlctrl_getpolicy_req {
 	struct {
-		__u32 family_name_len;
 		__u32 family_id:1;
 		__u32 op:1;
 	} _present;
+	struct {
+		__u32 family_name;
+	} _len;
 
 	char *family_name;
 	__u16 family_id;
@@ -174,10 +182,10 @@ nlctrl_getpolicy_req_set_family_name(struct nlctrl_getpolicy_req *req,
 				     const char *family_name)
 {
 	free(req->family_name);
-	req->_present.family_name_len = strlen(family_name);
-	req->family_name = malloc(req->_present.family_name_len + 1);
-	memcpy(req->family_name, family_name, req->_present.family_name_len);
-	req->family_name[req->_present.family_name_len] = 0;
+	req->_len.family_name = strlen(family_name);
+	req->family_name = malloc(req->_len.family_name + 1);
+	memcpy(req->family_name, family_name, req->_len.family_name);
+	req->family_name[req->_len.family_name] = 0;
 }
 static inline void
 nlctrl_getpolicy_req_set_family_id(struct nlctrl_getpolicy_req *req,

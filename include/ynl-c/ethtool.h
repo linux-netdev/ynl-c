@@ -26,17 +26,19 @@ const char *
 ethtool_module_fw_flash_status_str(enum ethtool_module_fw_flash_status value);
 const char *
 ethtool_c33_pse_ext_state_str(enum ethtool_c33_pse_ext_state value);
-const char *ethtool_phy_upstream_type_str(int value);
+const char *ethtool_phy_upstream_type_str(enum phy_upstream value);
 const char *ethtool_tcp_data_split_str(enum ethtool_tcp_data_split value);
 
 /* Common nested types */
 struct ethtool_header {
 	struct {
 		__u32 dev_index:1;
-		__u32 dev_name_len;
 		__u32 flags:1;
 		__u32 phy_index:1;
 	} _present;
+	struct {
+		__u32 dev_name;
+	} _len;
 
 	__u32 dev_index;
 	char *dev_name;
@@ -94,14 +96,14 @@ struct ethtool_cable_test_tdr_cfg {
 
 struct ethtool_fec_stat {
 	struct {
-		__u32 corrected_len;
-		__u32 uncorr_len;
-		__u32 corr_bits_len;
-	} _present;
+		__u32 corrected;
+		__u32 uncorr;
+		__u32 corr_bits;
+	} _count;
 
-	void *corrected;
-	void *uncorr;
-	void *corr_bits;
+	__u64 *corrected;
+	__u64 *uncorr;
+	__u64 *corr_bits;
 };
 
 struct ethtool_c33_pse_pw_limit {
@@ -173,9 +175,11 @@ struct ethtool_cable_fault_length {
 struct ethtool_bitset_bit {
 	struct {
 		__u32 index:1;
-		__u32 name_len;
 		__u32 value:1;
 	} _present;
+	struct {
+		__u32 name;
+	} _len;
 
 	__u32 index;
 	char *name;
@@ -196,8 +200,10 @@ struct ethtool_tunnel_udp_entry {
 struct ethtool_string {
 	struct {
 		__u32 index:1;
-		__u32 value_len;
 	} _present;
+	struct {
+		__u32 value;
+	} _len;
 
 	__u32 index;
 	char *value;
@@ -206,7 +212,10 @@ struct ethtool_string {
 void ethtool_string_free(struct ethtool_string *obj);
 
 struct ethtool_profile {
-	unsigned int n_irq_moderation;
+	struct {
+		__u32 irq_moderation;
+	} _count;
+
 	struct ethtool_irq_moderation *irq_moderation;
 };
 
@@ -221,12 +230,18 @@ struct ethtool_cable_nest {
 };
 
 struct ethtool_bitset_bits {
-	unsigned int n_bit;
+	struct {
+		__u32 bit;
+	} _count;
+
 	struct ethtool_bitset_bit *bit;
 };
 
 struct ethtool_strings {
-	unsigned int n_string;
+	struct {
+		__u32 string;
+	} _count;
+
 	struct ethtool_string *string;
 };
 
@@ -237,9 +252,11 @@ struct ethtool_bitset {
 		__u32 nomask:1;
 		__u32 size:1;
 		__u32 bits:1;
-		__u32 value_len;
-		__u32 mask_len;
 	} _present;
+	struct {
+		__u32 value;
+		__u32 mask;
+	} _len;
 
 	__u32 size;
 	struct ethtool_bitset_bits bits;
@@ -252,10 +269,12 @@ struct ethtool_stringset_ {
 		__u32 id:1;
 		__u32 count:1;
 	} _present;
+	struct {
+		__u32 strings;
+	} _count;
 
 	__u32 id;
 	__u32 count;
-	unsigned int n_strings;
 	struct ethtool_strings *strings;
 };
 
@@ -266,15 +285,20 @@ struct ethtool_tunnel_udp_table {
 		__u32 size:1;
 		__u32 types:1;
 	} _present;
+	struct {
+		__u32 entry;
+	} _count;
 
 	__u32 size;
 	struct ethtool_bitset types;
-	unsigned int n_entry;
 	struct ethtool_tunnel_udp_entry *entry;
 };
 
 struct ethtool_stringsets {
-	unsigned int n_stringset;
+	struct {
+		__u32 stringset;
+	} _count;
+
 	struct ethtool_stringset_ *stringset;
 };
 
@@ -319,10 +343,10 @@ ethtool_strset_get_req_set_header_dev_name(struct ethtool_strset_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_strset_get_req_set_header_flags(struct ethtool_strset_get_req *req,
@@ -348,11 +372,11 @@ __ethtool_strset_get_req_set_stringsets_stringset(struct ethtool_strset_get_req 
 	unsigned int i;
 
 	req->_present.stringsets = 1;
-	for (i = 0; i < req->stringsets.n_stringset; i++)
+	for (i = 0; i < req->stringsets._count.stringset; i++)
 		ethtool_stringset_free(&req->stringsets.stringset[i]);
 	free(req->stringsets.stringset);
 	req->stringsets.stringset = stringset;
-	req->stringsets.n_stringset = n_stringset;
+	req->stringsets._count.stringset = n_stringset;
 }
 static inline void
 ethtool_strset_get_req_set_counts_only(struct ethtool_strset_get_req *req)
@@ -411,10 +435,10 @@ ethtool_strset_get_req_dump_set_header_dev_name(struct ethtool_strset_get_req_du
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_strset_get_req_dump_set_header_flags(struct ethtool_strset_get_req_dump *req,
@@ -440,11 +464,11 @@ __ethtool_strset_get_req_dump_set_stringsets_stringset(struct ethtool_strset_get
 	unsigned int i;
 
 	req->_present.stringsets = 1;
-	for (i = 0; i < req->stringsets.n_stringset; i++)
+	for (i = 0; i < req->stringsets._count.stringset; i++)
 		ethtool_stringset_free(&req->stringsets.stringset[i]);
 	free(req->stringsets.stringset);
 	req->stringsets.stringset = stringset;
-	req->stringsets.n_stringset = n_stringset;
+	req->stringsets._count.stringset = n_stringset;
 }
 static inline void
 ethtool_strset_get_req_dump_set_counts_only(struct ethtool_strset_get_req_dump *req)
@@ -494,10 +518,10 @@ ethtool_linkinfo_get_req_set_header_dev_name(struct ethtool_linkinfo_get_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkinfo_get_req_set_header_flags(struct ethtool_linkinfo_get_req *req,
@@ -573,10 +597,10 @@ ethtool_linkinfo_get_req_dump_set_header_dev_name(struct ethtool_linkinfo_get_re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkinfo_get_req_dump_set_header_flags(struct ethtool_linkinfo_get_req_dump *req,
@@ -658,10 +682,10 @@ ethtool_linkinfo_set_req_set_header_dev_name(struct ethtool_linkinfo_set_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkinfo_set_req_set_header_flags(struct ethtool_linkinfo_set_req *req,
@@ -752,10 +776,10 @@ ethtool_linkmodes_get_req_set_header_dev_name(struct ethtool_linkmodes_get_req *
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkmodes_get_req_set_header_flags(struct ethtool_linkmodes_get_req *req,
@@ -840,10 +864,10 @@ ethtool_linkmodes_get_req_dump_set_header_dev_name(struct ethtool_linkmodes_get_
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkmodes_get_req_dump_set_header_flags(struct ethtool_linkmodes_get_req_dump *req,
@@ -933,10 +957,10 @@ ethtool_linkmodes_set_req_set_header_dev_name(struct ethtool_linkmodes_set_req *
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkmodes_set_req_set_header_flags(struct ethtool_linkmodes_set_req *req,
@@ -984,11 +1008,11 @@ __ethtool_linkmodes_set_req_set_ours_bits_bit(struct ethtool_linkmodes_set_req *
 
 	req->_present.ours = 1;
 	req->ours._present.bits = 1;
-	for (i = 0; i < req->ours.bits.n_bit; i++)
+	for (i = 0; i < req->ours.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->ours.bits.bit[i]);
 	free(req->ours.bits.bit);
 	req->ours.bits.bit = bit;
-	req->ours.bits.n_bit = n_bit;
+	req->ours.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_linkmodes_set_req_set_ours_value(struct ethtool_linkmodes_set_req *req,
@@ -996,9 +1020,9 @@ ethtool_linkmodes_set_req_set_ours_value(struct ethtool_linkmodes_set_req *req,
 {
 	req->_present.ours = 1;
 	free(req->ours.value);
-	req->ours._present.value_len = len;
-	req->ours.value = malloc(req->ours._present.value_len);
-	memcpy(req->ours.value, value, req->ours._present.value_len);
+	req->ours._len.value = len;
+	req->ours.value = malloc(req->ours._len.value);
+	memcpy(req->ours.value, value, req->ours._len.value);
 }
 static inline void
 ethtool_linkmodes_set_req_set_ours_mask(struct ethtool_linkmodes_set_req *req,
@@ -1006,9 +1030,9 @@ ethtool_linkmodes_set_req_set_ours_mask(struct ethtool_linkmodes_set_req *req,
 {
 	req->_present.ours = 1;
 	free(req->ours.mask);
-	req->ours._present.mask_len = len;
-	req->ours.mask = malloc(req->ours._present.mask_len);
-	memcpy(req->ours.mask, mask, req->ours._present.mask_len);
+	req->ours._len.mask = len;
+	req->ours.mask = malloc(req->ours._len.mask);
+	memcpy(req->ours.mask, mask, req->ours._len.mask);
 }
 static inline void
 ethtool_linkmodes_set_req_set_peer_nomask(struct ethtool_linkmodes_set_req *req)
@@ -1033,11 +1057,11 @@ __ethtool_linkmodes_set_req_set_peer_bits_bit(struct ethtool_linkmodes_set_req *
 
 	req->_present.peer = 1;
 	req->peer._present.bits = 1;
-	for (i = 0; i < req->peer.bits.n_bit; i++)
+	for (i = 0; i < req->peer.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->peer.bits.bit[i]);
 	free(req->peer.bits.bit);
 	req->peer.bits.bit = bit;
-	req->peer.bits.n_bit = n_bit;
+	req->peer.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_linkmodes_set_req_set_peer_value(struct ethtool_linkmodes_set_req *req,
@@ -1045,9 +1069,9 @@ ethtool_linkmodes_set_req_set_peer_value(struct ethtool_linkmodes_set_req *req,
 {
 	req->_present.peer = 1;
 	free(req->peer.value);
-	req->peer._present.value_len = len;
-	req->peer.value = malloc(req->peer._present.value_len);
-	memcpy(req->peer.value, value, req->peer._present.value_len);
+	req->peer._len.value = len;
+	req->peer.value = malloc(req->peer._len.value);
+	memcpy(req->peer.value, value, req->peer._len.value);
 }
 static inline void
 ethtool_linkmodes_set_req_set_peer_mask(struct ethtool_linkmodes_set_req *req,
@@ -1055,9 +1079,9 @@ ethtool_linkmodes_set_req_set_peer_mask(struct ethtool_linkmodes_set_req *req,
 {
 	req->_present.peer = 1;
 	free(req->peer.mask);
-	req->peer._present.mask_len = len;
-	req->peer.mask = malloc(req->peer._present.mask_len);
-	memcpy(req->peer.mask, mask, req->peer._present.mask_len);
+	req->peer._len.mask = len;
+	req->peer.mask = malloc(req->peer._len.mask);
+	memcpy(req->peer.mask, mask, req->peer._len.mask);
 }
 static inline void
 ethtool_linkmodes_set_req_set_speed(struct ethtool_linkmodes_set_req *req,
@@ -1139,10 +1163,10 @@ ethtool_linkstate_get_req_set_header_dev_name(struct ethtool_linkstate_get_req *
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkstate_get_req_set_header_flags(struct ethtool_linkstate_get_req *req,
@@ -1221,10 +1245,10 @@ ethtool_linkstate_get_req_dump_set_header_dev_name(struct ethtool_linkstate_get_
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_linkstate_get_req_dump_set_header_flags(struct ethtool_linkstate_get_req_dump *req,
@@ -1284,10 +1308,10 @@ ethtool_debug_get_req_set_header_dev_name(struct ethtool_debug_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_debug_get_req_set_header_flags(struct ethtool_debug_get_req *req,
@@ -1354,10 +1378,10 @@ ethtool_debug_get_req_dump_set_header_dev_name(struct ethtool_debug_get_req_dump
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_debug_get_req_dump_set_header_flags(struct ethtool_debug_get_req_dump *req,
@@ -1430,10 +1454,10 @@ ethtool_debug_set_req_set_header_dev_name(struct ethtool_debug_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_debug_set_req_set_header_flags(struct ethtool_debug_set_req *req,
@@ -1474,11 +1498,11 @@ __ethtool_debug_set_req_set_msgmask_bits_bit(struct ethtool_debug_set_req *req,
 
 	req->_present.msgmask = 1;
 	req->msgmask._present.bits = 1;
-	for (i = 0; i < req->msgmask.bits.n_bit; i++)
+	for (i = 0; i < req->msgmask.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->msgmask.bits.bit[i]);
 	free(req->msgmask.bits.bit);
 	req->msgmask.bits.bit = bit;
-	req->msgmask.bits.n_bit = n_bit;
+	req->msgmask.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_debug_set_req_set_msgmask_value(struct ethtool_debug_set_req *req,
@@ -1486,9 +1510,9 @@ ethtool_debug_set_req_set_msgmask_value(struct ethtool_debug_set_req *req,
 {
 	req->_present.msgmask = 1;
 	free(req->msgmask.value);
-	req->msgmask._present.value_len = len;
-	req->msgmask.value = malloc(req->msgmask._present.value_len);
-	memcpy(req->msgmask.value, value, req->msgmask._present.value_len);
+	req->msgmask._len.value = len;
+	req->msgmask.value = malloc(req->msgmask._len.value);
+	memcpy(req->msgmask.value, value, req->msgmask._len.value);
 }
 static inline void
 ethtool_debug_set_req_set_msgmask_mask(struct ethtool_debug_set_req *req,
@@ -1496,9 +1520,9 @@ ethtool_debug_set_req_set_msgmask_mask(struct ethtool_debug_set_req *req,
 {
 	req->_present.msgmask = 1;
 	free(req->msgmask.mask);
-	req->msgmask._present.mask_len = len;
-	req->msgmask.mask = malloc(req->msgmask._present.mask_len);
-	memcpy(req->msgmask.mask, mask, req->msgmask._present.mask_len);
+	req->msgmask._len.mask = len;
+	req->msgmask.mask = malloc(req->msgmask._len.mask);
+	memcpy(req->msgmask.mask, mask, req->msgmask._len.mask);
 }
 
 /*
@@ -1536,10 +1560,10 @@ ethtool_wol_get_req_set_header_dev_name(struct ethtool_wol_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_wol_get_req_set_header_flags(struct ethtool_wol_get_req *req,
@@ -1562,8 +1586,10 @@ struct ethtool_wol_get_rsp {
 	struct {
 		__u32 header:1;
 		__u32 modes:1;
-		__u32 sopass_len;
 	} _present;
+	struct {
+		__u32 sopass;
+	} _len;
 
 	struct ethtool_header header;
 	struct ethtool_bitset modes;
@@ -1608,10 +1634,10 @@ ethtool_wol_get_req_dump_set_header_dev_name(struct ethtool_wol_get_req_dump *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_wol_get_req_dump_set_header_flags(struct ethtool_wol_get_req_dump *req,
@@ -1657,8 +1683,10 @@ struct ethtool_wol_set_req {
 	struct {
 		__u32 header:1;
 		__u32 modes:1;
-		__u32 sopass_len;
 	} _present;
+	struct {
+		__u32 sopass;
+	} _len;
 
 	struct ethtool_header header;
 	struct ethtool_bitset modes;
@@ -1685,10 +1713,10 @@ ethtool_wol_set_req_set_header_dev_name(struct ethtool_wol_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_wol_set_req_set_header_flags(struct ethtool_wol_set_req *req,
@@ -1728,11 +1756,11 @@ __ethtool_wol_set_req_set_modes_bits_bit(struct ethtool_wol_set_req *req,
 
 	req->_present.modes = 1;
 	req->modes._present.bits = 1;
-	for (i = 0; i < req->modes.bits.n_bit; i++)
+	for (i = 0; i < req->modes.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->modes.bits.bit[i]);
 	free(req->modes.bits.bit);
 	req->modes.bits.bit = bit;
-	req->modes.bits.n_bit = n_bit;
+	req->modes.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_wol_set_req_set_modes_value(struct ethtool_wol_set_req *req,
@@ -1740,9 +1768,9 @@ ethtool_wol_set_req_set_modes_value(struct ethtool_wol_set_req *req,
 {
 	req->_present.modes = 1;
 	free(req->modes.value);
-	req->modes._present.value_len = len;
-	req->modes.value = malloc(req->modes._present.value_len);
-	memcpy(req->modes.value, value, req->modes._present.value_len);
+	req->modes._len.value = len;
+	req->modes.value = malloc(req->modes._len.value);
+	memcpy(req->modes.value, value, req->modes._len.value);
 }
 static inline void
 ethtool_wol_set_req_set_modes_mask(struct ethtool_wol_set_req *req,
@@ -1750,18 +1778,18 @@ ethtool_wol_set_req_set_modes_mask(struct ethtool_wol_set_req *req,
 {
 	req->_present.modes = 1;
 	free(req->modes.mask);
-	req->modes._present.mask_len = len;
-	req->modes.mask = malloc(req->modes._present.mask_len);
-	memcpy(req->modes.mask, mask, req->modes._present.mask_len);
+	req->modes._len.mask = len;
+	req->modes.mask = malloc(req->modes._len.mask);
+	memcpy(req->modes.mask, mask, req->modes._len.mask);
 }
 static inline void
 ethtool_wol_set_req_set_sopass(struct ethtool_wol_set_req *req,
 			       const void *sopass, size_t len)
 {
 	free(req->sopass);
-	req->_present.sopass_len = len;
-	req->sopass = malloc(req->_present.sopass_len);
-	memcpy(req->sopass, sopass, req->_present.sopass_len);
+	req->_len.sopass = len;
+	req->sopass = malloc(req->_len.sopass);
+	memcpy(req->sopass, sopass, req->_len.sopass);
 }
 
 /*
@@ -1800,10 +1828,10 @@ ethtool_features_get_req_set_header_dev_name(struct ethtool_features_get_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_features_get_req_set_header_flags(struct ethtool_features_get_req *req,
@@ -1877,10 +1905,10 @@ ethtool_features_get_req_dump_set_header_dev_name(struct ethtool_features_get_re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_features_get_req_dump_set_header_flags(struct ethtool_features_get_req_dump *req,
@@ -1960,10 +1988,10 @@ ethtool_features_set_req_set_header_dev_name(struct ethtool_features_set_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_features_set_req_set_header_flags(struct ethtool_features_set_req *req,
@@ -2004,11 +2032,11 @@ __ethtool_features_set_req_set_hw_bits_bit(struct ethtool_features_set_req *req,
 
 	req->_present.hw = 1;
 	req->hw._present.bits = 1;
-	for (i = 0; i < req->hw.bits.n_bit; i++)
+	for (i = 0; i < req->hw.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->hw.bits.bit[i]);
 	free(req->hw.bits.bit);
 	req->hw.bits.bit = bit;
-	req->hw.bits.n_bit = n_bit;
+	req->hw.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_features_set_req_set_hw_value(struct ethtool_features_set_req *req,
@@ -2016,9 +2044,9 @@ ethtool_features_set_req_set_hw_value(struct ethtool_features_set_req *req,
 {
 	req->_present.hw = 1;
 	free(req->hw.value);
-	req->hw._present.value_len = len;
-	req->hw.value = malloc(req->hw._present.value_len);
-	memcpy(req->hw.value, value, req->hw._present.value_len);
+	req->hw._len.value = len;
+	req->hw.value = malloc(req->hw._len.value);
+	memcpy(req->hw.value, value, req->hw._len.value);
 }
 static inline void
 ethtool_features_set_req_set_hw_mask(struct ethtool_features_set_req *req,
@@ -2026,9 +2054,9 @@ ethtool_features_set_req_set_hw_mask(struct ethtool_features_set_req *req,
 {
 	req->_present.hw = 1;
 	free(req->hw.mask);
-	req->hw._present.mask_len = len;
-	req->hw.mask = malloc(req->hw._present.mask_len);
-	memcpy(req->hw.mask, mask, req->hw._present.mask_len);
+	req->hw._len.mask = len;
+	req->hw.mask = malloc(req->hw._len.mask);
+	memcpy(req->hw.mask, mask, req->hw._len.mask);
 }
 static inline void
 ethtool_features_set_req_set_wanted_nomask(struct ethtool_features_set_req *req)
@@ -2053,11 +2081,11 @@ __ethtool_features_set_req_set_wanted_bits_bit(struct ethtool_features_set_req *
 
 	req->_present.wanted = 1;
 	req->wanted._present.bits = 1;
-	for (i = 0; i < req->wanted.bits.n_bit; i++)
+	for (i = 0; i < req->wanted.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->wanted.bits.bit[i]);
 	free(req->wanted.bits.bit);
 	req->wanted.bits.bit = bit;
-	req->wanted.bits.n_bit = n_bit;
+	req->wanted.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_features_set_req_set_wanted_value(struct ethtool_features_set_req *req,
@@ -2065,9 +2093,9 @@ ethtool_features_set_req_set_wanted_value(struct ethtool_features_set_req *req,
 {
 	req->_present.wanted = 1;
 	free(req->wanted.value);
-	req->wanted._present.value_len = len;
-	req->wanted.value = malloc(req->wanted._present.value_len);
-	memcpy(req->wanted.value, value, req->wanted._present.value_len);
+	req->wanted._len.value = len;
+	req->wanted.value = malloc(req->wanted._len.value);
+	memcpy(req->wanted.value, value, req->wanted._len.value);
 }
 static inline void
 ethtool_features_set_req_set_wanted_mask(struct ethtool_features_set_req *req,
@@ -2075,9 +2103,9 @@ ethtool_features_set_req_set_wanted_mask(struct ethtool_features_set_req *req,
 {
 	req->_present.wanted = 1;
 	free(req->wanted.mask);
-	req->wanted._present.mask_len = len;
-	req->wanted.mask = malloc(req->wanted._present.mask_len);
-	memcpy(req->wanted.mask, mask, req->wanted._present.mask_len);
+	req->wanted._len.mask = len;
+	req->wanted.mask = malloc(req->wanted._len.mask);
+	memcpy(req->wanted.mask, mask, req->wanted._len.mask);
 }
 static inline void
 ethtool_features_set_req_set_active_nomask(struct ethtool_features_set_req *req)
@@ -2102,11 +2130,11 @@ __ethtool_features_set_req_set_active_bits_bit(struct ethtool_features_set_req *
 
 	req->_present.active = 1;
 	req->active._present.bits = 1;
-	for (i = 0; i < req->active.bits.n_bit; i++)
+	for (i = 0; i < req->active.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->active.bits.bit[i]);
 	free(req->active.bits.bit);
 	req->active.bits.bit = bit;
-	req->active.bits.n_bit = n_bit;
+	req->active.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_features_set_req_set_active_value(struct ethtool_features_set_req *req,
@@ -2114,9 +2142,9 @@ ethtool_features_set_req_set_active_value(struct ethtool_features_set_req *req,
 {
 	req->_present.active = 1;
 	free(req->active.value);
-	req->active._present.value_len = len;
-	req->active.value = malloc(req->active._present.value_len);
-	memcpy(req->active.value, value, req->active._present.value_len);
+	req->active._len.value = len;
+	req->active.value = malloc(req->active._len.value);
+	memcpy(req->active.value, value, req->active._len.value);
 }
 static inline void
 ethtool_features_set_req_set_active_mask(struct ethtool_features_set_req *req,
@@ -2124,9 +2152,9 @@ ethtool_features_set_req_set_active_mask(struct ethtool_features_set_req *req,
 {
 	req->_present.active = 1;
 	free(req->active.mask);
-	req->active._present.mask_len = len;
-	req->active.mask = malloc(req->active._present.mask_len);
-	memcpy(req->active.mask, mask, req->active._present.mask_len);
+	req->active._len.mask = len;
+	req->active.mask = malloc(req->active._len.mask);
+	memcpy(req->active.mask, mask, req->active._len.mask);
 }
 static inline void
 ethtool_features_set_req_set_nochange_nomask(struct ethtool_features_set_req *req)
@@ -2151,11 +2179,11 @@ __ethtool_features_set_req_set_nochange_bits_bit(struct ethtool_features_set_req
 
 	req->_present.nochange = 1;
 	req->nochange._present.bits = 1;
-	for (i = 0; i < req->nochange.bits.n_bit; i++)
+	for (i = 0; i < req->nochange.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->nochange.bits.bit[i]);
 	free(req->nochange.bits.bit);
 	req->nochange.bits.bit = bit;
-	req->nochange.bits.n_bit = n_bit;
+	req->nochange.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_features_set_req_set_nochange_value(struct ethtool_features_set_req *req,
@@ -2163,9 +2191,9 @@ ethtool_features_set_req_set_nochange_value(struct ethtool_features_set_req *req
 {
 	req->_present.nochange = 1;
 	free(req->nochange.value);
-	req->nochange._present.value_len = len;
-	req->nochange.value = malloc(req->nochange._present.value_len);
-	memcpy(req->nochange.value, value, req->nochange._present.value_len);
+	req->nochange._len.value = len;
+	req->nochange.value = malloc(req->nochange._len.value);
+	memcpy(req->nochange.value, value, req->nochange._len.value);
 }
 static inline void
 ethtool_features_set_req_set_nochange_mask(struct ethtool_features_set_req *req,
@@ -2173,9 +2201,9 @@ ethtool_features_set_req_set_nochange_mask(struct ethtool_features_set_req *req,
 {
 	req->_present.nochange = 1;
 	free(req->nochange.mask);
-	req->nochange._present.mask_len = len;
-	req->nochange.mask = malloc(req->nochange._present.mask_len);
-	memcpy(req->nochange.mask, mask, req->nochange._present.mask_len);
+	req->nochange._len.mask = len;
+	req->nochange.mask = malloc(req->nochange._len.mask);
+	memcpy(req->nochange.mask, mask, req->nochange._len.mask);
 }
 
 struct ethtool_features_set_rsp {
@@ -2233,10 +2261,10 @@ ethtool_privflags_get_req_set_header_dev_name(struct ethtool_privflags_get_req *
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_privflags_get_req_set_header_flags(struct ethtool_privflags_get_req *req,
@@ -2305,10 +2333,10 @@ ethtool_privflags_get_req_dump_set_header_dev_name(struct ethtool_privflags_get_
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_privflags_get_req_dump_set_header_flags(struct ethtool_privflags_get_req_dump *req,
@@ -2382,10 +2410,10 @@ ethtool_privflags_set_req_set_header_dev_name(struct ethtool_privflags_set_req *
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_privflags_set_req_set_header_flags(struct ethtool_privflags_set_req *req,
@@ -2426,11 +2454,11 @@ __ethtool_privflags_set_req_set_flags_bits_bit(struct ethtool_privflags_set_req 
 
 	req->_present.flags = 1;
 	req->flags._present.bits = 1;
-	for (i = 0; i < req->flags.bits.n_bit; i++)
+	for (i = 0; i < req->flags.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->flags.bits.bit[i]);
 	free(req->flags.bits.bit);
 	req->flags.bits.bit = bit;
-	req->flags.bits.n_bit = n_bit;
+	req->flags.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_privflags_set_req_set_flags_value(struct ethtool_privflags_set_req *req,
@@ -2438,9 +2466,9 @@ ethtool_privflags_set_req_set_flags_value(struct ethtool_privflags_set_req *req,
 {
 	req->_present.flags = 1;
 	free(req->flags.value);
-	req->flags._present.value_len = len;
-	req->flags.value = malloc(req->flags._present.value_len);
-	memcpy(req->flags.value, value, req->flags._present.value_len);
+	req->flags._len.value = len;
+	req->flags.value = malloc(req->flags._len.value);
+	memcpy(req->flags.value, value, req->flags._len.value);
 }
 static inline void
 ethtool_privflags_set_req_set_flags_mask(struct ethtool_privflags_set_req *req,
@@ -2448,9 +2476,9 @@ ethtool_privflags_set_req_set_flags_mask(struct ethtool_privflags_set_req *req,
 {
 	req->_present.flags = 1;
 	free(req->flags.mask);
-	req->flags._present.mask_len = len;
-	req->flags.mask = malloc(req->flags._present.mask_len);
-	memcpy(req->flags.mask, mask, req->flags._present.mask_len);
+	req->flags._len.mask = len;
+	req->flags.mask = malloc(req->flags._len.mask);
+	memcpy(req->flags.mask, mask, req->flags._len.mask);
 }
 
 /*
@@ -2489,10 +2517,10 @@ ethtool_rings_get_req_set_header_dev_name(struct ethtool_rings_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_rings_get_req_set_header_flags(struct ethtool_rings_get_req *req,
@@ -2591,10 +2619,10 @@ ethtool_rings_get_req_dump_set_header_dev_name(struct ethtool_rings_get_req_dump
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_rings_get_req_dump_set_header_flags(struct ethtool_rings_get_req_dump *req,
@@ -2699,10 +2727,10 @@ ethtool_rings_set_req_set_header_dev_name(struct ethtool_rings_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_rings_set_req_set_header_flags(struct ethtool_rings_set_req *req,
@@ -2874,10 +2902,10 @@ ethtool_channels_get_req_set_header_dev_name(struct ethtool_channels_get_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_channels_get_req_set_header_flags(struct ethtool_channels_get_req *req,
@@ -2959,10 +2987,10 @@ ethtool_channels_get_req_dump_set_header_dev_name(struct ethtool_channels_get_re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_channels_get_req_dump_set_header_flags(struct ethtool_channels_get_req_dump *req,
@@ -3050,10 +3078,10 @@ ethtool_channels_set_req_set_header_dev_name(struct ethtool_channels_set_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_channels_set_req_set_header_flags(struct ethtool_channels_set_req *req,
@@ -3165,10 +3193,10 @@ ethtool_coalesce_get_req_set_header_dev_name(struct ethtool_coalesce_get_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_coalesce_get_req_set_header_flags(struct ethtool_coalesce_get_req *req,
@@ -3292,10 +3320,10 @@ ethtool_coalesce_get_req_dump_set_header_dev_name(struct ethtool_coalesce_get_re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_coalesce_get_req_dump_set_header_flags(struct ethtool_coalesce_get_req_dump *req,
@@ -3425,10 +3453,10 @@ ethtool_coalesce_set_req_set_header_dev_name(struct ethtool_coalesce_set_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_coalesce_set_req_set_header_flags(struct ethtool_coalesce_set_req *req,
@@ -3643,11 +3671,11 @@ __ethtool_coalesce_set_req_set_rx_profile_irq_moderation(struct ethtool_coalesce
 	unsigned int i;
 
 	req->_present.rx_profile = 1;
-	for (i = 0; i < req->rx_profile.n_irq_moderation; i++)
+	for (i = 0; i < req->rx_profile._count.irq_moderation; i++)
 		ethtool_irq_moderation_free(&req->rx_profile.irq_moderation[i]);
 	free(req->rx_profile.irq_moderation);
 	req->rx_profile.irq_moderation = irq_moderation;
-	req->rx_profile.n_irq_moderation = n_irq_moderation;
+	req->rx_profile._count.irq_moderation = n_irq_moderation;
 }
 static inline void
 __ethtool_coalesce_set_req_set_tx_profile_irq_moderation(struct ethtool_coalesce_set_req *req,
@@ -3657,11 +3685,11 @@ __ethtool_coalesce_set_req_set_tx_profile_irq_moderation(struct ethtool_coalesce
 	unsigned int i;
 
 	req->_present.tx_profile = 1;
-	for (i = 0; i < req->tx_profile.n_irq_moderation; i++)
+	for (i = 0; i < req->tx_profile._count.irq_moderation; i++)
 		ethtool_irq_moderation_free(&req->tx_profile.irq_moderation[i]);
 	free(req->tx_profile.irq_moderation);
 	req->tx_profile.irq_moderation = irq_moderation;
-	req->tx_profile.n_irq_moderation = n_irq_moderation;
+	req->tx_profile._count.irq_moderation = n_irq_moderation;
 }
 
 /*
@@ -3700,10 +3728,10 @@ ethtool_pause_get_req_set_header_dev_name(struct ethtool_pause_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_pause_get_req_set_header_flags(struct ethtool_pause_get_req *req,
@@ -3778,10 +3806,10 @@ ethtool_pause_get_req_dump_set_header_dev_name(struct ethtool_pause_get_req_dump
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_pause_get_req_dump_set_header_flags(struct ethtool_pause_get_req_dump *req,
@@ -3862,10 +3890,10 @@ ethtool_pause_set_req_set_header_dev_name(struct ethtool_pause_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_pause_set_req_set_header_flags(struct ethtool_pause_set_req *req,
@@ -3961,10 +3989,10 @@ ethtool_eee_get_req_set_header_dev_name(struct ethtool_eee_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_eee_get_req_set_header_flags(struct ethtool_eee_get_req *req,
@@ -4041,10 +4069,10 @@ ethtool_eee_get_req_dump_set_header_dev_name(struct ethtool_eee_get_req_dump *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_eee_get_req_dump_set_header_flags(struct ethtool_eee_get_req_dump *req,
@@ -4126,10 +4154,10 @@ ethtool_eee_set_req_set_header_dev_name(struct ethtool_eee_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_eee_set_req_set_header_flags(struct ethtool_eee_set_req *req,
@@ -4170,11 +4198,11 @@ __ethtool_eee_set_req_set_modes_ours_bits_bit(struct ethtool_eee_set_req *req,
 
 	req->_present.modes_ours = 1;
 	req->modes_ours._present.bits = 1;
-	for (i = 0; i < req->modes_ours.bits.n_bit; i++)
+	for (i = 0; i < req->modes_ours.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->modes_ours.bits.bit[i]);
 	free(req->modes_ours.bits.bit);
 	req->modes_ours.bits.bit = bit;
-	req->modes_ours.bits.n_bit = n_bit;
+	req->modes_ours.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_eee_set_req_set_modes_ours_value(struct ethtool_eee_set_req *req,
@@ -4182,9 +4210,9 @@ ethtool_eee_set_req_set_modes_ours_value(struct ethtool_eee_set_req *req,
 {
 	req->_present.modes_ours = 1;
 	free(req->modes_ours.value);
-	req->modes_ours._present.value_len = len;
-	req->modes_ours.value = malloc(req->modes_ours._present.value_len);
-	memcpy(req->modes_ours.value, value, req->modes_ours._present.value_len);
+	req->modes_ours._len.value = len;
+	req->modes_ours.value = malloc(req->modes_ours._len.value);
+	memcpy(req->modes_ours.value, value, req->modes_ours._len.value);
 }
 static inline void
 ethtool_eee_set_req_set_modes_ours_mask(struct ethtool_eee_set_req *req,
@@ -4192,9 +4220,9 @@ ethtool_eee_set_req_set_modes_ours_mask(struct ethtool_eee_set_req *req,
 {
 	req->_present.modes_ours = 1;
 	free(req->modes_ours.mask);
-	req->modes_ours._present.mask_len = len;
-	req->modes_ours.mask = malloc(req->modes_ours._present.mask_len);
-	memcpy(req->modes_ours.mask, mask, req->modes_ours._present.mask_len);
+	req->modes_ours._len.mask = len;
+	req->modes_ours.mask = malloc(req->modes_ours._len.mask);
+	memcpy(req->modes_ours.mask, mask, req->modes_ours._len.mask);
 }
 static inline void
 ethtool_eee_set_req_set_modes_peer_nomask(struct ethtool_eee_set_req *req)
@@ -4219,11 +4247,11 @@ __ethtool_eee_set_req_set_modes_peer_bits_bit(struct ethtool_eee_set_req *req,
 
 	req->_present.modes_peer = 1;
 	req->modes_peer._present.bits = 1;
-	for (i = 0; i < req->modes_peer.bits.n_bit; i++)
+	for (i = 0; i < req->modes_peer.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->modes_peer.bits.bit[i]);
 	free(req->modes_peer.bits.bit);
 	req->modes_peer.bits.bit = bit;
-	req->modes_peer.bits.n_bit = n_bit;
+	req->modes_peer.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_eee_set_req_set_modes_peer_value(struct ethtool_eee_set_req *req,
@@ -4231,9 +4259,9 @@ ethtool_eee_set_req_set_modes_peer_value(struct ethtool_eee_set_req *req,
 {
 	req->_present.modes_peer = 1;
 	free(req->modes_peer.value);
-	req->modes_peer._present.value_len = len;
-	req->modes_peer.value = malloc(req->modes_peer._present.value_len);
-	memcpy(req->modes_peer.value, value, req->modes_peer._present.value_len);
+	req->modes_peer._len.value = len;
+	req->modes_peer.value = malloc(req->modes_peer._len.value);
+	memcpy(req->modes_peer.value, value, req->modes_peer._len.value);
 }
 static inline void
 ethtool_eee_set_req_set_modes_peer_mask(struct ethtool_eee_set_req *req,
@@ -4241,9 +4269,9 @@ ethtool_eee_set_req_set_modes_peer_mask(struct ethtool_eee_set_req *req,
 {
 	req->_present.modes_peer = 1;
 	free(req->modes_peer.mask);
-	req->modes_peer._present.mask_len = len;
-	req->modes_peer.mask = malloc(req->modes_peer._present.mask_len);
-	memcpy(req->modes_peer.mask, mask, req->modes_peer._present.mask_len);
+	req->modes_peer._len.mask = len;
+	req->modes_peer.mask = malloc(req->modes_peer._len.mask);
+	memcpy(req->modes_peer.mask, mask, req->modes_peer._len.mask);
 }
 static inline void
 ethtool_eee_set_req_set_active(struct ethtool_eee_set_req *req, __u8 active)
@@ -4309,10 +4337,10 @@ ethtool_tsinfo_get_req_set_header_dev_name(struct ethtool_tsinfo_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tsinfo_get_req_set_header_flags(struct ethtool_tsinfo_get_req *req,
@@ -4407,10 +4435,10 @@ ethtool_tsinfo_get_req_dump_set_header_dev_name(struct ethtool_tsinfo_get_req_du
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tsinfo_get_req_dump_set_header_flags(struct ethtool_tsinfo_get_req_dump *req,
@@ -4487,10 +4515,10 @@ ethtool_cable_test_act_req_set_header_dev_name(struct ethtool_cable_test_act_req
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_cable_test_act_req_set_header_flags(struct ethtool_cable_test_act_req *req,
@@ -4547,10 +4575,10 @@ ethtool_cable_test_tdr_act_req_set_header_dev_name(struct ethtool_cable_test_tdr
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_cable_test_tdr_act_req_set_header_flags(struct ethtool_cable_test_tdr_act_req *req,
@@ -4606,10 +4634,10 @@ ethtool_tunnel_info_get_req_set_header_dev_name(struct ethtool_tunnel_info_get_r
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tunnel_info_get_req_set_header_flags(struct ethtool_tunnel_info_get_req *req,
@@ -4678,10 +4706,10 @@ ethtool_tunnel_info_get_req_dump_set_header_dev_name(struct ethtool_tunnel_info_
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tunnel_info_get_req_dump_set_header_flags(struct ethtool_tunnel_info_get_req_dump *req,
@@ -4742,10 +4770,10 @@ ethtool_fec_get_req_set_header_dev_name(struct ethtool_fec_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_fec_get_req_set_header_flags(struct ethtool_fec_get_req *req,
@@ -4818,10 +4846,10 @@ ethtool_fec_get_req_dump_set_header_dev_name(struct ethtool_fec_get_req_dump *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_fec_get_req_dump_set_header_flags(struct ethtool_fec_get_req_dump *req,
@@ -4899,10 +4927,10 @@ ethtool_fec_set_req_set_header_dev_name(struct ethtool_fec_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_fec_set_req_set_header_flags(struct ethtool_fec_set_req *req,
@@ -4942,11 +4970,11 @@ __ethtool_fec_set_req_set_modes_bits_bit(struct ethtool_fec_set_req *req,
 
 	req->_present.modes = 1;
 	req->modes._present.bits = 1;
-	for (i = 0; i < req->modes.bits.n_bit; i++)
+	for (i = 0; i < req->modes.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->modes.bits.bit[i]);
 	free(req->modes.bits.bit);
 	req->modes.bits.bit = bit;
-	req->modes.bits.n_bit = n_bit;
+	req->modes.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_fec_set_req_set_modes_value(struct ethtool_fec_set_req *req,
@@ -4954,9 +4982,9 @@ ethtool_fec_set_req_set_modes_value(struct ethtool_fec_set_req *req,
 {
 	req->_present.modes = 1;
 	free(req->modes.value);
-	req->modes._present.value_len = len;
-	req->modes.value = malloc(req->modes._present.value_len);
-	memcpy(req->modes.value, value, req->modes._present.value_len);
+	req->modes._len.value = len;
+	req->modes.value = malloc(req->modes._len.value);
+	memcpy(req->modes.value, value, req->modes._len.value);
 }
 static inline void
 ethtool_fec_set_req_set_modes_mask(struct ethtool_fec_set_req *req,
@@ -4964,9 +4992,9 @@ ethtool_fec_set_req_set_modes_mask(struct ethtool_fec_set_req *req,
 {
 	req->_present.modes = 1;
 	free(req->modes.mask);
-	req->modes._present.mask_len = len;
-	req->modes.mask = malloc(req->modes._present.mask_len);
-	memcpy(req->modes.mask, mask, req->modes._present.mask_len);
+	req->modes._len.mask = len;
+	req->modes.mask = malloc(req->modes._len.mask);
+	memcpy(req->modes.mask, mask, req->modes._len.mask);
 }
 static inline void
 ethtool_fec_set_req_set_auto_(struct ethtool_fec_set_req *req, __u8 auto_)
@@ -4982,33 +5010,36 @@ ethtool_fec_set_req_set_active(struct ethtool_fec_set_req *req, __u32 active)
 }
 static inline void
 ethtool_fec_set_req_set_stats_corrected(struct ethtool_fec_set_req *req,
-					const void *corrected, size_t len)
+					__u64 *corrected, size_t count)
 {
 	req->_present.stats = 1;
 	free(req->stats.corrected);
-	req->stats._present.corrected_len = len;
-	req->stats.corrected = malloc(req->stats._present.corrected_len);
-	memcpy(req->stats.corrected, corrected, req->stats._present.corrected_len);
+	req->stats._count.corrected = count;
+	count *= sizeof(__u64);
+	req->stats.corrected = malloc(count);
+	memcpy(req->stats.corrected, corrected, count);
 }
 static inline void
 ethtool_fec_set_req_set_stats_uncorr(struct ethtool_fec_set_req *req,
-				     const void *uncorr, size_t len)
+				     __u64 *uncorr, size_t count)
 {
 	req->_present.stats = 1;
 	free(req->stats.uncorr);
-	req->stats._present.uncorr_len = len;
-	req->stats.uncorr = malloc(req->stats._present.uncorr_len);
-	memcpy(req->stats.uncorr, uncorr, req->stats._present.uncorr_len);
+	req->stats._count.uncorr = count;
+	count *= sizeof(__u64);
+	req->stats.uncorr = malloc(count);
+	memcpy(req->stats.uncorr, uncorr, count);
 }
 static inline void
 ethtool_fec_set_req_set_stats_corr_bits(struct ethtool_fec_set_req *req,
-					const void *corr_bits, size_t len)
+					__u64 *corr_bits, size_t count)
 {
 	req->_present.stats = 1;
 	free(req->stats.corr_bits);
-	req->stats._present.corr_bits_len = len;
-	req->stats.corr_bits = malloc(req->stats._present.corr_bits_len);
-	memcpy(req->stats.corr_bits, corr_bits, req->stats._present.corr_bits_len);
+	req->stats._count.corr_bits = count;
+	count *= sizeof(__u64);
+	req->stats.corr_bits = malloc(count);
+	memcpy(req->stats.corr_bits, corr_bits, count);
 }
 
 /*
@@ -5048,10 +5079,10 @@ ethtool_module_eeprom_get_req_set_header_dev_name(struct ethtool_module_eeprom_g
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_module_eeprom_get_req_set_header_flags(struct ethtool_module_eeprom_get_req *req,
@@ -5078,8 +5109,10 @@ struct ethtool_module_eeprom_get_rsp {
 		__u32 page:1;
 		__u32 bank:1;
 		__u32 i2c_address:1;
-		__u32 data_len;
 	} _present;
+	struct {
+		__u32 data;
+	} _len;
 
 	struct ethtool_header header;
 	__u32 offset;
@@ -5131,10 +5164,10 @@ ethtool_module_eeprom_get_req_dump_set_header_dev_name(struct ethtool_module_eep
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_module_eeprom_get_req_dump_set_header_flags(struct ethtool_module_eeprom_get_req_dump *req,
@@ -5196,10 +5229,10 @@ ethtool_phc_vclocks_get_req_set_header_dev_name(struct ethtool_phc_vclocks_get_r
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_phc_vclocks_get_req_set_header_flags(struct ethtool_phc_vclocks_get_req *req,
@@ -5268,10 +5301,10 @@ ethtool_phc_vclocks_get_req_dump_set_header_dev_name(struct ethtool_phc_vclocks_
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_phc_vclocks_get_req_dump_set_header_flags(struct ethtool_phc_vclocks_get_req_dump *req,
@@ -5332,10 +5365,10 @@ ethtool_module_get_req_set_header_dev_name(struct ethtool_module_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_module_get_req_set_header_flags(struct ethtool_module_get_req *req,
@@ -5404,10 +5437,10 @@ ethtool_module_get_req_dump_set_header_dev_name(struct ethtool_module_get_req_du
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_module_get_req_dump_set_header_flags(struct ethtool_module_get_req_dump *req,
@@ -5482,10 +5515,10 @@ ethtool_module_set_req_set_header_dev_name(struct ethtool_module_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_module_set_req_set_header_flags(struct ethtool_module_set_req *req,
@@ -5553,10 +5586,10 @@ ethtool_pse_get_req_set_header_dev_name(struct ethtool_pse_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_pse_get_req_set_header_flags(struct ethtool_pse_get_req *req,
@@ -5590,6 +5623,9 @@ struct ethtool_pse_get_rsp {
 		__u32 c33_pse_ext_substate:1;
 		__u32 c33_pse_avail_pw_limit:1;
 	} _present;
+	struct {
+		__u32 c33_pse_pw_limit_ranges;
+	} _count;
 
 	struct ethtool_header header;
 	__u32 podl_pse_admin_state;
@@ -5603,7 +5639,6 @@ struct ethtool_pse_get_rsp {
 	enum ethtool_c33_pse_ext_state c33_pse_ext_state;
 	__u32 c33_pse_ext_substate;
 	__u32 c33_pse_avail_pw_limit;
-	unsigned int n_c33_pse_pw_limit_ranges;
 	struct ethtool_c33_pse_pw_limit *c33_pse_pw_limit_ranges;
 };
 
@@ -5645,10 +5680,10 @@ ethtool_pse_get_req_dump_set_header_dev_name(struct ethtool_pse_get_req_dump *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_pse_get_req_dump_set_header_flags(struct ethtool_pse_get_req_dump *req,
@@ -5713,10 +5748,10 @@ ethtool_pse_set_req_set_header_dev_name(struct ethtool_pse_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_pse_set_req_set_header_flags(struct ethtool_pse_set_req *req,
@@ -5793,10 +5828,10 @@ ethtool_rss_get_req_set_header_dev_name(struct ethtool_rss_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_rss_get_req_set_header_flags(struct ethtool_rss_get_req *req,
@@ -5826,15 +5861,19 @@ struct ethtool_rss_get_rsp {
 		__u32 header:1;
 		__u32 context:1;
 		__u32 hfunc:1;
-		__u32 indir_len;
-		__u32 hkey_len;
 		__u32 input_xfrm:1;
 	} _present;
+	struct {
+		__u32 hkey;
+	} _len;
+	struct {
+		__u32 indir;
+	} _count;
 
 	struct ethtool_header header;
 	__u32 context;
 	__u32 hfunc;
-	void *indir;
+	__u32 *indir;
 	void *hkey;
 	__u32 input_xfrm;
 };
@@ -5879,10 +5918,10 @@ ethtool_rss_get_req_dump_set_header_dev_name(struct ethtool_rss_get_req_dump *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_rss_get_req_dump_set_header_flags(struct ethtool_rss_get_req_dump *req,
@@ -5949,10 +5988,10 @@ ethtool_plca_get_cfg_req_set_header_dev_name(struct ethtool_plca_get_cfg_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_plca_get_cfg_req_set_header_flags(struct ethtool_plca_get_cfg_req *req,
@@ -6034,10 +6073,10 @@ ethtool_plca_get_cfg_req_dump_set_header_dev_name(struct ethtool_plca_get_cfg_re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_plca_get_cfg_req_dump_set_header_flags(struct ethtool_plca_get_cfg_req_dump *req,
@@ -6125,10 +6164,10 @@ ethtool_plca_set_cfg_req_set_header_dev_name(struct ethtool_plca_set_cfg_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_plca_set_cfg_req_set_header_flags(struct ethtool_plca_set_cfg_req *req,
@@ -6240,10 +6279,10 @@ ethtool_plca_get_status_req_set_header_dev_name(struct ethtool_plca_get_status_r
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_plca_get_status_req_set_header_flags(struct ethtool_plca_get_status_req *req,
@@ -6326,10 +6365,10 @@ ethtool_plca_get_status_req_dump_set_header_dev_name(struct ethtool_plca_get_sta
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_plca_get_status_req_dump_set_header_flags(struct ethtool_plca_get_status_req_dump *req,
@@ -6390,10 +6429,10 @@ ethtool_mm_get_req_set_header_dev_name(struct ethtool_mm_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_mm_get_req_set_header_flags(struct ethtool_mm_get_req *req,
@@ -6476,10 +6515,10 @@ ethtool_mm_get_req_dump_set_header_dev_name(struct ethtool_mm_get_req_dump *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_mm_get_req_dump_set_header_flags(struct ethtool_mm_get_req_dump *req,
@@ -6559,10 +6598,10 @@ ethtool_mm_set_req_set_header_dev_name(struct ethtool_mm_set_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_mm_set_req_set_header_flags(struct ethtool_mm_set_req *req,
@@ -6626,9 +6665,11 @@ int ethtool_mm_set(struct ynl_sock *ys, struct ethtool_mm_set_req *req);
 struct ethtool_module_fw_flash_act_req {
 	struct {
 		__u32 header:1;
-		__u32 file_name_len;
 		__u32 password:1;
 	} _present;
+	struct {
+		__u32 file_name;
+	} _len;
 
 	struct ethtool_header header;
 	char *file_name;
@@ -6657,10 +6698,10 @@ ethtool_module_fw_flash_act_req_set_header_dev_name(struct ethtool_module_fw_fla
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_module_fw_flash_act_req_set_header_flags(struct ethtool_module_fw_flash_act_req *req,
@@ -6683,10 +6724,10 @@ ethtool_module_fw_flash_act_req_set_file_name(struct ethtool_module_fw_flash_act
 					      const char *file_name)
 {
 	free(req->file_name);
-	req->_present.file_name_len = strlen(file_name);
-	req->file_name = malloc(req->_present.file_name_len + 1);
-	memcpy(req->file_name, file_name, req->_present.file_name_len);
-	req->file_name[req->_present.file_name_len] = 0;
+	req->_len.file_name = strlen(file_name);
+	req->file_name = malloc(req->_len.file_name + 1);
+	memcpy(req->file_name, file_name, req->_len.file_name);
+	req->file_name[req->_len.file_name] = 0;
 }
 static inline void
 ethtool_module_fw_flash_act_req_set_password(struct ethtool_module_fw_flash_act_req *req,
@@ -6732,10 +6773,10 @@ ethtool_phy_get_req_set_header_dev_name(struct ethtool_phy_get_req *req,
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_phy_get_req_set_header_flags(struct ethtool_phy_get_req *req,
@@ -6758,19 +6799,21 @@ struct ethtool_phy_get_rsp {
 	struct {
 		__u32 header:1;
 		__u32 index:1;
-		__u32 drvname_len;
-		__u32 name_len;
 		__u32 upstream_type:1;
 		__u32 upstream_index:1;
-		__u32 upstream_sfp_name_len;
-		__u32 downstream_sfp_name_len;
 	} _present;
+	struct {
+		__u32 drvname;
+		__u32 name;
+		__u32 upstream_sfp_name;
+		__u32 downstream_sfp_name;
+	} _len;
 
 	struct ethtool_header header;
 	__u32 index;
 	char *drvname;
 	char *name;
-	int upstream_type;
+	enum phy_upstream upstream_type;
 	__u32 upstream_index;
 	char *upstream_sfp_name;
 	char *downstream_sfp_name;
@@ -6814,10 +6857,10 @@ ethtool_phy_get_req_dump_set_header_dev_name(struct ethtool_phy_get_req_dump *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_phy_get_req_dump_set_header_flags(struct ethtool_phy_get_req_dump *req,
@@ -6888,10 +6931,10 @@ ethtool_tsconfig_get_req_set_header_dev_name(struct ethtool_tsconfig_get_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tsconfig_get_req_set_header_flags(struct ethtool_tsconfig_get_req *req,
@@ -6965,10 +7008,10 @@ ethtool_tsconfig_get_req_dump_set_header_dev_name(struct ethtool_tsconfig_get_re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tsconfig_get_req_dump_set_header_flags(struct ethtool_tsconfig_get_req_dump *req,
@@ -7037,10 +7080,10 @@ ethtool_tsconfig_set_req_set_header_dev_name(struct ethtool_tsconfig_set_req *re
 {
 	req->_present.header = 1;
 	free(req->header.dev_name);
-	req->header._present.dev_name_len = strlen(dev_name);
-	req->header.dev_name = malloc(req->header._present.dev_name_len + 1);
-	memcpy(req->header.dev_name, dev_name, req->header._present.dev_name_len);
-	req->header.dev_name[req->header._present.dev_name_len] = 0;
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
 }
 static inline void
 ethtool_tsconfig_set_req_set_header_flags(struct ethtool_tsconfig_set_req *req,
@@ -7097,11 +7140,11 @@ __ethtool_tsconfig_set_req_set_tx_types_bits_bit(struct ethtool_tsconfig_set_req
 
 	req->_present.tx_types = 1;
 	req->tx_types._present.bits = 1;
-	for (i = 0; i < req->tx_types.bits.n_bit; i++)
+	for (i = 0; i < req->tx_types.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->tx_types.bits.bit[i]);
 	free(req->tx_types.bits.bit);
 	req->tx_types.bits.bit = bit;
-	req->tx_types.bits.n_bit = n_bit;
+	req->tx_types.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_tsconfig_set_req_set_tx_types_value(struct ethtool_tsconfig_set_req *req,
@@ -7109,9 +7152,9 @@ ethtool_tsconfig_set_req_set_tx_types_value(struct ethtool_tsconfig_set_req *req
 {
 	req->_present.tx_types = 1;
 	free(req->tx_types.value);
-	req->tx_types._present.value_len = len;
-	req->tx_types.value = malloc(req->tx_types._present.value_len);
-	memcpy(req->tx_types.value, value, req->tx_types._present.value_len);
+	req->tx_types._len.value = len;
+	req->tx_types.value = malloc(req->tx_types._len.value);
+	memcpy(req->tx_types.value, value, req->tx_types._len.value);
 }
 static inline void
 ethtool_tsconfig_set_req_set_tx_types_mask(struct ethtool_tsconfig_set_req *req,
@@ -7119,9 +7162,9 @@ ethtool_tsconfig_set_req_set_tx_types_mask(struct ethtool_tsconfig_set_req *req,
 {
 	req->_present.tx_types = 1;
 	free(req->tx_types.mask);
-	req->tx_types._present.mask_len = len;
-	req->tx_types.mask = malloc(req->tx_types._present.mask_len);
-	memcpy(req->tx_types.mask, mask, req->tx_types._present.mask_len);
+	req->tx_types._len.mask = len;
+	req->tx_types.mask = malloc(req->tx_types._len.mask);
+	memcpy(req->tx_types.mask, mask, req->tx_types._len.mask);
 }
 static inline void
 ethtool_tsconfig_set_req_set_rx_filters_nomask(struct ethtool_tsconfig_set_req *req)
@@ -7146,11 +7189,11 @@ __ethtool_tsconfig_set_req_set_rx_filters_bits_bit(struct ethtool_tsconfig_set_r
 
 	req->_present.rx_filters = 1;
 	req->rx_filters._present.bits = 1;
-	for (i = 0; i < req->rx_filters.bits.n_bit; i++)
+	for (i = 0; i < req->rx_filters.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->rx_filters.bits.bit[i]);
 	free(req->rx_filters.bits.bit);
 	req->rx_filters.bits.bit = bit;
-	req->rx_filters.bits.n_bit = n_bit;
+	req->rx_filters.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_tsconfig_set_req_set_rx_filters_value(struct ethtool_tsconfig_set_req *req,
@@ -7158,9 +7201,9 @@ ethtool_tsconfig_set_req_set_rx_filters_value(struct ethtool_tsconfig_set_req *r
 {
 	req->_present.rx_filters = 1;
 	free(req->rx_filters.value);
-	req->rx_filters._present.value_len = len;
-	req->rx_filters.value = malloc(req->rx_filters._present.value_len);
-	memcpy(req->rx_filters.value, value, req->rx_filters._present.value_len);
+	req->rx_filters._len.value = len;
+	req->rx_filters.value = malloc(req->rx_filters._len.value);
+	memcpy(req->rx_filters.value, value, req->rx_filters._len.value);
 }
 static inline void
 ethtool_tsconfig_set_req_set_rx_filters_mask(struct ethtool_tsconfig_set_req *req,
@@ -7168,9 +7211,9 @@ ethtool_tsconfig_set_req_set_rx_filters_mask(struct ethtool_tsconfig_set_req *re
 {
 	req->_present.rx_filters = 1;
 	free(req->rx_filters.mask);
-	req->rx_filters._present.mask_len = len;
-	req->rx_filters.mask = malloc(req->rx_filters._present.mask_len);
-	memcpy(req->rx_filters.mask, mask, req->rx_filters._present.mask_len);
+	req->rx_filters._len.mask = len;
+	req->rx_filters.mask = malloc(req->rx_filters._len.mask);
+	memcpy(req->rx_filters.mask, mask, req->rx_filters._len.mask);
 }
 static inline void
 ethtool_tsconfig_set_req_set_hwtstamp_flags_nomask(struct ethtool_tsconfig_set_req *req)
@@ -7195,11 +7238,11 @@ __ethtool_tsconfig_set_req_set_hwtstamp_flags_bits_bit(struct ethtool_tsconfig_s
 
 	req->_present.hwtstamp_flags = 1;
 	req->hwtstamp_flags._present.bits = 1;
-	for (i = 0; i < req->hwtstamp_flags.bits.n_bit; i++)
+	for (i = 0; i < req->hwtstamp_flags.bits._count.bit; i++)
 		ethtool_bitset_bit_free(&req->hwtstamp_flags.bits.bit[i]);
 	free(req->hwtstamp_flags.bits.bit);
 	req->hwtstamp_flags.bits.bit = bit;
-	req->hwtstamp_flags.bits.n_bit = n_bit;
+	req->hwtstamp_flags.bits._count.bit = n_bit;
 }
 static inline void
 ethtool_tsconfig_set_req_set_hwtstamp_flags_value(struct ethtool_tsconfig_set_req *req,
@@ -7208,9 +7251,9 @@ ethtool_tsconfig_set_req_set_hwtstamp_flags_value(struct ethtool_tsconfig_set_re
 {
 	req->_present.hwtstamp_flags = 1;
 	free(req->hwtstamp_flags.value);
-	req->hwtstamp_flags._present.value_len = len;
-	req->hwtstamp_flags.value = malloc(req->hwtstamp_flags._present.value_len);
-	memcpy(req->hwtstamp_flags.value, value, req->hwtstamp_flags._present.value_len);
+	req->hwtstamp_flags._len.value = len;
+	req->hwtstamp_flags.value = malloc(req->hwtstamp_flags._len.value);
+	memcpy(req->hwtstamp_flags.value, value, req->hwtstamp_flags._len.value);
 }
 static inline void
 ethtool_tsconfig_set_req_set_hwtstamp_flags_mask(struct ethtool_tsconfig_set_req *req,
@@ -7218,9 +7261,9 @@ ethtool_tsconfig_set_req_set_hwtstamp_flags_mask(struct ethtool_tsconfig_set_req
 {
 	req->_present.hwtstamp_flags = 1;
 	free(req->hwtstamp_flags.mask);
-	req->hwtstamp_flags._present.mask_len = len;
-	req->hwtstamp_flags.mask = malloc(req->hwtstamp_flags._present.mask_len);
-	memcpy(req->hwtstamp_flags.mask, mask, req->hwtstamp_flags._present.mask_len);
+	req->hwtstamp_flags._len.mask = len;
+	req->hwtstamp_flags.mask = malloc(req->hwtstamp_flags._len.mask);
+	memcpy(req->hwtstamp_flags.mask, mask, req->hwtstamp_flags._len.mask);
 }
 
 struct ethtool_tsconfig_set_rsp {
@@ -7296,10 +7339,12 @@ struct ethtool_module_fw_flash_ntf_rsp {
 	struct {
 		__u32 header:1;
 		__u32 status:1;
-		__u32 status_msg_len;
 		__u32 done:1;
 		__u32 total:1;
 	} _present;
+	struct {
+		__u32 status_msg;
+	} _len;
 
 	struct ethtool_header header;
 	enum ethtool_module_fw_flash_status status;

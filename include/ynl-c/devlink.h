@@ -44,6 +44,7 @@ const char *devlink_param_cmode_str(enum devlink_param_cmode value);
 const char *devlink_flash_overwrite_str(enum devlink_flash_overwrite value);
 const char *devlink_trap_action_str(enum devlink_trap_action value);
 const char *devlink_trap_type_str(enum devlink_trap_type value);
+const char *devlink_var_attr_type_str(enum devlink_var_attr_type value);
 
 /* Common nested types */
 struct devlink_dl_dpipe_match {
@@ -64,12 +65,16 @@ struct devlink_dl_dpipe_match {
 
 struct devlink_dl_dpipe_match_value {
 	struct {
-		__u32 dpipe_value_len;
-		__u32 dpipe_value_mask_len;
 		__u32 dpipe_value_mapping:1;
 	} _present;
+	struct {
+		__u32 dpipe_value;
+		__u32 dpipe_value_mask;
+	} _len;
+	struct {
+		__u32 dpipe_match;
+	} _count;
 
-	unsigned int n_dpipe_match;
 	struct devlink_dl_dpipe_match *dpipe_match;
 	void *dpipe_value;
 	void *dpipe_value_mask;
@@ -94,12 +99,16 @@ struct devlink_dl_dpipe_action {
 
 struct devlink_dl_dpipe_action_value {
 	struct {
-		__u32 dpipe_value_len;
-		__u32 dpipe_value_mask_len;
 		__u32 dpipe_value_mapping:1;
 	} _present;
+	struct {
+		__u32 dpipe_value;
+		__u32 dpipe_value_mask;
+	} _len;
+	struct {
+		__u32 dpipe_action;
+	} _count;
 
-	unsigned int n_dpipe_action;
 	struct devlink_dl_dpipe_action *dpipe_action;
 	void *dpipe_value;
 	void *dpipe_value_mask;
@@ -108,11 +117,13 @@ struct devlink_dl_dpipe_action_value {
 
 struct devlink_dl_dpipe_field {
 	struct {
-		__u32 dpipe_field_name_len;
 		__u32 dpipe_field_id:1;
 		__u32 dpipe_field_bitwidth:1;
 		__u32 dpipe_field_mapping_type:1;
 	} _present;
+	struct {
+		__u32 dpipe_field_name;
+	} _len;
 
 	char *dpipe_field_name;
 	__u32 dpipe_field_id;
@@ -122,7 +133,6 @@ struct devlink_dl_dpipe_field {
 
 struct devlink_dl_resource {
 	struct {
-		__u32 resource_name_len;
 		__u32 resource_id:1;
 		__u32 resource_size:1;
 		__u32 resource_size_new:1;
@@ -133,6 +143,9 @@ struct devlink_dl_resource {
 		__u32 resource_unit:1;
 		__u32 resource_occ:1;
 	} _present;
+	struct {
+		__u32 resource_name;
+	} _len;
 
 	char *resource_name;
 	__u64 resource_id;
@@ -148,13 +161,15 @@ struct devlink_dl_resource {
 
 struct devlink_dl_param {
 	struct {
-		__u32 param_name_len;
 		__u32 param_generic:1;
 		__u32 param_type:1;
 	} _present;
+	struct {
+		__u32 param_name;
+	} _len;
 
 	char *param_name;
-	__u8 param_type;
+	enum devlink_var_attr_type param_type;
 };
 
 struct devlink_dl_region_snapshot {
@@ -167,9 +182,11 @@ struct devlink_dl_region_snapshot {
 
 struct devlink_dl_region_chunk {
 	struct {
-		__u32 region_chunk_data_len;
 		__u32 region_chunk_addr:1;
 	} _present;
+	struct {
+		__u32 region_chunk_data;
+	} _len;
 
 	void *region_chunk_data;
 	__u64 region_chunk_addr;
@@ -177,9 +194,9 @@ struct devlink_dl_region_chunk {
 
 struct devlink_dl_info_version {
 	struct {
-		__u32 info_version_name_len;
-		__u32 info_version_value_len;
-	} _present;
+		__u32 info_version_name;
+		__u32 info_version_value;
+	} _len;
 
 	char *info_version_name;
 	char *info_version_value;
@@ -191,15 +208,16 @@ struct devlink_dl_fmsg {
 		__u32 fmsg_pair_nest_start:1;
 		__u32 fmsg_arr_nest_start:1;
 		__u32 fmsg_nest_end:1;
-		__u32 fmsg_obj_name_len;
 	} _present;
+	struct {
+		__u32 fmsg_obj_name;
+	} _len;
 
 	char *fmsg_obj_name;
 };
 
 struct devlink_dl_health_reporter {
 	struct {
-		__u32 health_reporter_name_len;
 		__u32 health_reporter_state:1;
 		__u32 health_reporter_err_count:1;
 		__u32 health_reporter_recover_count:1;
@@ -209,6 +227,9 @@ struct devlink_dl_health_reporter {
 		__u32 health_reporter_dump_ts_ns:1;
 		__u32 health_reporter_auto_dump:1;
 	} _present;
+	struct {
+		__u32 health_reporter_name;
+	} _len;
 
 	char *health_reporter_name;
 	__u8 health_reporter_state;
@@ -242,11 +263,13 @@ struct devlink_dl_trap_metadata {
 
 struct devlink_dl_port_function {
 	struct {
-		__u32 hw_addr_len;
 		__u32 state:1;
 		__u32 opstate:1;
 		__u32 caps:1;
 	} _present;
+	struct {
+		__u32 hw_addr;
+	} _len;
 
 	void *hw_addr;
 	enum devlink_port_fn_state state;
@@ -265,14 +288,17 @@ struct devlink_dl_reload_stats_entry {
 };
 
 struct devlink_dl_reload_act_stats {
-	unsigned int n_reload_stats_entry;
+	struct {
+		__u32 reload_stats_entry;
+	} _count;
+
 	struct devlink_dl_reload_stats_entry *reload_stats_entry;
 };
 
 struct devlink_dl_linecard_supported_types {
 	struct {
-		__u32 linecard_type_len;
-	} _present;
+		__u32 linecard_type;
+	} _len;
 
 	char *linecard_type;
 };
@@ -284,32 +310,50 @@ struct devlink_dl_selftest_id {
 };
 
 struct devlink_dl_dpipe_table_matches {
-	unsigned int n_dpipe_match;
+	struct {
+		__u32 dpipe_match;
+	} _count;
+
 	struct devlink_dl_dpipe_match *dpipe_match;
 };
 
 struct devlink_dl_dpipe_table_actions {
-	unsigned int n_dpipe_action;
+	struct {
+		__u32 dpipe_action;
+	} _count;
+
 	struct devlink_dl_dpipe_action *dpipe_action;
 };
 
 struct devlink_dl_dpipe_entry_match_values {
-	unsigned int n_dpipe_match_value;
+	struct {
+		__u32 dpipe_match_value;
+	} _count;
+
 	struct devlink_dl_dpipe_match_value *dpipe_match_value;
 };
 
 struct devlink_dl_dpipe_entry_action_values {
-	unsigned int n_dpipe_action_value;
+	struct {
+		__u32 dpipe_action_value;
+	} _count;
+
 	struct devlink_dl_dpipe_action_value *dpipe_action_value;
 };
 
 struct devlink_dl_dpipe_header_fields {
-	unsigned int n_dpipe_field;
+	struct {
+		__u32 dpipe_field;
+	} _count;
+
 	struct devlink_dl_dpipe_field *dpipe_field;
 };
 
 struct devlink_dl_resource_list {
-	unsigned int n_resource;
+	struct {
+		__u32 resource;
+	} _count;
+
 	struct devlink_dl_resource *resource;
 };
 
@@ -333,15 +377,16 @@ struct devlink_dl_reload_act_info {
 	struct {
 		__u32 reload_action:1;
 	} _present;
+	struct {
+		__u32 reload_action_stats;
+	} _count;
 
 	enum devlink_reload_action reload_action;
-	unsigned int n_reload_action_stats;
 	struct devlink_dl_reload_act_stats *reload_action_stats;
 };
 
 struct devlink_dl_dpipe_table {
 	struct {
-		__u32 dpipe_table_name_len;
 		__u32 dpipe_table_size:1;
 		__u32 dpipe_table_matches:1;
 		__u32 dpipe_table_actions:1;
@@ -349,6 +394,9 @@ struct devlink_dl_dpipe_table {
 		__u32 dpipe_table_resource_id:1;
 		__u32 dpipe_table_resource_units:1;
 	} _present;
+	struct {
+		__u32 dpipe_table_name;
+	} _len;
 
 	char *dpipe_table_name;
 	__u64 dpipe_table_size;
@@ -375,11 +423,13 @@ struct devlink_dl_dpipe_entry {
 
 struct devlink_dl_dpipe_header {
 	struct {
-		__u32 dpipe_header_name_len;
 		__u32 dpipe_header_id:1;
 		__u32 dpipe_header_global:1;
 		__u32 dpipe_header_fields:1;
 	} _present;
+	struct {
+		__u32 dpipe_header_name;
+	} _len;
 
 	char *dpipe_header_name;
 	enum devlink_dpipe_header_id dpipe_header_id;
@@ -388,22 +438,34 @@ struct devlink_dl_dpipe_header {
 };
 
 struct devlink_dl_reload_stats {
-	unsigned int n_reload_action_info;
+	struct {
+		__u32 reload_action_info;
+	} _count;
+
 	struct devlink_dl_reload_act_info *reload_action_info;
 };
 
 struct devlink_dl_dpipe_tables {
-	unsigned int n_dpipe_table;
+	struct {
+		__u32 dpipe_table;
+	} _count;
+
 	struct devlink_dl_dpipe_table *dpipe_table;
 };
 
 struct devlink_dl_dpipe_entries {
-	unsigned int n_dpipe_entry;
+	struct {
+		__u32 dpipe_entry;
+	} _count;
+
 	struct devlink_dl_dpipe_entry *dpipe_entry;
 };
 
 struct devlink_dl_dpipe_headers {
-	unsigned int n_dpipe_header;
+	struct {
+		__u32 dpipe_header;
+	} _count;
+
 	struct devlink_dl_dpipe_header *dpipe_header;
 };
 
@@ -421,9 +483,9 @@ struct devlink_dl_dev_stats {
 /* DEVLINK_CMD_GET - do */
 struct devlink_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -439,28 +501,30 @@ static inline void
 devlink_get_req_set_bus_name(struct devlink_get_req *req, const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_get_req_set_dev_name(struct devlink_get_req *req, const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 reload_failed:1;
 		__u32 dev_stats:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -490,10 +554,12 @@ struct devlink_get_list *devlink_get_dump(struct ynl_sock *ys);
 /* DEVLINK_CMD_PORT_GET - do */
 struct devlink_port_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -511,20 +577,20 @@ devlink_port_get_req_set_bus_name(struct devlink_port_get_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_get_req_set_dev_name(struct devlink_port_get_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_get_req_set_port_index(struct devlink_port_get_req *req,
@@ -536,10 +602,12 @@ devlink_port_get_req_set_port_index(struct devlink_port_get_req *req,
 
 struct devlink_port_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -557,9 +625,9 @@ devlink_port_get(struct ynl_sock *ys, struct devlink_port_get_req *req);
 /* DEVLINK_CMD_PORT_GET - dump */
 struct devlink_port_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -577,28 +645,30 @@ devlink_port_get_req_dump_set_bus_name(struct devlink_port_get_req_dump *req,
 				       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_get_req_dump_set_dev_name(struct devlink_port_get_req_dump *req,
 				       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_port_get_rsp_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -620,12 +690,14 @@ devlink_port_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_PORT_SET - do */
 struct devlink_port_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 port_type:1;
 		__u32 port_function:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -645,20 +717,20 @@ devlink_port_set_req_set_bus_name(struct devlink_port_set_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_set_req_set_dev_name(struct devlink_port_set_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_set_req_set_port_index(struct devlink_port_set_req *req,
@@ -680,9 +752,9 @@ devlink_port_set_req_set_port_function_hw_addr(struct devlink_port_set_req *req,
 {
 	req->_present.port_function = 1;
 	free(req->port_function.hw_addr);
-	req->port_function._present.hw_addr_len = len;
-	req->port_function.hw_addr = malloc(req->port_function._present.hw_addr_len);
-	memcpy(req->port_function.hw_addr, hw_addr, req->port_function._present.hw_addr_len);
+	req->port_function._len.hw_addr = len;
+	req->port_function.hw_addr = malloc(req->port_function._len.hw_addr);
+	memcpy(req->port_function.hw_addr, hw_addr, req->port_function._len.hw_addr);
 }
 static inline void
 devlink_port_set_req_set_port_function_state(struct devlink_port_set_req *req,
@@ -718,14 +790,16 @@ int devlink_port_set(struct ynl_sock *ys, struct devlink_port_set_req *req);
 /* DEVLINK_CMD_PORT_NEW - do */
 struct devlink_port_new_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 port_flavour:1;
 		__u32 port_pci_pf_number:1;
 		__u32 port_pci_sf_number:1;
 		__u32 port_controller_number:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -747,20 +821,20 @@ devlink_port_new_req_set_bus_name(struct devlink_port_new_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_new_req_set_dev_name(struct devlink_port_new_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_new_req_set_port_index(struct devlink_port_new_req *req,
@@ -800,10 +874,12 @@ devlink_port_new_req_set_port_controller_number(struct devlink_port_new_req *req
 
 struct devlink_port_new_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -822,10 +898,12 @@ devlink_port_new(struct ynl_sock *ys, struct devlink_port_new_req *req);
 /* DEVLINK_CMD_PORT_DEL - do */
 struct devlink_port_del_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -843,20 +921,20 @@ devlink_port_del_req_set_bus_name(struct devlink_port_del_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_del_req_set_dev_name(struct devlink_port_del_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_del_req_set_port_index(struct devlink_port_del_req *req,
@@ -875,11 +953,13 @@ int devlink_port_del(struct ynl_sock *ys, struct devlink_port_del_req *req);
 /* DEVLINK_CMD_PORT_SPLIT - do */
 struct devlink_port_split_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 port_split_count:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -898,20 +978,20 @@ devlink_port_split_req_set_bus_name(struct devlink_port_split_req *req,
 				    const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_split_req_set_dev_name(struct devlink_port_split_req *req,
 				    const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_split_req_set_port_index(struct devlink_port_split_req *req,
@@ -937,10 +1017,12 @@ int devlink_port_split(struct ynl_sock *ys, struct devlink_port_split_req *req);
 /* DEVLINK_CMD_PORT_UNSPLIT - do */
 struct devlink_port_unsplit_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -959,20 +1041,20 @@ devlink_port_unsplit_req_set_bus_name(struct devlink_port_unsplit_req *req,
 				      const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_unsplit_req_set_dev_name(struct devlink_port_unsplit_req *req,
 				      const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_unsplit_req_set_port_index(struct devlink_port_unsplit_req *req,
@@ -992,10 +1074,12 @@ int devlink_port_unsplit(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_GET - do */
 struct devlink_sb_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1013,20 +1097,20 @@ devlink_sb_get_req_set_bus_name(struct devlink_sb_get_req *req,
 				const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_get_req_set_dev_name(struct devlink_sb_get_req *req,
 				const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_get_req_set_sb_index(struct devlink_sb_get_req *req, __u32 sb_index)
@@ -1037,10 +1121,12 @@ devlink_sb_get_req_set_sb_index(struct devlink_sb_get_req *req, __u32 sb_index)
 
 struct devlink_sb_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1058,9 +1144,9 @@ devlink_sb_get(struct ynl_sock *ys, struct devlink_sb_get_req *req);
 /* DEVLINK_CMD_SB_GET - dump */
 struct devlink_sb_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1078,20 +1164,20 @@ devlink_sb_get_req_dump_set_bus_name(struct devlink_sb_get_req_dump *req,
 				     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_get_req_dump_set_dev_name(struct devlink_sb_get_req_dump *req,
 				     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_sb_get_list {
@@ -1108,11 +1194,13 @@ devlink_sb_get_dump(struct ynl_sock *ys, struct devlink_sb_get_req_dump *req);
 /* DEVLINK_CMD_SB_POOL_GET - do */
 struct devlink_sb_pool_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1132,20 +1220,20 @@ devlink_sb_pool_get_req_set_bus_name(struct devlink_sb_pool_get_req *req,
 				     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_pool_get_req_set_dev_name(struct devlink_sb_pool_get_req *req,
 				     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_pool_get_req_set_sb_index(struct devlink_sb_pool_get_req *req,
@@ -1164,11 +1252,13 @@ devlink_sb_pool_get_req_set_sb_pool_index(struct devlink_sb_pool_get_req *req,
 
 struct devlink_sb_pool_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1187,9 +1277,9 @@ devlink_sb_pool_get(struct ynl_sock *ys, struct devlink_sb_pool_get_req *req);
 /* DEVLINK_CMD_SB_POOL_GET - dump */
 struct devlink_sb_pool_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1208,20 +1298,20 @@ devlink_sb_pool_get_req_dump_set_bus_name(struct devlink_sb_pool_get_req_dump *r
 					  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_pool_get_req_dump_set_dev_name(struct devlink_sb_pool_get_req_dump *req,
 					  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_sb_pool_get_list {
@@ -1239,13 +1329,15 @@ devlink_sb_pool_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_POOL_SET - do */
 struct devlink_sb_pool_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
 		__u32 sb_pool_threshold_type:1;
 		__u32 sb_pool_size:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1267,20 +1359,20 @@ devlink_sb_pool_set_req_set_bus_name(struct devlink_sb_pool_set_req *req,
 				     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_pool_set_req_set_dev_name(struct devlink_sb_pool_set_req *req,
 				     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_pool_set_req_set_sb_index(struct devlink_sb_pool_set_req *req,
@@ -1321,12 +1413,14 @@ int devlink_sb_pool_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_PORT_POOL_GET - do */
 struct devlink_sb_port_pool_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1348,20 +1442,20 @@ devlink_sb_port_pool_get_req_set_bus_name(struct devlink_sb_port_pool_get_req *r
 					  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_port_pool_get_req_set_dev_name(struct devlink_sb_port_pool_get_req *req,
 					  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_port_pool_get_req_set_port_index(struct devlink_sb_port_pool_get_req *req,
@@ -1387,12 +1481,14 @@ devlink_sb_port_pool_get_req_set_sb_pool_index(struct devlink_sb_port_pool_get_r
 
 struct devlink_sb_port_pool_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1414,9 +1510,9 @@ devlink_sb_port_pool_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_PORT_POOL_GET - dump */
 struct devlink_sb_port_pool_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1435,20 +1531,20 @@ devlink_sb_port_pool_get_req_dump_set_bus_name(struct devlink_sb_port_pool_get_r
 					       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_port_pool_get_req_dump_set_dev_name(struct devlink_sb_port_pool_get_req_dump *req,
 					       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_sb_port_pool_get_list {
@@ -1467,13 +1563,15 @@ devlink_sb_port_pool_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_PORT_POOL_SET - do */
 struct devlink_sb_port_pool_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
 		__u32 sb_threshold:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1496,20 +1594,20 @@ devlink_sb_port_pool_set_req_set_bus_name(struct devlink_sb_port_pool_set_req *r
 					  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_port_pool_set_req_set_dev_name(struct devlink_sb_port_pool_set_req *req,
 					  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_port_pool_set_req_set_port_index(struct devlink_sb_port_pool_set_req *req,
@@ -1550,13 +1648,15 @@ int devlink_sb_port_pool_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_TC_POOL_BIND_GET - do */
 struct devlink_sb_tc_pool_bind_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 sb_index:1;
 		__u32 sb_pool_type:1;
 		__u32 sb_tc_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1579,20 +1679,20 @@ devlink_sb_tc_pool_bind_get_req_set_bus_name(struct devlink_sb_tc_pool_bind_get_
 					     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_tc_pool_bind_get_req_set_dev_name(struct devlink_sb_tc_pool_bind_get_req *req,
 					     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_tc_pool_bind_get_req_set_port_index(struct devlink_sb_tc_pool_bind_get_req *req,
@@ -1625,13 +1725,15 @@ devlink_sb_tc_pool_bind_get_req_set_sb_tc_index(struct devlink_sb_tc_pool_bind_g
 
 struct devlink_sb_tc_pool_bind_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 sb_index:1;
 		__u32 sb_pool_type:1;
 		__u32 sb_tc_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1654,9 +1756,9 @@ devlink_sb_tc_pool_bind_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_TC_POOL_BIND_GET - dump */
 struct devlink_sb_tc_pool_bind_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1675,20 +1777,20 @@ devlink_sb_tc_pool_bind_get_req_dump_set_bus_name(struct devlink_sb_tc_pool_bind
 						  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_tc_pool_bind_get_req_dump_set_dev_name(struct devlink_sb_tc_pool_bind_get_req_dump *req,
 						  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_sb_tc_pool_bind_get_list {
@@ -1707,8 +1809,6 @@ devlink_sb_tc_pool_bind_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_TC_POOL_BIND_SET - do */
 struct devlink_sb_tc_pool_bind_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 		__u32 sb_index:1;
 		__u32 sb_pool_index:1;
@@ -1716,6 +1816,10 @@ struct devlink_sb_tc_pool_bind_set_req {
 		__u32 sb_tc_index:1;
 		__u32 sb_threshold:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1740,20 +1844,20 @@ devlink_sb_tc_pool_bind_set_req_set_bus_name(struct devlink_sb_tc_pool_bind_set_
 					     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_tc_pool_bind_set_req_set_dev_name(struct devlink_sb_tc_pool_bind_set_req *req,
 					     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_tc_pool_bind_set_req_set_port_index(struct devlink_sb_tc_pool_bind_set_req *req,
@@ -1808,10 +1912,12 @@ int devlink_sb_tc_pool_bind_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_OCC_SNAPSHOT - do */
 struct devlink_sb_occ_snapshot_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1830,20 +1936,20 @@ devlink_sb_occ_snapshot_req_set_bus_name(struct devlink_sb_occ_snapshot_req *req
 					 const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_occ_snapshot_req_set_dev_name(struct devlink_sb_occ_snapshot_req *req,
 					 const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_occ_snapshot_req_set_sb_index(struct devlink_sb_occ_snapshot_req *req,
@@ -1863,10 +1969,12 @@ int devlink_sb_occ_snapshot(struct ynl_sock *ys,
 /* DEVLINK_CMD_SB_OCC_MAX_CLEAR - do */
 struct devlink_sb_occ_max_clear_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 sb_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1886,20 +1994,20 @@ devlink_sb_occ_max_clear_req_set_bus_name(struct devlink_sb_occ_max_clear_req *r
 					  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_sb_occ_max_clear_req_set_dev_name(struct devlink_sb_occ_max_clear_req *req,
 					  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_sb_occ_max_clear_req_set_sb_index(struct devlink_sb_occ_max_clear_req *req,
@@ -1919,9 +2027,9 @@ int devlink_sb_occ_max_clear(struct ynl_sock *ys,
 /* DEVLINK_CMD_ESWITCH_GET - do */
 struct devlink_eswitch_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1939,30 +2047,32 @@ devlink_eswitch_get_req_set_bus_name(struct devlink_eswitch_get_req *req,
 				     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_eswitch_get_req_set_dev_name(struct devlink_eswitch_get_req *req,
 				     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_eswitch_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 eswitch_mode:1;
 		__u32 eswitch_inline_mode:1;
 		__u32 eswitch_encap_mode:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -1983,12 +2093,14 @@ devlink_eswitch_get(struct ynl_sock *ys, struct devlink_eswitch_get_req *req);
 /* DEVLINK_CMD_ESWITCH_SET - do */
 struct devlink_eswitch_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 eswitch_mode:1;
 		__u32 eswitch_inline_mode:1;
 		__u32 eswitch_encap_mode:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2009,20 +2121,20 @@ devlink_eswitch_set_req_set_bus_name(struct devlink_eswitch_set_req *req,
 				     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_eswitch_set_req_set_dev_name(struct devlink_eswitch_set_req *req,
 				     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_eswitch_set_req_set_eswitch_mode(struct devlink_eswitch_set_req *req,
@@ -2056,10 +2168,10 @@ int devlink_eswitch_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_DPIPE_TABLE_GET - do */
 struct devlink_dpipe_table_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 dpipe_table_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 dpipe_table_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2078,38 +2190,40 @@ devlink_dpipe_table_get_req_set_bus_name(struct devlink_dpipe_table_get_req *req
 					 const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_dpipe_table_get_req_set_dev_name(struct devlink_dpipe_table_get_req *req,
 					 const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_dpipe_table_get_req_set_dpipe_table_name(struct devlink_dpipe_table_get_req *req,
 						 const char *dpipe_table_name)
 {
 	free(req->dpipe_table_name);
-	req->_present.dpipe_table_name_len = strlen(dpipe_table_name);
-	req->dpipe_table_name = malloc(req->_present.dpipe_table_name_len + 1);
-	memcpy(req->dpipe_table_name, dpipe_table_name, req->_present.dpipe_table_name_len);
-	req->dpipe_table_name[req->_present.dpipe_table_name_len] = 0;
+	req->_len.dpipe_table_name = strlen(dpipe_table_name);
+	req->dpipe_table_name = malloc(req->_len.dpipe_table_name + 1);
+	memcpy(req->dpipe_table_name, dpipe_table_name, req->_len.dpipe_table_name);
+	req->dpipe_table_name[req->_len.dpipe_table_name] = 0;
 }
 
 struct devlink_dpipe_table_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 dpipe_tables:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2129,10 +2243,10 @@ devlink_dpipe_table_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_DPIPE_ENTRIES_GET - do */
 struct devlink_dpipe_entries_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 dpipe_table_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 dpipe_table_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2152,38 +2266,40 @@ devlink_dpipe_entries_get_req_set_bus_name(struct devlink_dpipe_entries_get_req 
 					   const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_dpipe_entries_get_req_set_dev_name(struct devlink_dpipe_entries_get_req *req,
 					   const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_dpipe_entries_get_req_set_dpipe_table_name(struct devlink_dpipe_entries_get_req *req,
 						   const char *dpipe_table_name)
 {
 	free(req->dpipe_table_name);
-	req->_present.dpipe_table_name_len = strlen(dpipe_table_name);
-	req->dpipe_table_name = malloc(req->_present.dpipe_table_name_len + 1);
-	memcpy(req->dpipe_table_name, dpipe_table_name, req->_present.dpipe_table_name_len);
-	req->dpipe_table_name[req->_present.dpipe_table_name_len] = 0;
+	req->_len.dpipe_table_name = strlen(dpipe_table_name);
+	req->dpipe_table_name = malloc(req->_len.dpipe_table_name + 1);
+	memcpy(req->dpipe_table_name, dpipe_table_name, req->_len.dpipe_table_name);
+	req->dpipe_table_name[req->_len.dpipe_table_name] = 0;
 }
 
 struct devlink_dpipe_entries_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 dpipe_entries:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2204,9 +2320,9 @@ devlink_dpipe_entries_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_DPIPE_HEADERS_GET - do */
 struct devlink_dpipe_headers_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2225,28 +2341,30 @@ devlink_dpipe_headers_get_req_set_bus_name(struct devlink_dpipe_headers_get_req 
 					   const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_dpipe_headers_get_req_set_dev_name(struct devlink_dpipe_headers_get_req *req,
 					   const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_dpipe_headers_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 dpipe_headers:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2267,11 +2385,13 @@ devlink_dpipe_headers_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_DPIPE_TABLE_COUNTERS_SET - do */
 struct devlink_dpipe_table_counters_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 dpipe_table_name_len;
 		__u32 dpipe_table_counters_enabled:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 dpipe_table_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2292,30 +2412,30 @@ devlink_dpipe_table_counters_set_req_set_bus_name(struct devlink_dpipe_table_cou
 						  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_dpipe_table_counters_set_req_set_dev_name(struct devlink_dpipe_table_counters_set_req *req,
 						  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_dpipe_table_counters_set_req_set_dpipe_table_name(struct devlink_dpipe_table_counters_set_req *req,
 							  const char *dpipe_table_name)
 {
 	free(req->dpipe_table_name);
-	req->_present.dpipe_table_name_len = strlen(dpipe_table_name);
-	req->dpipe_table_name = malloc(req->_present.dpipe_table_name_len + 1);
-	memcpy(req->dpipe_table_name, dpipe_table_name, req->_present.dpipe_table_name_len);
-	req->dpipe_table_name[req->_present.dpipe_table_name_len] = 0;
+	req->_len.dpipe_table_name = strlen(dpipe_table_name);
+	req->dpipe_table_name = malloc(req->_len.dpipe_table_name + 1);
+	memcpy(req->dpipe_table_name, dpipe_table_name, req->_len.dpipe_table_name);
+	req->dpipe_table_name[req->_len.dpipe_table_name] = 0;
 }
 static inline void
 devlink_dpipe_table_counters_set_req_set_dpipe_table_counters_enabled(struct devlink_dpipe_table_counters_set_req *req,
@@ -2335,11 +2455,13 @@ int devlink_dpipe_table_counters_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_RESOURCE_SET - do */
 struct devlink_resource_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 resource_id:1;
 		__u32 resource_size:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2359,20 +2481,20 @@ devlink_resource_set_req_set_bus_name(struct devlink_resource_set_req *req,
 				      const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_resource_set_req_set_dev_name(struct devlink_resource_set_req *req,
 				      const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_resource_set_req_set_resource_id(struct devlink_resource_set_req *req,
@@ -2399,9 +2521,9 @@ int devlink_resource_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_RESOURCE_DUMP - do */
 struct devlink_resource_dump_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2419,28 +2541,30 @@ devlink_resource_dump_req_set_bus_name(struct devlink_resource_dump_req *req,
 				       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_resource_dump_req_set_dev_name(struct devlink_resource_dump_req *req,
 				       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_resource_dump_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 resource_list:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2460,14 +2584,16 @@ devlink_resource_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_RELOAD - do */
 struct devlink_reload_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 reload_action:1;
 		__u32 reload_limits:1;
 		__u32 netns_pid:1;
 		__u32 netns_fd:1;
 		__u32 netns_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2489,20 +2615,20 @@ devlink_reload_req_set_bus_name(struct devlink_reload_req *req,
 				const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_reload_req_set_dev_name(struct devlink_reload_req *req,
 				const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_reload_req_set_reload_action(struct devlink_reload_req *req,
@@ -2540,10 +2666,12 @@ devlink_reload_req_set_netns_id(struct devlink_reload_req *req, __u32 netns_id)
 
 struct devlink_reload_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 reload_actions_performed:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2562,10 +2690,10 @@ devlink_reload(struct ynl_sock *ys, struct devlink_reload_req *req);
 /* DEVLINK_CMD_PARAM_GET - do */
 struct devlink_param_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 param_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 param_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2583,38 +2711,38 @@ devlink_param_get_req_set_bus_name(struct devlink_param_get_req *req,
 				   const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_param_get_req_set_dev_name(struct devlink_param_get_req *req,
 				   const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_param_get_req_set_param_name(struct devlink_param_get_req *req,
 				     const char *param_name)
 {
 	free(req->param_name);
-	req->_present.param_name_len = strlen(param_name);
-	req->param_name = malloc(req->_present.param_name_len + 1);
-	memcpy(req->param_name, param_name, req->_present.param_name_len);
-	req->param_name[req->_present.param_name_len] = 0;
+	req->_len.param_name = strlen(param_name);
+	req->param_name = malloc(req->_len.param_name + 1);
+	memcpy(req->param_name, param_name, req->_len.param_name);
+	req->param_name[req->_len.param_name] = 0;
 }
 
 struct devlink_param_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 param_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 param_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2632,9 +2760,9 @@ devlink_param_get(struct ynl_sock *ys, struct devlink_param_get_req *req);
 /* DEVLINK_CMD_PARAM_GET - dump */
 struct devlink_param_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2652,20 +2780,20 @@ devlink_param_get_req_dump_set_bus_name(struct devlink_param_get_req_dump *req,
 					const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_param_get_req_dump_set_dev_name(struct devlink_param_get_req_dump *req,
 					const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_param_get_list {
@@ -2683,17 +2811,19 @@ devlink_param_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_PARAM_SET - do */
 struct devlink_param_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 param_name_len;
 		__u32 param_type:1;
 		__u32 param_value_cmode:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 param_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
 	char *param_name;
-	__u8 param_type;
+	enum devlink_var_attr_type param_type;
 	enum devlink_param_cmode param_value_cmode;
 };
 
@@ -2708,34 +2838,34 @@ devlink_param_set_req_set_bus_name(struct devlink_param_set_req *req,
 				   const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_param_set_req_set_dev_name(struct devlink_param_set_req *req,
 				   const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_param_set_req_set_param_name(struct devlink_param_set_req *req,
 				     const char *param_name)
 {
 	free(req->param_name);
-	req->_present.param_name_len = strlen(param_name);
-	req->param_name = malloc(req->_present.param_name_len + 1);
-	memcpy(req->param_name, param_name, req->_present.param_name_len);
-	req->param_name[req->_present.param_name_len] = 0;
+	req->_len.param_name = strlen(param_name);
+	req->param_name = malloc(req->_len.param_name + 1);
+	memcpy(req->param_name, param_name, req->_len.param_name);
+	req->param_name[req->_len.param_name] = 0;
 }
 static inline void
 devlink_param_set_req_set_param_type(struct devlink_param_set_req *req,
-				     __u8 param_type)
+				     enum devlink_var_attr_type param_type)
 {
 	req->_present.param_type = 1;
 	req->param_type = param_type;
@@ -2757,11 +2887,13 @@ int devlink_param_set(struct ynl_sock *ys, struct devlink_param_set_req *req);
 /* DEVLINK_CMD_REGION_GET - do */
 struct devlink_region_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2780,20 +2912,20 @@ devlink_region_get_req_set_bus_name(struct devlink_region_get_req *req,
 				    const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_region_get_req_set_dev_name(struct devlink_region_get_req *req,
 				    const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_region_get_req_set_port_index(struct devlink_region_get_req *req,
@@ -2807,19 +2939,21 @@ devlink_region_get_req_set_region_name(struct devlink_region_get_req *req,
 				       const char *region_name)
 {
 	free(req->region_name);
-	req->_present.region_name_len = strlen(region_name);
-	req->region_name = malloc(req->_present.region_name_len + 1);
-	memcpy(req->region_name, region_name, req->_present.region_name_len);
-	req->region_name[req->_present.region_name_len] = 0;
+	req->_len.region_name = strlen(region_name);
+	req->region_name = malloc(req->_len.region_name + 1);
+	memcpy(req->region_name, region_name, req->_len.region_name);
+	req->region_name[req->_len.region_name] = 0;
 }
 
 struct devlink_region_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2838,9 +2972,9 @@ devlink_region_get(struct ynl_sock *ys, struct devlink_region_get_req *req);
 /* DEVLINK_CMD_REGION_GET - dump */
 struct devlink_region_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2858,20 +2992,20 @@ devlink_region_get_req_dump_set_bus_name(struct devlink_region_get_req_dump *req
 					 const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_region_get_req_dump_set_dev_name(struct devlink_region_get_req_dump *req,
 					 const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_region_get_list {
@@ -2889,12 +3023,14 @@ devlink_region_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_REGION_NEW - do */
 struct devlink_region_new_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 		__u32 region_snapshot_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2914,20 +3050,20 @@ devlink_region_new_req_set_bus_name(struct devlink_region_new_req *req,
 				    const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_region_new_req_set_dev_name(struct devlink_region_new_req *req,
 				    const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_region_new_req_set_port_index(struct devlink_region_new_req *req,
@@ -2941,10 +3077,10 @@ devlink_region_new_req_set_region_name(struct devlink_region_new_req *req,
 				       const char *region_name)
 {
 	free(req->region_name);
-	req->_present.region_name_len = strlen(region_name);
-	req->region_name = malloc(req->_present.region_name_len + 1);
-	memcpy(req->region_name, region_name, req->_present.region_name_len);
-	req->region_name[req->_present.region_name_len] = 0;
+	req->_len.region_name = strlen(region_name);
+	req->region_name = malloc(req->_len.region_name + 1);
+	memcpy(req->region_name, region_name, req->_len.region_name);
+	req->region_name[req->_len.region_name] = 0;
 }
 static inline void
 devlink_region_new_req_set_region_snapshot_id(struct devlink_region_new_req *req,
@@ -2956,12 +3092,14 @@ devlink_region_new_req_set_region_snapshot_id(struct devlink_region_new_req *req
 
 struct devlink_region_new_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 		__u32 region_snapshot_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -2982,12 +3120,14 @@ devlink_region_new(struct ynl_sock *ys, struct devlink_region_new_req *req);
 /* DEVLINK_CMD_REGION_DEL - do */
 struct devlink_region_del_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 		__u32 region_snapshot_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3007,20 +3147,20 @@ devlink_region_del_req_set_bus_name(struct devlink_region_del_req *req,
 				    const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_region_del_req_set_dev_name(struct devlink_region_del_req *req,
 				    const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_region_del_req_set_port_index(struct devlink_region_del_req *req,
@@ -3034,10 +3174,10 @@ devlink_region_del_req_set_region_name(struct devlink_region_del_req *req,
 				       const char *region_name)
 {
 	free(req->region_name);
-	req->_present.region_name_len = strlen(region_name);
-	req->region_name = malloc(req->_present.region_name_len + 1);
-	memcpy(req->region_name, region_name, req->_present.region_name_len);
-	req->region_name[req->_present.region_name_len] = 0;
+	req->_len.region_name = strlen(region_name);
+	req->region_name = malloc(req->_len.region_name + 1);
+	memcpy(req->region_name, region_name, req->_len.region_name);
+	req->region_name[req->_len.region_name] = 0;
 }
 static inline void
 devlink_region_del_req_set_region_snapshot_id(struct devlink_region_del_req *req,
@@ -3056,15 +3196,17 @@ int devlink_region_del(struct ynl_sock *ys, struct devlink_region_del_req *req);
 /* DEVLINK_CMD_REGION_READ - dump */
 struct devlink_region_read_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 		__u32 region_snapshot_id:1;
 		__u32 region_direct:1;
 		__u32 region_chunk_addr:1;
 		__u32 region_chunk_len:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3087,20 +3229,20 @@ devlink_region_read_req_set_bus_name(struct devlink_region_read_req *req,
 				     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_region_read_req_set_dev_name(struct devlink_region_read_req *req,
 				     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_region_read_req_set_port_index(struct devlink_region_read_req *req,
@@ -3114,10 +3256,10 @@ devlink_region_read_req_set_region_name(struct devlink_region_read_req *req,
 					const char *region_name)
 {
 	free(req->region_name);
-	req->_present.region_name_len = strlen(region_name);
-	req->region_name = malloc(req->_present.region_name_len + 1);
-	memcpy(req->region_name, region_name, req->_present.region_name_len);
-	req->region_name[req->_present.region_name_len] = 0;
+	req->_len.region_name = strlen(region_name);
+	req->region_name = malloc(req->_len.region_name + 1);
+	memcpy(req->region_name, region_name, req->_len.region_name);
+	req->region_name[req->_len.region_name] = 0;
 }
 static inline void
 devlink_region_read_req_set_region_snapshot_id(struct devlink_region_read_req *req,
@@ -3148,11 +3290,13 @@ devlink_region_read_req_set_region_chunk_len(struct devlink_region_read_req *req
 
 struct devlink_region_read_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 region_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 region_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3175,10 +3319,12 @@ devlink_region_read_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_PORT_PARAM_GET - do */
 struct devlink_port_param_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3197,20 +3343,20 @@ devlink_port_param_get_req_set_bus_name(struct devlink_port_param_get_req *req,
 					const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_param_get_req_set_dev_name(struct devlink_port_param_get_req *req,
 					const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_param_get_req_set_port_index(struct devlink_port_param_get_req *req,
@@ -3222,10 +3368,12 @@ devlink_port_param_get_req_set_port_index(struct devlink_port_param_get_req *req
 
 struct devlink_port_param_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3256,10 +3404,12 @@ devlink_port_param_get_dump(struct ynl_sock *ys);
 /* DEVLINK_CMD_PORT_PARAM_SET - do */
 struct devlink_port_param_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3278,20 +3428,20 @@ devlink_port_param_set_req_set_bus_name(struct devlink_port_param_set_req *req,
 					const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_port_param_set_req_set_dev_name(struct devlink_port_param_set_req *req,
 					const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_port_param_set_req_set_port_index(struct devlink_port_param_set_req *req,
@@ -3311,9 +3461,9 @@ int devlink_port_param_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_INFO_GET - do */
 struct devlink_info_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3330,40 +3480,42 @@ devlink_info_get_req_set_bus_name(struct devlink_info_get_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_info_get_req_set_dev_name(struct devlink_info_get_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_info_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 info_driver_name_len;
-		__u32 info_serial_number_len;
-		__u32 info_board_serial_number_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 info_driver_name;
+		__u32 info_serial_number;
+		__u32 info_board_serial_number;
+	} _len;
+	struct {
+		__u32 info_version_fixed;
+		__u32 info_version_running;
+		__u32 info_version_stored;
+	} _count;
 
 	char *bus_name;
 	char *dev_name;
 	char *info_driver_name;
 	char *info_serial_number;
-	unsigned int n_info_version_fixed;
 	struct devlink_dl_info_version *info_version_fixed;
-	unsigned int n_info_version_running;
 	struct devlink_dl_info_version *info_version_running;
-	unsigned int n_info_version_stored;
 	struct devlink_dl_info_version *info_version_stored;
 	char *info_board_serial_number;
 };
@@ -3390,11 +3542,13 @@ struct devlink_info_get_list *devlink_info_get_dump(struct ynl_sock *ys);
 /* DEVLINK_CMD_HEALTH_REPORTER_GET - do */
 struct devlink_health_reporter_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3415,20 +3569,20 @@ devlink_health_reporter_get_req_set_bus_name(struct devlink_health_reporter_get_
 					     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_get_req_set_dev_name(struct devlink_health_reporter_get_req *req,
 					     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_get_req_set_port_index(struct devlink_health_reporter_get_req *req,
@@ -3442,19 +3596,21 @@ devlink_health_reporter_get_req_set_health_reporter_name(struct devlink_health_r
 							 const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 
 struct devlink_health_reporter_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3475,10 +3631,12 @@ devlink_health_reporter_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_GET - dump */
 struct devlink_health_reporter_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3498,20 +3656,20 @@ devlink_health_reporter_get_req_dump_set_bus_name(struct devlink_health_reporter
 						  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_get_req_dump_set_dev_name(struct devlink_health_reporter_get_req_dump *req,
 						  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_get_req_dump_set_port_index(struct devlink_health_reporter_get_req_dump *req,
@@ -3537,14 +3695,16 @@ devlink_health_reporter_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_SET - do */
 struct devlink_health_reporter_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 		__u32 health_reporter_graceful_period:1;
 		__u32 health_reporter_auto_recover:1;
 		__u32 health_reporter_auto_dump:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3568,20 +3728,20 @@ devlink_health_reporter_set_req_set_bus_name(struct devlink_health_reporter_set_
 					     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_set_req_set_dev_name(struct devlink_health_reporter_set_req *req,
 					     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_set_req_set_port_index(struct devlink_health_reporter_set_req *req,
@@ -3595,10 +3755,10 @@ devlink_health_reporter_set_req_set_health_reporter_name(struct devlink_health_r
 							 const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 static inline void
 devlink_health_reporter_set_req_set_health_reporter_graceful_period(struct devlink_health_reporter_set_req *req,
@@ -3632,11 +3792,13 @@ int devlink_health_reporter_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_RECOVER - do */
 struct devlink_health_reporter_recover_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3657,20 +3819,20 @@ devlink_health_reporter_recover_req_set_bus_name(struct devlink_health_reporter_
 						 const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_recover_req_set_dev_name(struct devlink_health_reporter_recover_req *req,
 						 const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_recover_req_set_port_index(struct devlink_health_reporter_recover_req *req,
@@ -3684,10 +3846,10 @@ devlink_health_reporter_recover_req_set_health_reporter_name(struct devlink_heal
 							     const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 
 /*
@@ -3700,11 +3862,13 @@ int devlink_health_reporter_recover(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_DIAGNOSE - do */
 struct devlink_health_reporter_diagnose_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3725,20 +3889,20 @@ devlink_health_reporter_diagnose_req_set_bus_name(struct devlink_health_reporter
 						  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_diagnose_req_set_dev_name(struct devlink_health_reporter_diagnose_req *req,
 						  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_diagnose_req_set_port_index(struct devlink_health_reporter_diagnose_req *req,
@@ -3752,10 +3916,10 @@ devlink_health_reporter_diagnose_req_set_health_reporter_name(struct devlink_hea
 							      const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 
 /*
@@ -3768,11 +3932,13 @@ int devlink_health_reporter_diagnose(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_DUMP_GET - dump */
 struct devlink_health_reporter_dump_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3793,20 +3959,20 @@ devlink_health_reporter_dump_get_req_set_bus_name(struct devlink_health_reporter
 						  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_dump_get_req_set_dev_name(struct devlink_health_reporter_dump_get_req *req,
 						  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_dump_get_req_set_port_index(struct devlink_health_reporter_dump_get_req *req,
@@ -3820,10 +3986,10 @@ devlink_health_reporter_dump_get_req_set_health_reporter_name(struct devlink_hea
 							      const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 
 struct devlink_health_reporter_dump_get_rsp {
@@ -3850,11 +4016,13 @@ devlink_health_reporter_dump_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_DUMP_CLEAR - do */
 struct devlink_health_reporter_dump_clear_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3875,20 +4043,20 @@ devlink_health_reporter_dump_clear_req_set_bus_name(struct devlink_health_report
 						    const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_dump_clear_req_set_dev_name(struct devlink_health_reporter_dump_clear_req *req,
 						    const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_dump_clear_req_set_port_index(struct devlink_health_reporter_dump_clear_req *req,
@@ -3902,10 +4070,10 @@ devlink_health_reporter_dump_clear_req_set_health_reporter_name(struct devlink_h
 								const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 
 /*
@@ -3918,12 +4086,14 @@ int devlink_health_reporter_dump_clear(struct ynl_sock *ys,
 /* DEVLINK_CMD_FLASH_UPDATE - do */
 struct devlink_flash_update_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 flash_update_file_name_len;
-		__u32 flash_update_component_len;
 		__u32 flash_update_overwrite_mask:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 flash_update_file_name;
+		__u32 flash_update_component;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -3944,40 +4114,40 @@ devlink_flash_update_req_set_bus_name(struct devlink_flash_update_req *req,
 				      const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_flash_update_req_set_dev_name(struct devlink_flash_update_req *req,
 				      const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_flash_update_req_set_flash_update_file_name(struct devlink_flash_update_req *req,
 						    const char *flash_update_file_name)
 {
 	free(req->flash_update_file_name);
-	req->_present.flash_update_file_name_len = strlen(flash_update_file_name);
-	req->flash_update_file_name = malloc(req->_present.flash_update_file_name_len + 1);
-	memcpy(req->flash_update_file_name, flash_update_file_name, req->_present.flash_update_file_name_len);
-	req->flash_update_file_name[req->_present.flash_update_file_name_len] = 0;
+	req->_len.flash_update_file_name = strlen(flash_update_file_name);
+	req->flash_update_file_name = malloc(req->_len.flash_update_file_name + 1);
+	memcpy(req->flash_update_file_name, flash_update_file_name, req->_len.flash_update_file_name);
+	req->flash_update_file_name[req->_len.flash_update_file_name] = 0;
 }
 static inline void
 devlink_flash_update_req_set_flash_update_component(struct devlink_flash_update_req *req,
 						    const char *flash_update_component)
 {
 	free(req->flash_update_component);
-	req->_present.flash_update_component_len = strlen(flash_update_component);
-	req->flash_update_component = malloc(req->_present.flash_update_component_len + 1);
-	memcpy(req->flash_update_component, flash_update_component, req->_present.flash_update_component_len);
-	req->flash_update_component[req->_present.flash_update_component_len] = 0;
+	req->_len.flash_update_component = strlen(flash_update_component);
+	req->flash_update_component = malloc(req->_len.flash_update_component + 1);
+	memcpy(req->flash_update_component, flash_update_component, req->_len.flash_update_component);
+	req->flash_update_component[req->_len.flash_update_component] = 0;
 }
 static inline void
 devlink_flash_update_req_set_flash_update_overwrite_mask(struct devlink_flash_update_req *req,
@@ -3997,10 +4167,10 @@ int devlink_flash_update(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_GET - do */
 struct devlink_trap_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 trap_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 trap_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4018,38 +4188,38 @@ devlink_trap_get_req_set_bus_name(struct devlink_trap_get_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_get_req_set_dev_name(struct devlink_trap_get_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_trap_get_req_set_trap_name(struct devlink_trap_get_req *req,
 				   const char *trap_name)
 {
 	free(req->trap_name);
-	req->_present.trap_name_len = strlen(trap_name);
-	req->trap_name = malloc(req->_present.trap_name_len + 1);
-	memcpy(req->trap_name, trap_name, req->_present.trap_name_len);
-	req->trap_name[req->_present.trap_name_len] = 0;
+	req->_len.trap_name = strlen(trap_name);
+	req->trap_name = malloc(req->_len.trap_name + 1);
+	memcpy(req->trap_name, trap_name, req->_len.trap_name);
+	req->trap_name[req->_len.trap_name] = 0;
 }
 
 struct devlink_trap_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 trap_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 trap_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4067,9 +4237,9 @@ devlink_trap_get(struct ynl_sock *ys, struct devlink_trap_get_req *req);
 /* DEVLINK_CMD_TRAP_GET - dump */
 struct devlink_trap_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4087,20 +4257,20 @@ devlink_trap_get_req_dump_set_bus_name(struct devlink_trap_get_req_dump *req,
 				       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_get_req_dump_set_dev_name(struct devlink_trap_get_req_dump *req,
 				       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_trap_get_list {
@@ -4118,11 +4288,13 @@ devlink_trap_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_SET - do */
 struct devlink_trap_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 trap_name_len;
 		__u32 trap_action:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 trap_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4141,30 +4313,30 @@ devlink_trap_set_req_set_bus_name(struct devlink_trap_set_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_set_req_set_dev_name(struct devlink_trap_set_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_trap_set_req_set_trap_name(struct devlink_trap_set_req *req,
 				   const char *trap_name)
 {
 	free(req->trap_name);
-	req->_present.trap_name_len = strlen(trap_name);
-	req->trap_name = malloc(req->_present.trap_name_len + 1);
-	memcpy(req->trap_name, trap_name, req->_present.trap_name_len);
-	req->trap_name[req->_present.trap_name_len] = 0;
+	req->_len.trap_name = strlen(trap_name);
+	req->trap_name = malloc(req->_len.trap_name + 1);
+	memcpy(req->trap_name, trap_name, req->_len.trap_name);
+	req->trap_name[req->_len.trap_name] = 0;
 }
 static inline void
 devlink_trap_set_req_set_trap_action(struct devlink_trap_set_req *req,
@@ -4183,10 +4355,10 @@ int devlink_trap_set(struct ynl_sock *ys, struct devlink_trap_set_req *req);
 /* DEVLINK_CMD_TRAP_GROUP_GET - do */
 struct devlink_trap_group_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 trap_group_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 trap_group_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4205,38 +4377,38 @@ devlink_trap_group_get_req_set_bus_name(struct devlink_trap_group_get_req *req,
 					const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_group_get_req_set_dev_name(struct devlink_trap_group_get_req *req,
 					const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_trap_group_get_req_set_trap_group_name(struct devlink_trap_group_get_req *req,
 					       const char *trap_group_name)
 {
 	free(req->trap_group_name);
-	req->_present.trap_group_name_len = strlen(trap_group_name);
-	req->trap_group_name = malloc(req->_present.trap_group_name_len + 1);
-	memcpy(req->trap_group_name, trap_group_name, req->_present.trap_group_name_len);
-	req->trap_group_name[req->_present.trap_group_name_len] = 0;
+	req->_len.trap_group_name = strlen(trap_group_name);
+	req->trap_group_name = malloc(req->_len.trap_group_name + 1);
+	memcpy(req->trap_group_name, trap_group_name, req->_len.trap_group_name);
+	req->trap_group_name[req->_len.trap_group_name] = 0;
 }
 
 struct devlink_trap_group_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 trap_group_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 trap_group_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4255,9 +4427,9 @@ devlink_trap_group_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_GROUP_GET - dump */
 struct devlink_trap_group_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4276,20 +4448,20 @@ devlink_trap_group_get_req_dump_set_bus_name(struct devlink_trap_group_get_req_d
 					     const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_group_get_req_dump_set_dev_name(struct devlink_trap_group_get_req_dump *req,
 					     const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_trap_group_get_list {
@@ -4307,12 +4479,14 @@ devlink_trap_group_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_GROUP_SET - do */
 struct devlink_trap_group_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 trap_group_name_len;
 		__u32 trap_action:1;
 		__u32 trap_policer_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 trap_group_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4333,30 +4507,30 @@ devlink_trap_group_set_req_set_bus_name(struct devlink_trap_group_set_req *req,
 					const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_group_set_req_set_dev_name(struct devlink_trap_group_set_req *req,
 					const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_trap_group_set_req_set_trap_group_name(struct devlink_trap_group_set_req *req,
 					       const char *trap_group_name)
 {
 	free(req->trap_group_name);
-	req->_present.trap_group_name_len = strlen(trap_group_name);
-	req->trap_group_name = malloc(req->_present.trap_group_name_len + 1);
-	memcpy(req->trap_group_name, trap_group_name, req->_present.trap_group_name_len);
-	req->trap_group_name[req->_present.trap_group_name_len] = 0;
+	req->_len.trap_group_name = strlen(trap_group_name);
+	req->trap_group_name = malloc(req->_len.trap_group_name + 1);
+	memcpy(req->trap_group_name, trap_group_name, req->_len.trap_group_name);
+	req->trap_group_name[req->_len.trap_group_name] = 0;
 }
 static inline void
 devlink_trap_group_set_req_set_trap_action(struct devlink_trap_group_set_req *req,
@@ -4383,10 +4557,12 @@ int devlink_trap_group_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_POLICER_GET - do */
 struct devlink_trap_policer_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 trap_policer_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4406,20 +4582,20 @@ devlink_trap_policer_get_req_set_bus_name(struct devlink_trap_policer_get_req *r
 					  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_policer_get_req_set_dev_name(struct devlink_trap_policer_get_req *req,
 					  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_trap_policer_get_req_set_trap_policer_id(struct devlink_trap_policer_get_req *req,
@@ -4431,10 +4607,12 @@ devlink_trap_policer_get_req_set_trap_policer_id(struct devlink_trap_policer_get
 
 struct devlink_trap_policer_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 trap_policer_id:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4454,9 +4632,9 @@ devlink_trap_policer_get(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_POLICER_GET - dump */
 struct devlink_trap_policer_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4475,20 +4653,20 @@ devlink_trap_policer_get_req_dump_set_bus_name(struct devlink_trap_policer_get_r
 					       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_policer_get_req_dump_set_dev_name(struct devlink_trap_policer_get_req_dump *req,
 					       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_trap_policer_get_list {
@@ -4507,12 +4685,14 @@ devlink_trap_policer_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_TRAP_POLICER_SET - do */
 struct devlink_trap_policer_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 trap_policer_id:1;
 		__u32 trap_policer_rate:1;
 		__u32 trap_policer_burst:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4534,20 +4714,20 @@ devlink_trap_policer_set_req_set_bus_name(struct devlink_trap_policer_set_req *r
 					  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_trap_policer_set_req_set_dev_name(struct devlink_trap_policer_set_req *req,
 					  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_trap_policer_set_req_set_trap_policer_id(struct devlink_trap_policer_set_req *req,
@@ -4581,11 +4761,13 @@ int devlink_trap_policer_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_HEALTH_REPORTER_TEST - do */
 struct devlink_health_reporter_test_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 health_reporter_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 health_reporter_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4606,20 +4788,20 @@ devlink_health_reporter_test_req_set_bus_name(struct devlink_health_reporter_tes
 					      const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_health_reporter_test_req_set_dev_name(struct devlink_health_reporter_test_req *req,
 					      const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_health_reporter_test_req_set_port_index(struct devlink_health_reporter_test_req *req,
@@ -4633,10 +4815,10 @@ devlink_health_reporter_test_req_set_health_reporter_name(struct devlink_health_
 							  const char *health_reporter_name)
 {
 	free(req->health_reporter_name);
-	req->_present.health_reporter_name_len = strlen(health_reporter_name);
-	req->health_reporter_name = malloc(req->_present.health_reporter_name_len + 1);
-	memcpy(req->health_reporter_name, health_reporter_name, req->_present.health_reporter_name_len);
-	req->health_reporter_name[req->_present.health_reporter_name_len] = 0;
+	req->_len.health_reporter_name = strlen(health_reporter_name);
+	req->health_reporter_name = malloc(req->_len.health_reporter_name + 1);
+	memcpy(req->health_reporter_name, health_reporter_name, req->_len.health_reporter_name);
+	req->health_reporter_name[req->_len.health_reporter_name] = 0;
 }
 
 /*
@@ -4649,11 +4831,13 @@ int devlink_health_reporter_test(struct ynl_sock *ys,
 /* DEVLINK_CMD_RATE_GET - do */
 struct devlink_rate_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 rate_node_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 rate_node_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4672,20 +4856,20 @@ devlink_rate_get_req_set_bus_name(struct devlink_rate_get_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_rate_get_req_set_dev_name(struct devlink_rate_get_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_rate_get_req_set_port_index(struct devlink_rate_get_req *req,
@@ -4699,19 +4883,21 @@ devlink_rate_get_req_set_rate_node_name(struct devlink_rate_get_req *req,
 					const char *rate_node_name)
 {
 	free(req->rate_node_name);
-	req->_present.rate_node_name_len = strlen(rate_node_name);
-	req->rate_node_name = malloc(req->_present.rate_node_name_len + 1);
-	memcpy(req->rate_node_name, rate_node_name, req->_present.rate_node_name_len);
-	req->rate_node_name[req->_present.rate_node_name_len] = 0;
+	req->_len.rate_node_name = strlen(rate_node_name);
+	req->rate_node_name = malloc(req->_len.rate_node_name + 1);
+	memcpy(req->rate_node_name, rate_node_name, req->_len.rate_node_name);
+	req->rate_node_name[req->_len.rate_node_name] = 0;
 }
 
 struct devlink_rate_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
-		__u32 rate_node_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 rate_node_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4730,9 +4916,9 @@ devlink_rate_get(struct ynl_sock *ys, struct devlink_rate_get_req *req);
 /* DEVLINK_CMD_RATE_GET - dump */
 struct devlink_rate_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4750,20 +4936,20 @@ devlink_rate_get_req_dump_set_bus_name(struct devlink_rate_get_req_dump *req,
 				       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_rate_get_req_dump_set_dev_name(struct devlink_rate_get_req_dump *req,
 				       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_rate_get_list {
@@ -4781,15 +4967,17 @@ devlink_rate_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_RATE_SET - do */
 struct devlink_rate_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 rate_node_name_len;
 		__u32 rate_tx_share:1;
 		__u32 rate_tx_max:1;
 		__u32 rate_tx_priority:1;
 		__u32 rate_tx_weight:1;
-		__u32 rate_parent_node_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 rate_node_name;
+		__u32 rate_parent_node_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4812,30 +5000,30 @@ devlink_rate_set_req_set_bus_name(struct devlink_rate_set_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_rate_set_req_set_dev_name(struct devlink_rate_set_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_rate_set_req_set_rate_node_name(struct devlink_rate_set_req *req,
 					const char *rate_node_name)
 {
 	free(req->rate_node_name);
-	req->_present.rate_node_name_len = strlen(rate_node_name);
-	req->rate_node_name = malloc(req->_present.rate_node_name_len + 1);
-	memcpy(req->rate_node_name, rate_node_name, req->_present.rate_node_name_len);
-	req->rate_node_name[req->_present.rate_node_name_len] = 0;
+	req->_len.rate_node_name = strlen(rate_node_name);
+	req->rate_node_name = malloc(req->_len.rate_node_name + 1);
+	memcpy(req->rate_node_name, rate_node_name, req->_len.rate_node_name);
+	req->rate_node_name[req->_len.rate_node_name] = 0;
 }
 static inline void
 devlink_rate_set_req_set_rate_tx_share(struct devlink_rate_set_req *req,
@@ -4870,10 +5058,10 @@ devlink_rate_set_req_set_rate_parent_node_name(struct devlink_rate_set_req *req,
 					       const char *rate_parent_node_name)
 {
 	free(req->rate_parent_node_name);
-	req->_present.rate_parent_node_name_len = strlen(rate_parent_node_name);
-	req->rate_parent_node_name = malloc(req->_present.rate_parent_node_name_len + 1);
-	memcpy(req->rate_parent_node_name, rate_parent_node_name, req->_present.rate_parent_node_name_len);
-	req->rate_parent_node_name[req->_present.rate_parent_node_name_len] = 0;
+	req->_len.rate_parent_node_name = strlen(rate_parent_node_name);
+	req->rate_parent_node_name = malloc(req->_len.rate_parent_node_name + 1);
+	memcpy(req->rate_parent_node_name, rate_parent_node_name, req->_len.rate_parent_node_name);
+	req->rate_parent_node_name[req->_len.rate_parent_node_name] = 0;
 }
 
 /*
@@ -4885,15 +5073,17 @@ int devlink_rate_set(struct ynl_sock *ys, struct devlink_rate_set_req *req);
 /* DEVLINK_CMD_RATE_NEW - do */
 struct devlink_rate_new_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 rate_node_name_len;
 		__u32 rate_tx_share:1;
 		__u32 rate_tx_max:1;
 		__u32 rate_tx_priority:1;
 		__u32 rate_tx_weight:1;
-		__u32 rate_parent_node_name_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 rate_node_name;
+		__u32 rate_parent_node_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -4916,30 +5106,30 @@ devlink_rate_new_req_set_bus_name(struct devlink_rate_new_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_rate_new_req_set_dev_name(struct devlink_rate_new_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_rate_new_req_set_rate_node_name(struct devlink_rate_new_req *req,
 					const char *rate_node_name)
 {
 	free(req->rate_node_name);
-	req->_present.rate_node_name_len = strlen(rate_node_name);
-	req->rate_node_name = malloc(req->_present.rate_node_name_len + 1);
-	memcpy(req->rate_node_name, rate_node_name, req->_present.rate_node_name_len);
-	req->rate_node_name[req->_present.rate_node_name_len] = 0;
+	req->_len.rate_node_name = strlen(rate_node_name);
+	req->rate_node_name = malloc(req->_len.rate_node_name + 1);
+	memcpy(req->rate_node_name, rate_node_name, req->_len.rate_node_name);
+	req->rate_node_name[req->_len.rate_node_name] = 0;
 }
 static inline void
 devlink_rate_new_req_set_rate_tx_share(struct devlink_rate_new_req *req,
@@ -4974,10 +5164,10 @@ devlink_rate_new_req_set_rate_parent_node_name(struct devlink_rate_new_req *req,
 					       const char *rate_parent_node_name)
 {
 	free(req->rate_parent_node_name);
-	req->_present.rate_parent_node_name_len = strlen(rate_parent_node_name);
-	req->rate_parent_node_name = malloc(req->_present.rate_parent_node_name_len + 1);
-	memcpy(req->rate_parent_node_name, rate_parent_node_name, req->_present.rate_parent_node_name_len);
-	req->rate_parent_node_name[req->_present.rate_parent_node_name_len] = 0;
+	req->_len.rate_parent_node_name = strlen(rate_parent_node_name);
+	req->rate_parent_node_name = malloc(req->_len.rate_parent_node_name + 1);
+	memcpy(req->rate_parent_node_name, rate_parent_node_name, req->_len.rate_parent_node_name);
+	req->rate_parent_node_name[req->_len.rate_parent_node_name] = 0;
 }
 
 /*
@@ -4989,10 +5179,10 @@ int devlink_rate_new(struct ynl_sock *ys, struct devlink_rate_new_req *req);
 /* DEVLINK_CMD_RATE_DEL - do */
 struct devlink_rate_del_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-		__u32 rate_node_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 rate_node_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5010,30 +5200,30 @@ devlink_rate_del_req_set_bus_name(struct devlink_rate_del_req *req,
 				  const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_rate_del_req_set_dev_name(struct devlink_rate_del_req *req,
 				  const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_rate_del_req_set_rate_node_name(struct devlink_rate_del_req *req,
 					const char *rate_node_name)
 {
 	free(req->rate_node_name);
-	req->_present.rate_node_name_len = strlen(rate_node_name);
-	req->rate_node_name = malloc(req->_present.rate_node_name_len + 1);
-	memcpy(req->rate_node_name, rate_node_name, req->_present.rate_node_name_len);
-	req->rate_node_name[req->_present.rate_node_name_len] = 0;
+	req->_len.rate_node_name = strlen(rate_node_name);
+	req->rate_node_name = malloc(req->_len.rate_node_name + 1);
+	memcpy(req->rate_node_name, rate_node_name, req->_len.rate_node_name);
+	req->rate_node_name[req->_len.rate_node_name] = 0;
 }
 
 /*
@@ -5045,10 +5235,12 @@ int devlink_rate_del(struct ynl_sock *ys, struct devlink_rate_del_req *req);
 /* DEVLINK_CMD_LINECARD_GET - do */
 struct devlink_linecard_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 linecard_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5067,20 +5259,20 @@ devlink_linecard_get_req_set_bus_name(struct devlink_linecard_get_req *req,
 				      const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_linecard_get_req_set_dev_name(struct devlink_linecard_get_req *req,
 				      const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_linecard_get_req_set_linecard_index(struct devlink_linecard_get_req *req,
@@ -5092,10 +5284,12 @@ devlink_linecard_get_req_set_linecard_index(struct devlink_linecard_get_req *req
 
 struct devlink_linecard_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 linecard_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5113,9 +5307,9 @@ devlink_linecard_get(struct ynl_sock *ys, struct devlink_linecard_get_req *req);
 /* DEVLINK_CMD_LINECARD_GET - dump */
 struct devlink_linecard_get_req_dump {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5134,20 +5328,20 @@ devlink_linecard_get_req_dump_set_bus_name(struct devlink_linecard_get_req_dump 
 					   const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_linecard_get_req_dump_set_dev_name(struct devlink_linecard_get_req_dump *req,
 					   const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_linecard_get_list {
@@ -5165,11 +5359,13 @@ devlink_linecard_get_dump(struct ynl_sock *ys,
 /* DEVLINK_CMD_LINECARD_SET - do */
 struct devlink_linecard_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 linecard_index:1;
-		__u32 linecard_type_len;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+		__u32 linecard_type;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5189,20 +5385,20 @@ devlink_linecard_set_req_set_bus_name(struct devlink_linecard_set_req *req,
 				      const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_linecard_set_req_set_dev_name(struct devlink_linecard_set_req *req,
 				      const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_linecard_set_req_set_linecard_index(struct devlink_linecard_set_req *req,
@@ -5216,10 +5412,10 @@ devlink_linecard_set_req_set_linecard_type(struct devlink_linecard_set_req *req,
 					   const char *linecard_type)
 {
 	free(req->linecard_type);
-	req->_present.linecard_type_len = strlen(linecard_type);
-	req->linecard_type = malloc(req->_present.linecard_type_len + 1);
-	memcpy(req->linecard_type, linecard_type, req->_present.linecard_type_len);
-	req->linecard_type[req->_present.linecard_type_len] = 0;
+	req->_len.linecard_type = strlen(linecard_type);
+	req->linecard_type = malloc(req->_len.linecard_type + 1);
+	memcpy(req->linecard_type, linecard_type, req->_len.linecard_type);
+	req->linecard_type[req->_len.linecard_type] = 0;
 }
 
 /*
@@ -5232,9 +5428,9 @@ int devlink_linecard_set(struct ynl_sock *ys,
 /* DEVLINK_CMD_SELFTESTS_GET - do */
 struct devlink_selftests_get_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5252,27 +5448,27 @@ devlink_selftests_get_req_set_bus_name(struct devlink_selftests_get_req *req,
 				       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_selftests_get_req_set_dev_name(struct devlink_selftests_get_req *req,
 				       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 
 struct devlink_selftests_get_rsp {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
-	} _present;
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5302,10 +5498,12 @@ devlink_selftests_get_dump(struct ynl_sock *ys);
 /* DEVLINK_CMD_SELFTESTS_RUN - do */
 struct devlink_selftests_run_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 selftests:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5324,20 +5522,20 @@ devlink_selftests_run_req_set_bus_name(struct devlink_selftests_run_req *req,
 				       const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_selftests_run_req_set_dev_name(struct devlink_selftests_run_req *req,
 				       const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_selftests_run_req_set_selftests_flash(struct devlink_selftests_run_req *req)
@@ -5356,10 +5554,12 @@ int devlink_selftests_run(struct ynl_sock *ys,
 /* DEVLINK_CMD_NOTIFY_FILTER_SET - do */
 struct devlink_notify_filter_set_req {
 	struct {
-		__u32 bus_name_len;
-		__u32 dev_name_len;
 		__u32 port_index:1;
 	} _present;
+	struct {
+		__u32 bus_name;
+		__u32 dev_name;
+	} _len;
 
 	char *bus_name;
 	char *dev_name;
@@ -5379,20 +5579,20 @@ devlink_notify_filter_set_req_set_bus_name(struct devlink_notify_filter_set_req 
 					   const char *bus_name)
 {
 	free(req->bus_name);
-	req->_present.bus_name_len = strlen(bus_name);
-	req->bus_name = malloc(req->_present.bus_name_len + 1);
-	memcpy(req->bus_name, bus_name, req->_present.bus_name_len);
-	req->bus_name[req->_present.bus_name_len] = 0;
+	req->_len.bus_name = strlen(bus_name);
+	req->bus_name = malloc(req->_len.bus_name + 1);
+	memcpy(req->bus_name, bus_name, req->_len.bus_name);
+	req->bus_name[req->_len.bus_name] = 0;
 }
 static inline void
 devlink_notify_filter_set_req_set_dev_name(struct devlink_notify_filter_set_req *req,
 					   const char *dev_name)
 {
 	free(req->dev_name);
-	req->_present.dev_name_len = strlen(dev_name);
-	req->dev_name = malloc(req->_present.dev_name_len + 1);
-	memcpy(req->dev_name, dev_name, req->_present.dev_name_len);
-	req->dev_name[req->_present.dev_name_len] = 0;
+	req->_len.dev_name = strlen(dev_name);
+	req->dev_name = malloc(req->_len.dev_name + 1);
+	memcpy(req->dev_name, dev_name, req->_len.dev_name);
+	req->dev_name[req->_len.dev_name] = 0;
 }
 static inline void
 devlink_notify_filter_set_req_set_port_index(struct devlink_notify_filter_set_req *req,

@@ -21,14 +21,16 @@ const char *team_op_str(int op);
 /* Common nested types */
 struct team_attr_option {
 	struct {
-		__u32 name_len;
 		__u32 changed:1;
 		__u32 type:1;
-		__u32 data_len;
 		__u32 removed:1;
 		__u32 port_ifindex:1;
 		__u32 array_index:1;
 	} _present;
+	struct {
+		__u32 name;
+		__u32 data;
+	} _len;
 
 	char *name;
 	__u8 type;
@@ -118,10 +120,10 @@ team_options_set_req_set_list_option_option_name(struct team_options_set_req *re
 	req->_present.list_option = 1;
 	req->list_option._present.option = 1;
 	free(req->list_option.option.name);
-	req->list_option.option._present.name_len = strlen(name);
-	req->list_option.option.name = malloc(req->list_option.option._present.name_len + 1);
-	memcpy(req->list_option.option.name, name, req->list_option.option._present.name_len);
-	req->list_option.option.name[req->list_option.option._present.name_len] = 0;
+	req->list_option.option._len.name = strlen(name);
+	req->list_option.option.name = malloc(req->list_option.option._len.name + 1);
+	memcpy(req->list_option.option.name, name, req->list_option.option._len.name);
+	req->list_option.option.name[req->list_option.option._len.name] = 0;
 }
 static inline void
 team_options_set_req_set_list_option_option_changed(struct team_options_set_req *req)
@@ -146,9 +148,9 @@ team_options_set_req_set_list_option_option_data(struct team_options_set_req *re
 	req->_present.list_option = 1;
 	req->list_option._present.option = 1;
 	free(req->list_option.option.data);
-	req->list_option.option._present.data_len = len;
-	req->list_option.option.data = malloc(req->list_option.option._present.data_len);
-	memcpy(req->list_option.option.data, data, req->list_option.option._present.data_len);
+	req->list_option.option._len.data = len;
+	req->list_option.option.data = malloc(req->list_option.option._len.data);
+	memcpy(req->list_option.option.data, data, req->list_option.option._len.data);
 }
 static inline void
 team_options_set_req_set_list_option_option_removed(struct team_options_set_req *req)

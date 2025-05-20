@@ -430,9 +430,10 @@ dpll_device_id_get(struct ynl_sock *ys, struct dpll_device_id_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_DEVICE_ID_GET, 1);
 	ys->req_policy = &dpll_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &dpll_nest;
 
-	if (req->_present.module_name_len)
+	if (req->_len.module_name)
 		ynl_attr_put_str(nlh, DPLL_A_MODULE_NAME, req->module_name);
 	if (req->_present.clock_id)
 		ynl_attr_put_u64(nlh, DPLL_A_CLOCK_ID, req->clock_id);
@@ -497,7 +498,7 @@ int dpll_device_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.module_name_len = len;
+			dst->_len.module_name = len;
 			dst->module_name = malloc(len + 1);
 			memcpy(dst->module_name, ynl_attr_get_str(attr), len);
 			dst->module_name[len] = 0;
@@ -538,7 +539,7 @@ int dpll_device_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_mode_supported) {
 		dst->mode_supported = calloc(n_mode_supported, sizeof(*dst->mode_supported));
-		dst->n_mode_supported = n_mode_supported;
+		dst->_count.mode_supported = n_mode_supported;
 		i = 0;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 			if (ynl_attr_type(attr) == DPLL_A_MODE_SUPPORTED) {
@@ -561,6 +562,7 @@ dpll_device_get(struct ynl_sock *ys, struct dpll_device_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_DEVICE_GET, 1);
 	ys->req_policy = &dpll_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &dpll_nest;
 
 	if (req->_present.id)
@@ -646,6 +648,7 @@ int dpll_device_set(struct ynl_sock *ys, struct dpll_device_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_DEVICE_SET, 1);
 	ys->req_policy = &dpll_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.id)
 		ynl_attr_put_u32(nlh, DPLL_A_ID, req->id);
@@ -705,17 +708,18 @@ dpll_pin_id_get(struct ynl_sock *ys, struct dpll_pin_id_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_PIN_ID_GET, 1);
 	ys->req_policy = &dpll_pin_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &dpll_pin_nest;
 
-	if (req->_present.module_name_len)
+	if (req->_len.module_name)
 		ynl_attr_put_str(nlh, DPLL_A_PIN_MODULE_NAME, req->module_name);
 	if (req->_present.clock_id)
 		ynl_attr_put_u64(nlh, DPLL_A_PIN_CLOCK_ID, req->clock_id);
-	if (req->_present.board_label_len)
+	if (req->_len.board_label)
 		ynl_attr_put_str(nlh, DPLL_A_PIN_BOARD_LABEL, req->board_label);
-	if (req->_present.panel_label_len)
+	if (req->_len.panel_label)
 		ynl_attr_put_str(nlh, DPLL_A_PIN_PANEL_LABEL, req->panel_label);
-	if (req->_present.package_label_len)
+	if (req->_len.package_label)
 		ynl_attr_put_str(nlh, DPLL_A_PIN_PACKAGE_LABEL, req->package_label);
 	if (req->_present.type)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_TYPE, req->type);
@@ -750,16 +754,16 @@ void dpll_pin_get_rsp_free(struct dpll_pin_get_rsp *rsp)
 	free(rsp->board_label);
 	free(rsp->panel_label);
 	free(rsp->package_label);
-	for (i = 0; i < rsp->n_frequency_supported; i++)
+	for (i = 0; i < rsp->_count.frequency_supported; i++)
 		dpll_frequency_range_free(&rsp->frequency_supported[i]);
 	free(rsp->frequency_supported);
-	for (i = 0; i < rsp->n_parent_device; i++)
+	for (i = 0; i < rsp->_count.parent_device; i++)
 		dpll_pin_parent_device_free(&rsp->parent_device[i]);
 	free(rsp->parent_device);
-	for (i = 0; i < rsp->n_parent_pin; i++)
+	for (i = 0; i < rsp->_count.parent_pin; i++)
 		dpll_pin_parent_pin_free(&rsp->parent_pin[i]);
 	free(rsp->parent_pin);
-	for (i = 0; i < rsp->n_esync_frequency_supported; i++)
+	for (i = 0; i < rsp->_count.esync_frequency_supported; i++)
 		dpll_frequency_range_free(&rsp->esync_frequency_supported[i]);
 	free(rsp->esync_frequency_supported);
 	free(rsp);
@@ -804,7 +808,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.board_label_len = len;
+			dst->_len.board_label = len;
 			dst->board_label = malloc(len + 1);
 			memcpy(dst->board_label, ynl_attr_get_str(attr), len);
 			dst->board_label[len] = 0;
@@ -815,7 +819,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.panel_label_len = len;
+			dst->_len.panel_label = len;
 			dst->panel_label = malloc(len + 1);
 			memcpy(dst->panel_label, ynl_attr_get_str(attr), len);
 			dst->panel_label[len] = 0;
@@ -826,7 +830,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.package_label_len = len;
+			dst->_len.package_label = len;
 			dst->package_label = malloc(len + 1);
 			memcpy(dst->package_label, ynl_attr_get_str(attr), len);
 			dst->package_label[len] = 0;
@@ -888,7 +892,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_esync_frequency_supported) {
 		dst->esync_frequency_supported = calloc(n_esync_frequency_supported, sizeof(*dst->esync_frequency_supported));
-		dst->n_esync_frequency_supported = n_esync_frequency_supported;
+		dst->_count.esync_frequency_supported = n_esync_frequency_supported;
 		i = 0;
 		parg.rsp_policy = &dpll_frequency_range_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -902,7 +906,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_frequency_supported) {
 		dst->frequency_supported = calloc(n_frequency_supported, sizeof(*dst->frequency_supported));
-		dst->n_frequency_supported = n_frequency_supported;
+		dst->_count.frequency_supported = n_frequency_supported;
 		i = 0;
 		parg.rsp_policy = &dpll_frequency_range_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -916,7 +920,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_parent_device) {
 		dst->parent_device = calloc(n_parent_device, sizeof(*dst->parent_device));
-		dst->n_parent_device = n_parent_device;
+		dst->_count.parent_device = n_parent_device;
 		i = 0;
 		parg.rsp_policy = &dpll_pin_parent_device_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -930,7 +934,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_parent_pin) {
 		dst->parent_pin = calloc(n_parent_pin, sizeof(*dst->parent_pin));
-		dst->n_parent_pin = n_parent_pin;
+		dst->_count.parent_pin = n_parent_pin;
 		i = 0;
 		parg.rsp_policy = &dpll_pin_parent_pin_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -956,6 +960,7 @@ dpll_pin_get(struct ynl_sock *ys, struct dpll_pin_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_PIN_GET, 1);
 	ys->req_policy = &dpll_pin_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &dpll_pin_nest;
 
 	if (req->_present.id)
@@ -996,16 +1001,16 @@ void dpll_pin_get_list_free(struct dpll_pin_get_list *rsp)
 		free(rsp->obj.board_label);
 		free(rsp->obj.panel_label);
 		free(rsp->obj.package_label);
-		for (i = 0; i < rsp->obj.n_frequency_supported; i++)
+		for (i = 0; i < rsp->obj._count.frequency_supported; i++)
 			dpll_frequency_range_free(&rsp->obj.frequency_supported[i]);
 		free(rsp->obj.frequency_supported);
-		for (i = 0; i < rsp->obj.n_parent_device; i++)
+		for (i = 0; i < rsp->obj._count.parent_device; i++)
 			dpll_pin_parent_device_free(&rsp->obj.parent_device[i]);
 		free(rsp->obj.parent_device);
-		for (i = 0; i < rsp->obj.n_parent_pin; i++)
+		for (i = 0; i < rsp->obj._count.parent_pin; i++)
 			dpll_pin_parent_pin_free(&rsp->obj.parent_pin[i]);
 		free(rsp->obj.parent_pin);
-		for (i = 0; i < rsp->obj.n_esync_frequency_supported; i++)
+		for (i = 0; i < rsp->obj._count.esync_frequency_supported; i++)
 			dpll_frequency_range_free(&rsp->obj.esync_frequency_supported[i]);
 		free(rsp->obj.esync_frequency_supported);
 		free(rsp);
@@ -1028,6 +1033,7 @@ dpll_pin_get_dump(struct ynl_sock *ys, struct dpll_pin_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, DPLL_CMD_PIN_GET, 1);
 	ys->req_policy = &dpll_pin_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.id)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_ID, req->id);
@@ -1051,16 +1057,16 @@ void dpll_pin_get_ntf_free(struct dpll_pin_get_ntf *rsp)
 	free(rsp->obj.board_label);
 	free(rsp->obj.panel_label);
 	free(rsp->obj.package_label);
-	for (i = 0; i < rsp->obj.n_frequency_supported; i++)
+	for (i = 0; i < rsp->obj._count.frequency_supported; i++)
 		dpll_frequency_range_free(&rsp->obj.frequency_supported[i]);
 	free(rsp->obj.frequency_supported);
-	for (i = 0; i < rsp->obj.n_parent_device; i++)
+	for (i = 0; i < rsp->obj._count.parent_device; i++)
 		dpll_pin_parent_device_free(&rsp->obj.parent_device[i]);
 	free(rsp->obj.parent_device);
-	for (i = 0; i < rsp->obj.n_parent_pin; i++)
+	for (i = 0; i < rsp->obj._count.parent_pin; i++)
 		dpll_pin_parent_pin_free(&rsp->obj.parent_pin[i]);
 	free(rsp->obj.parent_pin);
-	for (i = 0; i < rsp->obj.n_esync_frequency_supported; i++)
+	for (i = 0; i < rsp->obj._count.esync_frequency_supported; i++)
 		dpll_frequency_range_free(&rsp->obj.esync_frequency_supported[i]);
 	free(rsp->obj.esync_frequency_supported);
 	free(rsp);
@@ -1072,10 +1078,10 @@ void dpll_pin_set_req_free(struct dpll_pin_set_req *req)
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_parent_device; i++)
+	for (i = 0; i < req->_count.parent_device; i++)
 		dpll_pin_parent_device_free(&req->parent_device[i]);
 	free(req->parent_device);
-	for (i = 0; i < req->n_parent_pin; i++)
+	for (i = 0; i < req->_count.parent_pin; i++)
 		dpll_pin_parent_pin_free(&req->parent_pin[i]);
 	free(req->parent_pin);
 	free(req);
@@ -1090,6 +1096,7 @@ int dpll_pin_set(struct ynl_sock *ys, struct dpll_pin_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DPLL_CMD_PIN_SET, 1);
 	ys->req_policy = &dpll_pin_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.id)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_ID, req->id);
@@ -1101,9 +1108,9 @@ int dpll_pin_set(struct ynl_sock *ys, struct dpll_pin_set_req *req)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_PRIO, req->prio);
 	if (req->_present.state)
 		ynl_attr_put_u32(nlh, DPLL_A_PIN_STATE, req->state);
-	for (i = 0; i < req->n_parent_device; i++)
+	for (i = 0; i < req->_count.parent_device; i++)
 		dpll_pin_parent_device_put(nlh, DPLL_A_PIN_PARENT_DEVICE, &req->parent_device[i]);
-	for (i = 0; i < req->n_parent_pin; i++)
+	for (i = 0; i < req->_count.parent_pin; i++)
 		dpll_pin_parent_pin_put(nlh, DPLL_A_PIN_PARENT_PIN, &req->parent_pin[i]);
 	if (req->_present.phase_adjust)
 		ynl_attr_put_s32(nlh, DPLL_A_PIN_PHASE_ADJUST, req->phase_adjust);

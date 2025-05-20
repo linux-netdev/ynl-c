@@ -46,16 +46,20 @@ struct ovs_vport_new_req {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
 		__u32 type:1;
-		__u32 upcall_pid_len;
 		__u32 ifindex:1;
 		__u32 options:1;
 	} _present;
+	struct {
+		__u32 name;
+	} _len;
+	struct {
+		__u32 upcall_pid;
+	} _count;
 
 	char *name;
 	enum ovs_vport_type type;
-	void *upcall_pid;
+	__u32 *upcall_pid;
 	__u32 ifindex;
 	struct ovs_vport_vport_options options;
 };
@@ -70,10 +74,10 @@ static inline void
 ovs_vport_new_req_set_name(struct ovs_vport_new_req *req, const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 static inline void
 ovs_vport_new_req_set_type(struct ovs_vport_new_req *req,
@@ -84,12 +88,13 @@ ovs_vport_new_req_set_type(struct ovs_vport_new_req *req,
 }
 static inline void
 ovs_vport_new_req_set_upcall_pid(struct ovs_vport_new_req *req,
-				 const void *upcall_pid, size_t len)
+				 __u32 *upcall_pid, size_t count)
 {
 	free(req->upcall_pid);
-	req->_present.upcall_pid_len = len;
-	req->upcall_pid = malloc(req->_present.upcall_pid_len);
-	memcpy(req->upcall_pid, upcall_pid, req->_present.upcall_pid_len);
+	req->_count.upcall_pid = count;
+	count *= sizeof(__u32);
+	req->upcall_pid = malloc(count);
+	memcpy(req->upcall_pid, upcall_pid, count);
 }
 static inline void
 ovs_vport_new_req_set_ifindex(struct ovs_vport_new_req *req, __u32 ifindex)
@@ -127,8 +132,10 @@ struct ovs_vport_del_req {
 	struct {
 		__u32 port_no:1;
 		__u32 type:1;
-		__u32 name_len;
 	} _present;
+	struct {
+		__u32 name;
+	} _len;
 
 	__u32 port_no;
 	enum ovs_vport_type type;
@@ -158,10 +165,10 @@ static inline void
 ovs_vport_del_req_set_name(struct ovs_vport_del_req *req, const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 
 /*
@@ -175,8 +182,8 @@ struct ovs_vport_get_req {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
-	} _present;
+		__u32 name;
+	} _len;
 
 	char *name;
 };
@@ -191,10 +198,10 @@ static inline void
 ovs_vport_get_req_set_name(struct ovs_vport_get_req *req, const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 
 struct ovs_vport_get_rsp {
@@ -203,19 +210,23 @@ struct ovs_vport_get_rsp {
 	struct {
 		__u32 port_no:1;
 		__u32 type:1;
-		__u32 name_len;
-		__u32 upcall_pid_len;
-		__u32 stats_len;
 		__u32 ifindex:1;
 		__u32 netnsid:1;
 		__u32 upcall_stats:1;
 	} _present;
+	struct {
+		__u32 name;
+		__u32 stats;
+	} _len;
+	struct {
+		__u32 upcall_pid;
+	} _count;
 
 	__u32 port_no;
 	enum ovs_vport_type type;
 	char *name;
-	void *upcall_pid;
-	void *stats;
+	__u32 *upcall_pid;
+	struct ovs_vport_stats *stats;
 	__u32 ifindex;
 	__u32 netnsid;
 	struct ovs_vport_upcall_stats upcall_stats;
@@ -234,8 +245,8 @@ struct ovs_vport_get_req_dump {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
-	} _present;
+		__u32 name;
+	} _len;
 
 	char *name;
 };
@@ -251,10 +262,10 @@ ovs_vport_get_req_dump_set_name(struct ovs_vport_get_req_dump *req,
 				const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 
 struct ovs_vport_get_list {

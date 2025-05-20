@@ -275,6 +275,7 @@ net_shaper_get(struct ynl_sock *ys, struct net_shaper_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NET_SHAPER_CMD_GET, 1);
 	ys->req_policy = &net_shaper_net_shaper_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &net_shaper_net_shaper_nest;
 
 	if (req->_present.ifindex)
@@ -334,6 +335,7 @@ net_shaper_get_dump(struct ynl_sock *ys, struct net_shaper_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NET_SHAPER_CMD_GET, 1);
 	ys->req_policy = &net_shaper_net_shaper_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_IFINDEX, req->ifindex);
@@ -365,6 +367,7 @@ int net_shaper_set(struct ynl_sock *ys, struct net_shaper_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NET_SHAPER_CMD_SET, 1);
 	ys->req_policy = &net_shaper_net_shaper_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_IFINDEX, req->ifindex);
@@ -406,6 +409,7 @@ int net_shaper_delete(struct ynl_sock *ys, struct net_shaper_delete_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NET_SHAPER_CMD_DELETE, 1);
 	ys->req_policy = &net_shaper_net_shaper_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_IFINDEX, req->ifindex);
@@ -427,7 +431,7 @@ void net_shaper_group_req_free(struct net_shaper_group_req *req)
 
 	net_shaper_handle_free(&req->parent);
 	net_shaper_handle_free(&req->handle);
-	for (i = 0; i < req->n_leaves; i++)
+	for (i = 0; i < req->_count.leaves; i++)
 		net_shaper_leaf_info_free(&req->leaves[i]);
 	free(req->leaves);
 	free(req);
@@ -483,6 +487,7 @@ net_shaper_group(struct ynl_sock *ys, struct net_shaper_group_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NET_SHAPER_CMD_GROUP, 1);
 	ys->req_policy = &net_shaper_net_shaper_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &net_shaper_net_shaper_nest;
 
 	if (req->_present.ifindex)
@@ -503,7 +508,7 @@ net_shaper_group(struct ynl_sock *ys, struct net_shaper_group_req *req)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_PRIORITY, req->priority);
 	if (req->_present.weight)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_WEIGHT, req->weight);
-	for (i = 0; i < req->n_leaves; i++)
+	for (i = 0; i < req->_count.leaves; i++)
 		net_shaper_leaf_info_put(nlh, NET_SHAPER_A_LEAVES, &req->leaves[i]);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -603,6 +608,7 @@ net_shaper_cap_get(struct ynl_sock *ys, struct net_shaper_cap_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NET_SHAPER_CMD_CAP_GET, 1);
 	ys->req_policy = &net_shaper_caps_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &net_shaper_caps_nest;
 
 	if (req->_present.ifindex)
@@ -661,6 +667,7 @@ net_shaper_cap_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NET_SHAPER_CMD_CAP_GET, 1);
 	ys->req_policy = &net_shaper_caps_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, NET_SHAPER_A_CAPS_IFINDEX, req->ifindex);

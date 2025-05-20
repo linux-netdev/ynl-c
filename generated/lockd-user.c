@@ -52,6 +52,7 @@ int lockd_server_set(struct ynl_sock *ys, struct lockd_server_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, LOCKD_CMD_SERVER_SET, 1);
 	ys->req_policy = &lockd_server_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.gracetime)
 		ynl_attr_put_u32(nlh, LOCKD_A_SERVER_GRACETIME, req->gracetime);
@@ -115,6 +116,7 @@ struct lockd_server_get_rsp *lockd_server_get(struct ynl_sock *ys)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, LOCKD_CMD_SERVER_GET, 1);
 	ys->req_policy = &lockd_server_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &lockd_server_nest;
 
 	rsp = calloc(1, sizeof(*rsp));

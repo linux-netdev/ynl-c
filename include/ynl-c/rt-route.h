@@ -37,9 +37,11 @@ struct rt_route_metrics {
 		__u32 rto_min:1;
 		__u32 initrwnd:1;
 		__u32 quickack:1;
-		__u32 cc_algo_len;
 		__u32 fastopen_no_cookie:1;
 	} _present;
+	struct {
+		__u32 cc_algo;
+	} _len;
 
 	__u32 lock;
 	__u32 mtu;
@@ -63,11 +65,11 @@ struct rt_route_metrics {
 /* ============== RTM_GETROUTE ============== */
 /* RTM_GETROUTE - do */
 struct rt_route_getroute_req {
+	__u16 _nlmsg_flags;
+
 	struct rtmsg _hdr;
 
 	struct {
-		__u32 src_len;
-		__u32 dst_len;
 		__u32 iif:1;
 		__u32 oif:1;
 		__u32 ip_proto:1;
@@ -77,6 +79,10 @@ struct rt_route_getroute_req {
 		__u32 uid:1;
 		__u32 flowlabel:1;
 	} _present;
+	struct {
+		__u32 src;
+		__u32 dst;
+	} _len;
 
 	void *src;
 	void *dst;
@@ -97,22 +103,29 @@ static inline struct rt_route_getroute_req *rt_route_getroute_req_alloc(void)
 void rt_route_getroute_req_free(struct rt_route_getroute_req *req);
 
 static inline void
+rt_route_getroute_req_set_nlflags(struct rt_route_getroute_req *req,
+				  __u16 nl_flags)
+{
+	req->_nlmsg_flags = nl_flags;
+}
+
+static inline void
 rt_route_getroute_req_set_src(struct rt_route_getroute_req *req,
 			      const void *src, size_t len)
 {
 	free(req->src);
-	req->_present.src_len = len;
-	req->src = malloc(req->_present.src_len);
-	memcpy(req->src, src, req->_present.src_len);
+	req->_len.src = len;
+	req->src = malloc(req->_len.src);
+	memcpy(req->src, src, req->_len.src);
 }
 static inline void
 rt_route_getroute_req_set_dst(struct rt_route_getroute_req *req,
 			      const void *dst, size_t len)
 {
 	free(req->dst);
-	req->_present.dst_len = len;
-	req->dst = malloc(req->_present.dst_len);
-	memcpy(req->dst, dst, req->_present.dst_len);
+	req->_len.dst = len;
+	req->dst = malloc(req->_len.dst);
+	memcpy(req->dst, dst, req->_len.dst);
 }
 static inline void
 rt_route_getroute_req_set_iif(struct rt_route_getroute_req *req, __u32 iif)
@@ -169,27 +182,16 @@ struct rt_route_getroute_rsp {
 	struct rtmsg _hdr;
 
 	struct {
-		__u32 dst_len;
-		__u32 src_len;
 		__u32 iif:1;
 		__u32 oif:1;
-		__u32 gateway_len;
 		__u32 priority:1;
-		__u32 prefsrc_len;
 		__u32 metrics:1;
-		__u32 multipath_len;
 		__u32 flow:1;
-		__u32 cacheinfo_len;
 		__u32 table:1;
 		__u32 mark:1;
-		__u32 mfc_stats_len;
-		__u32 via_len;
-		__u32 newdst_len;
 		__u32 pref:1;
 		__u32 encap_type:1;
-		__u32 encap_len;
 		__u32 expires:1;
-		__u32 pad_len;
 		__u32 uid:1;
 		__u32 ttl_propagate:1;
 		__u32 ip_proto:1;
@@ -198,6 +200,19 @@ struct rt_route_getroute_rsp {
 		__u32 nh_id:1;
 		__u32 flowlabel:1;
 	} _present;
+	struct {
+		__u32 dst;
+		__u32 src;
+		__u32 gateway;
+		__u32 prefsrc;
+		__u32 multipath;
+		__u32 cacheinfo;
+		__u32 mfc_stats;
+		__u32 via;
+		__u32 newdst;
+		__u32 encap;
+		__u32 pad;
+	} _len;
 
 	void *dst;
 	void *src;
@@ -209,7 +224,7 @@ struct rt_route_getroute_rsp {
 	struct rt_route_metrics metrics;
 	void *multipath;
 	__u32 flow;
-	void *cacheinfo;
+	struct rta_cacheinfo *cacheinfo;
 	__u32 table;
 	__u32 mark;
 	void *mfc_stats;
@@ -263,30 +278,21 @@ rt_route_getroute_dump(struct ynl_sock *ys,
 /* ============== RTM_NEWROUTE ============== */
 /* RTM_NEWROUTE - do */
 struct rt_route_newroute_req {
+	__u16 _nlmsg_flags;
+
 	struct rtmsg _hdr;
 
 	struct {
-		__u32 dst_len;
-		__u32 src_len;
 		__u32 iif:1;
 		__u32 oif:1;
-		__u32 gateway_len;
 		__u32 priority:1;
-		__u32 prefsrc_len;
 		__u32 metrics:1;
-		__u32 multipath_len;
 		__u32 flow:1;
-		__u32 cacheinfo_len;
 		__u32 table:1;
 		__u32 mark:1;
-		__u32 mfc_stats_len;
-		__u32 via_len;
-		__u32 newdst_len;
 		__u32 pref:1;
 		__u32 encap_type:1;
-		__u32 encap_len;
 		__u32 expires:1;
-		__u32 pad_len;
 		__u32 uid:1;
 		__u32 ttl_propagate:1;
 		__u32 ip_proto:1;
@@ -295,6 +301,19 @@ struct rt_route_newroute_req {
 		__u32 nh_id:1;
 		__u32 flowlabel:1;
 	} _present;
+	struct {
+		__u32 dst;
+		__u32 src;
+		__u32 gateway;
+		__u32 prefsrc;
+		__u32 multipath;
+		__u32 cacheinfo;
+		__u32 mfc_stats;
+		__u32 via;
+		__u32 newdst;
+		__u32 encap;
+		__u32 pad;
+	} _len;
 
 	void *dst;
 	void *src;
@@ -306,7 +325,7 @@ struct rt_route_newroute_req {
 	struct rt_route_metrics metrics;
 	void *multipath;
 	__u32 flow;
-	void *cacheinfo;
+	struct rta_cacheinfo *cacheinfo;
 	__u32 table;
 	__u32 mark;
 	void *mfc_stats;
@@ -333,22 +352,29 @@ static inline struct rt_route_newroute_req *rt_route_newroute_req_alloc(void)
 void rt_route_newroute_req_free(struct rt_route_newroute_req *req);
 
 static inline void
+rt_route_newroute_req_set_nlflags(struct rt_route_newroute_req *req,
+				  __u16 nl_flags)
+{
+	req->_nlmsg_flags = nl_flags;
+}
+
+static inline void
 rt_route_newroute_req_set_dst(struct rt_route_newroute_req *req,
 			      const void *dst, size_t len)
 {
 	free(req->dst);
-	req->_present.dst_len = len;
-	req->dst = malloc(req->_present.dst_len);
-	memcpy(req->dst, dst, req->_present.dst_len);
+	req->_len.dst = len;
+	req->dst = malloc(req->_len.dst);
+	memcpy(req->dst, dst, req->_len.dst);
 }
 static inline void
 rt_route_newroute_req_set_src(struct rt_route_newroute_req *req,
 			      const void *src, size_t len)
 {
 	free(req->src);
-	req->_present.src_len = len;
-	req->src = malloc(req->_present.src_len);
-	memcpy(req->src, src, req->_present.src_len);
+	req->_len.src = len;
+	req->src = malloc(req->_len.src);
+	memcpy(req->src, src, req->_len.src);
 }
 static inline void
 rt_route_newroute_req_set_iif(struct rt_route_newroute_req *req, __u32 iif)
@@ -367,9 +393,9 @@ rt_route_newroute_req_set_gateway(struct rt_route_newroute_req *req,
 				  const void *gateway, size_t len)
 {
 	free(req->gateway);
-	req->_present.gateway_len = len;
-	req->gateway = malloc(req->_present.gateway_len);
-	memcpy(req->gateway, gateway, req->_present.gateway_len);
+	req->_len.gateway = len;
+	req->gateway = malloc(req->_len.gateway);
+	memcpy(req->gateway, gateway, req->_len.gateway);
 }
 static inline void
 rt_route_newroute_req_set_priority(struct rt_route_newroute_req *req,
@@ -383,9 +409,9 @@ rt_route_newroute_req_set_prefsrc(struct rt_route_newroute_req *req,
 				  const void *prefsrc, size_t len)
 {
 	free(req->prefsrc);
-	req->_present.prefsrc_len = len;
-	req->prefsrc = malloc(req->_present.prefsrc_len);
-	memcpy(req->prefsrc, prefsrc, req->_present.prefsrc_len);
+	req->_len.prefsrc = len;
+	req->prefsrc = malloc(req->_len.prefsrc);
+	memcpy(req->prefsrc, prefsrc, req->_len.prefsrc);
 }
 static inline void
 rt_route_newroute_req_set_metrics_lock(struct rt_route_newroute_req *req,
@@ -513,10 +539,10 @@ rt_route_newroute_req_set_metrics_cc_algo(struct rt_route_newroute_req *req,
 {
 	req->_present.metrics = 1;
 	free(req->metrics.cc_algo);
-	req->metrics._present.cc_algo_len = strlen(cc_algo);
-	req->metrics.cc_algo = malloc(req->metrics._present.cc_algo_len + 1);
-	memcpy(req->metrics.cc_algo, cc_algo, req->metrics._present.cc_algo_len);
-	req->metrics.cc_algo[req->metrics._present.cc_algo_len] = 0;
+	req->metrics._len.cc_algo = strlen(cc_algo);
+	req->metrics.cc_algo = malloc(req->metrics._len.cc_algo + 1);
+	memcpy(req->metrics.cc_algo, cc_algo, req->metrics._len.cc_algo);
+	req->metrics.cc_algo[req->metrics._len.cc_algo] = 0;
 }
 static inline void
 rt_route_newroute_req_set_metrics_fastopen_no_cookie(struct rt_route_newroute_req *req,
@@ -531,9 +557,9 @@ rt_route_newroute_req_set_multipath(struct rt_route_newroute_req *req,
 				    const void *multipath, size_t len)
 {
 	free(req->multipath);
-	req->_present.multipath_len = len;
-	req->multipath = malloc(req->_present.multipath_len);
-	memcpy(req->multipath, multipath, req->_present.multipath_len);
+	req->_len.multipath = len;
+	req->multipath = malloc(req->_len.multipath);
+	memcpy(req->multipath, multipath, req->_len.multipath);
 }
 static inline void
 rt_route_newroute_req_set_flow(struct rt_route_newroute_req *req, __u32 flow)
@@ -546,9 +572,9 @@ rt_route_newroute_req_set_cacheinfo(struct rt_route_newroute_req *req,
 				    const void *cacheinfo, size_t len)
 {
 	free(req->cacheinfo);
-	req->_present.cacheinfo_len = len;
-	req->cacheinfo = malloc(req->_present.cacheinfo_len);
-	memcpy(req->cacheinfo, cacheinfo, req->_present.cacheinfo_len);
+	req->_len.cacheinfo = len;
+	req->cacheinfo = malloc(req->_len.cacheinfo);
+	memcpy(req->cacheinfo, cacheinfo, req->_len.cacheinfo);
 }
 static inline void
 rt_route_newroute_req_set_table(struct rt_route_newroute_req *req, __u32 table)
@@ -567,27 +593,27 @@ rt_route_newroute_req_set_mfc_stats(struct rt_route_newroute_req *req,
 				    const void *mfc_stats, size_t len)
 {
 	free(req->mfc_stats);
-	req->_present.mfc_stats_len = len;
-	req->mfc_stats = malloc(req->_present.mfc_stats_len);
-	memcpy(req->mfc_stats, mfc_stats, req->_present.mfc_stats_len);
+	req->_len.mfc_stats = len;
+	req->mfc_stats = malloc(req->_len.mfc_stats);
+	memcpy(req->mfc_stats, mfc_stats, req->_len.mfc_stats);
 }
 static inline void
 rt_route_newroute_req_set_via(struct rt_route_newroute_req *req,
 			      const void *via, size_t len)
 {
 	free(req->via);
-	req->_present.via_len = len;
-	req->via = malloc(req->_present.via_len);
-	memcpy(req->via, via, req->_present.via_len);
+	req->_len.via = len;
+	req->via = malloc(req->_len.via);
+	memcpy(req->via, via, req->_len.via);
 }
 static inline void
 rt_route_newroute_req_set_newdst(struct rt_route_newroute_req *req,
 				 const void *newdst, size_t len)
 {
 	free(req->newdst);
-	req->_present.newdst_len = len;
-	req->newdst = malloc(req->_present.newdst_len);
-	memcpy(req->newdst, newdst, req->_present.newdst_len);
+	req->_len.newdst = len;
+	req->newdst = malloc(req->_len.newdst);
+	memcpy(req->newdst, newdst, req->_len.newdst);
 }
 static inline void
 rt_route_newroute_req_set_pref(struct rt_route_newroute_req *req, __u8 pref)
@@ -607,9 +633,9 @@ rt_route_newroute_req_set_encap(struct rt_route_newroute_req *req,
 				const void *encap, size_t len)
 {
 	free(req->encap);
-	req->_present.encap_len = len;
-	req->encap = malloc(req->_present.encap_len);
-	memcpy(req->encap, encap, req->_present.encap_len);
+	req->_len.encap = len;
+	req->encap = malloc(req->_len.encap);
+	memcpy(req->encap, encap, req->_len.encap);
 }
 static inline void
 rt_route_newroute_req_set_expires(struct rt_route_newroute_req *req,
@@ -623,9 +649,9 @@ rt_route_newroute_req_set_pad(struct rt_route_newroute_req *req,
 			      const void *pad, size_t len)
 {
 	free(req->pad);
-	req->_present.pad_len = len;
-	req->pad = malloc(req->_present.pad_len);
-	memcpy(req->pad, pad, req->_present.pad_len);
+	req->_len.pad = len;
+	req->pad = malloc(req->_len.pad);
+	memcpy(req->pad, pad, req->_len.pad);
 }
 static inline void
 rt_route_newroute_req_set_uid(struct rt_route_newroute_req *req, __u32 uid)
@@ -681,30 +707,21 @@ int rt_route_newroute(struct ynl_sock *ys, struct rt_route_newroute_req *req);
 /* ============== RTM_DELROUTE ============== */
 /* RTM_DELROUTE - do */
 struct rt_route_delroute_req {
+	__u16 _nlmsg_flags;
+
 	struct rtmsg _hdr;
 
 	struct {
-		__u32 dst_len;
-		__u32 src_len;
 		__u32 iif:1;
 		__u32 oif:1;
-		__u32 gateway_len;
 		__u32 priority:1;
-		__u32 prefsrc_len;
 		__u32 metrics:1;
-		__u32 multipath_len;
 		__u32 flow:1;
-		__u32 cacheinfo_len;
 		__u32 table:1;
 		__u32 mark:1;
-		__u32 mfc_stats_len;
-		__u32 via_len;
-		__u32 newdst_len;
 		__u32 pref:1;
 		__u32 encap_type:1;
-		__u32 encap_len;
 		__u32 expires:1;
-		__u32 pad_len;
 		__u32 uid:1;
 		__u32 ttl_propagate:1;
 		__u32 ip_proto:1;
@@ -713,6 +730,19 @@ struct rt_route_delroute_req {
 		__u32 nh_id:1;
 		__u32 flowlabel:1;
 	} _present;
+	struct {
+		__u32 dst;
+		__u32 src;
+		__u32 gateway;
+		__u32 prefsrc;
+		__u32 multipath;
+		__u32 cacheinfo;
+		__u32 mfc_stats;
+		__u32 via;
+		__u32 newdst;
+		__u32 encap;
+		__u32 pad;
+	} _len;
 
 	void *dst;
 	void *src;
@@ -724,7 +754,7 @@ struct rt_route_delroute_req {
 	struct rt_route_metrics metrics;
 	void *multipath;
 	__u32 flow;
-	void *cacheinfo;
+	struct rta_cacheinfo *cacheinfo;
 	__u32 table;
 	__u32 mark;
 	void *mfc_stats;
@@ -751,22 +781,29 @@ static inline struct rt_route_delroute_req *rt_route_delroute_req_alloc(void)
 void rt_route_delroute_req_free(struct rt_route_delroute_req *req);
 
 static inline void
+rt_route_delroute_req_set_nlflags(struct rt_route_delroute_req *req,
+				  __u16 nl_flags)
+{
+	req->_nlmsg_flags = nl_flags;
+}
+
+static inline void
 rt_route_delroute_req_set_dst(struct rt_route_delroute_req *req,
 			      const void *dst, size_t len)
 {
 	free(req->dst);
-	req->_present.dst_len = len;
-	req->dst = malloc(req->_present.dst_len);
-	memcpy(req->dst, dst, req->_present.dst_len);
+	req->_len.dst = len;
+	req->dst = malloc(req->_len.dst);
+	memcpy(req->dst, dst, req->_len.dst);
 }
 static inline void
 rt_route_delroute_req_set_src(struct rt_route_delroute_req *req,
 			      const void *src, size_t len)
 {
 	free(req->src);
-	req->_present.src_len = len;
-	req->src = malloc(req->_present.src_len);
-	memcpy(req->src, src, req->_present.src_len);
+	req->_len.src = len;
+	req->src = malloc(req->_len.src);
+	memcpy(req->src, src, req->_len.src);
 }
 static inline void
 rt_route_delroute_req_set_iif(struct rt_route_delroute_req *req, __u32 iif)
@@ -785,9 +822,9 @@ rt_route_delroute_req_set_gateway(struct rt_route_delroute_req *req,
 				  const void *gateway, size_t len)
 {
 	free(req->gateway);
-	req->_present.gateway_len = len;
-	req->gateway = malloc(req->_present.gateway_len);
-	memcpy(req->gateway, gateway, req->_present.gateway_len);
+	req->_len.gateway = len;
+	req->gateway = malloc(req->_len.gateway);
+	memcpy(req->gateway, gateway, req->_len.gateway);
 }
 static inline void
 rt_route_delroute_req_set_priority(struct rt_route_delroute_req *req,
@@ -801,9 +838,9 @@ rt_route_delroute_req_set_prefsrc(struct rt_route_delroute_req *req,
 				  const void *prefsrc, size_t len)
 {
 	free(req->prefsrc);
-	req->_present.prefsrc_len = len;
-	req->prefsrc = malloc(req->_present.prefsrc_len);
-	memcpy(req->prefsrc, prefsrc, req->_present.prefsrc_len);
+	req->_len.prefsrc = len;
+	req->prefsrc = malloc(req->_len.prefsrc);
+	memcpy(req->prefsrc, prefsrc, req->_len.prefsrc);
 }
 static inline void
 rt_route_delroute_req_set_metrics_lock(struct rt_route_delroute_req *req,
@@ -931,10 +968,10 @@ rt_route_delroute_req_set_metrics_cc_algo(struct rt_route_delroute_req *req,
 {
 	req->_present.metrics = 1;
 	free(req->metrics.cc_algo);
-	req->metrics._present.cc_algo_len = strlen(cc_algo);
-	req->metrics.cc_algo = malloc(req->metrics._present.cc_algo_len + 1);
-	memcpy(req->metrics.cc_algo, cc_algo, req->metrics._present.cc_algo_len);
-	req->metrics.cc_algo[req->metrics._present.cc_algo_len] = 0;
+	req->metrics._len.cc_algo = strlen(cc_algo);
+	req->metrics.cc_algo = malloc(req->metrics._len.cc_algo + 1);
+	memcpy(req->metrics.cc_algo, cc_algo, req->metrics._len.cc_algo);
+	req->metrics.cc_algo[req->metrics._len.cc_algo] = 0;
 }
 static inline void
 rt_route_delroute_req_set_metrics_fastopen_no_cookie(struct rt_route_delroute_req *req,
@@ -949,9 +986,9 @@ rt_route_delroute_req_set_multipath(struct rt_route_delroute_req *req,
 				    const void *multipath, size_t len)
 {
 	free(req->multipath);
-	req->_present.multipath_len = len;
-	req->multipath = malloc(req->_present.multipath_len);
-	memcpy(req->multipath, multipath, req->_present.multipath_len);
+	req->_len.multipath = len;
+	req->multipath = malloc(req->_len.multipath);
+	memcpy(req->multipath, multipath, req->_len.multipath);
 }
 static inline void
 rt_route_delroute_req_set_flow(struct rt_route_delroute_req *req, __u32 flow)
@@ -964,9 +1001,9 @@ rt_route_delroute_req_set_cacheinfo(struct rt_route_delroute_req *req,
 				    const void *cacheinfo, size_t len)
 {
 	free(req->cacheinfo);
-	req->_present.cacheinfo_len = len;
-	req->cacheinfo = malloc(req->_present.cacheinfo_len);
-	memcpy(req->cacheinfo, cacheinfo, req->_present.cacheinfo_len);
+	req->_len.cacheinfo = len;
+	req->cacheinfo = malloc(req->_len.cacheinfo);
+	memcpy(req->cacheinfo, cacheinfo, req->_len.cacheinfo);
 }
 static inline void
 rt_route_delroute_req_set_table(struct rt_route_delroute_req *req, __u32 table)
@@ -985,27 +1022,27 @@ rt_route_delroute_req_set_mfc_stats(struct rt_route_delroute_req *req,
 				    const void *mfc_stats, size_t len)
 {
 	free(req->mfc_stats);
-	req->_present.mfc_stats_len = len;
-	req->mfc_stats = malloc(req->_present.mfc_stats_len);
-	memcpy(req->mfc_stats, mfc_stats, req->_present.mfc_stats_len);
+	req->_len.mfc_stats = len;
+	req->mfc_stats = malloc(req->_len.mfc_stats);
+	memcpy(req->mfc_stats, mfc_stats, req->_len.mfc_stats);
 }
 static inline void
 rt_route_delroute_req_set_via(struct rt_route_delroute_req *req,
 			      const void *via, size_t len)
 {
 	free(req->via);
-	req->_present.via_len = len;
-	req->via = malloc(req->_present.via_len);
-	memcpy(req->via, via, req->_present.via_len);
+	req->_len.via = len;
+	req->via = malloc(req->_len.via);
+	memcpy(req->via, via, req->_len.via);
 }
 static inline void
 rt_route_delroute_req_set_newdst(struct rt_route_delroute_req *req,
 				 const void *newdst, size_t len)
 {
 	free(req->newdst);
-	req->_present.newdst_len = len;
-	req->newdst = malloc(req->_present.newdst_len);
-	memcpy(req->newdst, newdst, req->_present.newdst_len);
+	req->_len.newdst = len;
+	req->newdst = malloc(req->_len.newdst);
+	memcpy(req->newdst, newdst, req->_len.newdst);
 }
 static inline void
 rt_route_delroute_req_set_pref(struct rt_route_delroute_req *req, __u8 pref)
@@ -1025,9 +1062,9 @@ rt_route_delroute_req_set_encap(struct rt_route_delroute_req *req,
 				const void *encap, size_t len)
 {
 	free(req->encap);
-	req->_present.encap_len = len;
-	req->encap = malloc(req->_present.encap_len);
-	memcpy(req->encap, encap, req->_present.encap_len);
+	req->_len.encap = len;
+	req->encap = malloc(req->_len.encap);
+	memcpy(req->encap, encap, req->_len.encap);
 }
 static inline void
 rt_route_delroute_req_set_expires(struct rt_route_delroute_req *req,
@@ -1041,9 +1078,9 @@ rt_route_delroute_req_set_pad(struct rt_route_delroute_req *req,
 			      const void *pad, size_t len)
 {
 	free(req->pad);
-	req->_present.pad_len = len;
-	req->pad = malloc(req->_present.pad_len);
-	memcpy(req->pad, pad, req->_present.pad_len);
+	req->_len.pad = len;
+	req->pad = malloc(req->_len.pad);
+	memcpy(req->pad, pad, req->_len.pad);
 }
 static inline void
 rt_route_delroute_req_set_uid(struct rt_route_delroute_req *req, __u32 uid)

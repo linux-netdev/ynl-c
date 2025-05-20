@@ -543,10 +543,12 @@ struct netdev_bind_rx_req {
 		__u32 ifindex:1;
 		__u32 fd:1;
 	} _present;
+	struct {
+		__u32 queues;
+	} _count;
 
 	__u32 ifindex;
 	__u32 fd;
-	unsigned int n_queues;
 	struct netdev_queue_id *queues;
 };
 
@@ -575,11 +577,11 @@ __netdev_bind_rx_req_set_queues(struct netdev_bind_rx_req *req,
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_queues; i++)
+	for (i = 0; i < req->_count.queues; i++)
 		netdev_queue_id_free(&req->queues[i]);
 	free(req->queues);
 	req->queues = queues;
-	req->n_queues = n_queues;
+	req->_count.queues = n_queues;
 }
 
 struct netdev_bind_rx_rsp {
@@ -652,5 +654,52 @@ netdev_napi_set_req_set_irq_suspend_timeout(struct netdev_napi_set_req *req,
  * Set configurable NAPI instance settings.
  */
 int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req);
+
+/* ============== NETDEV_CMD_BIND_TX ============== */
+/* NETDEV_CMD_BIND_TX - do */
+struct netdev_bind_tx_req {
+	struct {
+		__u32 ifindex:1;
+		__u32 fd:1;
+	} _present;
+
+	__u32 ifindex;
+	__u32 fd;
+};
+
+static inline struct netdev_bind_tx_req *netdev_bind_tx_req_alloc(void)
+{
+	return calloc(1, sizeof(struct netdev_bind_tx_req));
+}
+void netdev_bind_tx_req_free(struct netdev_bind_tx_req *req);
+
+static inline void
+netdev_bind_tx_req_set_ifindex(struct netdev_bind_tx_req *req, __u32 ifindex)
+{
+	req->_present.ifindex = 1;
+	req->ifindex = ifindex;
+}
+static inline void
+netdev_bind_tx_req_set_fd(struct netdev_bind_tx_req *req, __u32 fd)
+{
+	req->_present.fd = 1;
+	req->fd = fd;
+}
+
+struct netdev_bind_tx_rsp {
+	struct {
+		__u32 id:1;
+	} _present;
+
+	__u32 id;
+};
+
+void netdev_bind_tx_rsp_free(struct netdev_bind_tx_rsp *rsp);
+
+/*
+ * Bind dmabuf to netdev for TX
+ */
+struct netdev_bind_tx_rsp *
+netdev_bind_tx(struct ynl_sock *ys, struct netdev_bind_tx_req *req);
 
 #endif /* _LINUX_NETDEV_GEN_H */

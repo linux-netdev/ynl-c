@@ -87,21 +87,22 @@ int rt_addr_newaddr(struct ynl_sock *ys, struct rt_addr_newaddr_req *req)
 	void *hdr;
 	int err;
 
-	nlh = ynl_msg_start_req(ys, RTM_NEWADDR);
+	nlh = ynl_msg_start_req(ys, RTM_NEWADDR, req->_nlmsg_flags);
 	ys->req_policy = &rt_addr_addr_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.address_len)
-		ynl_attr_put(nlh, IFA_ADDRESS, req->address, req->_present.address_len);
-	if (req->_present.label_len)
+	if (req->_len.address)
+		ynl_attr_put(nlh, IFA_ADDRESS, req->address, req->_len.address);
+	if (req->_len.label)
 		ynl_attr_put_str(nlh, IFA_LABEL, req->label);
-	if (req->_present.local_len)
-		ynl_attr_put(nlh, IFA_LOCAL, req->local, req->_present.local_len);
-	if (req->_present.cacheinfo_len)
-		ynl_attr_put(nlh, IFA_CACHEINFO, req->cacheinfo, req->_present.cacheinfo_len);
+	if (req->_len.local)
+		ynl_attr_put(nlh, IFA_LOCAL, req->local, req->_len.local);
+	if (req->_len.cacheinfo)
+		ynl_attr_put(nlh, IFA_CACHEINFO, req->cacheinfo, req->_len.cacheinfo);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -127,17 +128,18 @@ int rt_addr_deladdr(struct ynl_sock *ys, struct rt_addr_deladdr_req *req)
 	void *hdr;
 	int err;
 
-	nlh = ynl_msg_start_req(ys, RTM_DELADDR);
+	nlh = ynl_msg_start_req(ys, RTM_DELADDR, req->_nlmsg_flags);
 	ys->req_policy = &rt_addr_addr_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.address_len)
-		ynl_attr_put(nlh, IFA_ADDRESS, req->address, req->_present.address_len);
-	if (req->_present.local_len)
-		ynl_attr_put(nlh, IFA_LOCAL, req->local, req->_present.local_len);
+	if (req->_len.address)
+		ynl_attr_put(nlh, IFA_ADDRESS, req->address, req->_len.address);
+	if (req->_len.local)
+		ynl_attr_put(nlh, IFA_LOCAL, req->local, req->_len.local);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -170,7 +172,7 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.address_len = len;
+			dst->_len.address = len;
 			dst->address = malloc(len);
 			memcpy(dst->address, ynl_attr_data(attr), len);
 		} else if (type == IFA_LABEL) {
@@ -180,7 +182,7 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.label_len = len;
+			dst->_len.label = len;
 			dst->label = malloc(len + 1);
 			memcpy(dst->label, ynl_attr_get_str(attr), len);
 			dst->label[len] = 0;
@@ -191,7 +193,7 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.local_len = len;
+			dst->_len.local = len;
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFA_CACHEINFO) {
@@ -201,8 +203,11 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.cacheinfo_len = len;
-			dst->cacheinfo = malloc(len);
+			dst->_len.cacheinfo = len;
+			if (len < sizeof(struct ifa_cacheinfo))
+				dst->cacheinfo = calloc(1, sizeof(struct ifa_cacheinfo));
+			else
+				dst->cacheinfo = malloc(len);
 			memcpy(dst->cacheinfo, ynl_attr_data(attr), len);
 		}
 	}
@@ -253,6 +258,7 @@ rt_addr_getaddr_dump(struct ynl_sock *ys, struct rt_addr_getaddr_req *req)
 	memcpy(hdr, &req->_hdr, hdr_len);
 
 	ys->req_policy = &rt_addr_addr_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	err = ynl_exec_dump(ys, nlh, &yds);
 	if (err < 0)
@@ -301,7 +307,7 @@ int rt_addr_getmulticast_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.multicast_len = len;
+			dst->_len.multicast = len;
 			dst->multicast = malloc(len);
 			memcpy(dst->multicast, ynl_attr_data(attr), len);
 		} else if (type == IFA_CACHEINFO) {
@@ -311,8 +317,11 @@ int rt_addr_getmulticast_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.cacheinfo_len = len;
-			dst->cacheinfo = malloc(len);
+			dst->_len.cacheinfo = len;
+			if (len < sizeof(struct ifa_cacheinfo))
+				dst->cacheinfo = calloc(1, sizeof(struct ifa_cacheinfo));
+			else
+				dst->cacheinfo = malloc(len);
 			memcpy(dst->cacheinfo, ynl_attr_data(attr), len);
 		}
 	}
@@ -330,8 +339,9 @@ rt_addr_getmulticast(struct ynl_sock *ys, struct rt_addr_getmulticast_req *req)
 	void *hdr;
 	int err;
 
-	nlh = ynl_msg_start_req(ys, RTM_GETMULTICAST);
+	nlh = ynl_msg_start_req(ys, RTM_GETMULTICAST, req->_nlmsg_flags);
 	ys->req_policy = &rt_addr_addr_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &rt_addr_addr_attrs_nest;
 
 	hdr_len = sizeof(req->_hdr);
@@ -398,6 +408,7 @@ rt_addr_getmulticast_dump(struct ynl_sock *ys,
 	memcpy(hdr, &req->_hdr, hdr_len);
 
 	ys->req_policy = &rt_addr_addr_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	err = ynl_exec_dump(ys, nlh, &yds);
 	if (err < 0)

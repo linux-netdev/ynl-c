@@ -102,14 +102,14 @@ int team_attr_option_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	struct nlattr *nest;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.name_len)
+	if (obj->_len.name)
 		ynl_attr_put_str(nlh, TEAM_ATTR_OPTION_NAME, obj->name);
 	if (obj->_present.changed)
 		ynl_attr_put(nlh, TEAM_ATTR_OPTION_CHANGED, NULL, 0);
 	if (obj->_present.type)
 		ynl_attr_put_u8(nlh, TEAM_ATTR_OPTION_TYPE, obj->type);
-	if (obj->_present.data_len)
-		ynl_attr_put(nlh, TEAM_ATTR_OPTION_DATA, obj->data, obj->_present.data_len);
+	if (obj->_len.data)
+		ynl_attr_put(nlh, TEAM_ATTR_OPTION_DATA, obj->data, obj->_len.data);
 	if (obj->_present.removed)
 		ynl_attr_put(nlh, TEAM_ATTR_OPTION_REMOVED, NULL, 0);
 	if (obj->_present.port_ifindex)
@@ -137,7 +137,7 @@ int team_attr_option_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.name_len = len;
+			dst->_len.name = len;
 			dst->name = malloc(len + 1);
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
@@ -157,7 +157,7 @@ int team_attr_option_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.data_len = len;
+			dst->_len.data = len;
 			dst->data = malloc(len);
 			memcpy(dst->data, ynl_attr_data(attr), len);
 		} else if (type == TEAM_ATTR_OPTION_REMOVED) {
@@ -340,6 +340,7 @@ struct team_noop_rsp *team_noop(struct ynl_sock *ys)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, TEAM_CMD_NOOP, 1);
 	ys->req_policy = &team_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &team_nest;
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -415,6 +416,7 @@ team_options_set(struct ynl_sock *ys, struct team_options_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, TEAM_CMD_OPTIONS_SET, 1);
 	ys->req_policy = &team_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &team_nest;
 
 	if (req->_present.team_ifindex)
@@ -494,6 +496,7 @@ team_options_get(struct ynl_sock *ys, struct team_options_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, TEAM_CMD_OPTIONS_GET, 1);
 	ys->req_policy = &team_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &team_nest;
 
 	if (req->_present.team_ifindex)
@@ -571,6 +574,7 @@ team_port_list_get(struct ynl_sock *ys, struct team_port_list_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, TEAM_CMD_PORT_LIST_GET, 1);
 	ys->req_policy = &team_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &team_nest;
 
 	if (req->_present.team_ifindex)

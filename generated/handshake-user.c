@@ -145,7 +145,7 @@ void handshake_accept_rsp_free(struct handshake_accept_rsp *rsp)
 	unsigned int i;
 
 	free(rsp->peer_identity);
-	for (i = 0; i < rsp->n_certificate; i++)
+	for (i = 0; i < rsp->_count.certificate; i++)
 		handshake_x509_free(&rsp->certificate[i]);
 	free(rsp->certificate);
 	free(rsp->peername);
@@ -204,7 +204,7 @@ int handshake_accept_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.peername_len = len;
+			dst->_len.peername = len;
 			dst->peername = malloc(len + 1);
 			memcpy(dst->peername, ynl_attr_get_str(attr), len);
 			dst->peername[len] = 0;
@@ -213,7 +213,7 @@ int handshake_accept_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_certificate) {
 		dst->certificate = calloc(n_certificate, sizeof(*dst->certificate));
-		dst->n_certificate = n_certificate;
+		dst->_count.certificate = n_certificate;
 		i = 0;
 		parg.rsp_policy = &handshake_x509_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -227,7 +227,7 @@ int handshake_accept_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_peer_identity) {
 		dst->peer_identity = calloc(n_peer_identity, sizeof(*dst->peer_identity));
-		dst->n_peer_identity = n_peer_identity;
+		dst->_count.peer_identity = n_peer_identity;
 		i = 0;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 			if (ynl_attr_type(attr) == HANDSHAKE_A_ACCEPT_PEER_IDENTITY) {
@@ -250,6 +250,7 @@ handshake_accept(struct ynl_sock *ys, struct handshake_accept_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, HANDSHAKE_CMD_ACCEPT, 1);
 	ys->req_policy = &handshake_accept_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &handshake_accept_nest;
 
 	if (req->_present.handler_class)
@@ -277,7 +278,7 @@ void handshake_accept_ntf_free(struct handshake_accept_ntf *rsp)
 	unsigned int i;
 
 	free(rsp->obj.peer_identity);
-	for (i = 0; i < rsp->obj.n_certificate; i++)
+	for (i = 0; i < rsp->obj._count.certificate; i++)
 		handshake_x509_free(&rsp->obj.certificate[i]);
 	free(rsp->obj.certificate);
 	free(rsp->obj.peername);
@@ -301,12 +302,13 @@ int handshake_done(struct ynl_sock *ys, struct handshake_done_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, HANDSHAKE_CMD_DONE, 1);
 	ys->req_policy = &handshake_done_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.status)
 		ynl_attr_put_u32(nlh, HANDSHAKE_A_DONE_STATUS, req->status);
 	if (req->_present.sockfd)
 		ynl_attr_put_s32(nlh, HANDSHAKE_A_DONE_SOCKFD, req->sockfd);
-	for (i = 0; i < req->n_remote_auth; i++)
+	for (i = 0; i < req->_count.remote_auth; i++)
 		ynl_attr_put_u32(nlh, HANDSHAKE_A_DONE_REMOTE_AUTH, req->remote_auth[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);

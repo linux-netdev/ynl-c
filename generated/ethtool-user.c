@@ -149,7 +149,7 @@ static const char * const ethtool_phy_upstream_type_strmap[] = {
 	[1] = "phy",
 };
 
-const char *ethtool_phy_upstream_type_str(int value)
+const char *ethtool_phy_upstream_type_str(enum phy_upstream value)
 {
 	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(ethtool_phy_upstream_type_strmap))
 		return NULL;
@@ -929,7 +929,7 @@ int ethtool_header_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.dev_index)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_HEADER_DEV_INDEX, obj->dev_index);
-	if (obj->_present.dev_name_len)
+	if (obj->_len.dev_name)
 		ynl_attr_put_str(nlh, ETHTOOL_A_HEADER_DEV_NAME, obj->dev_name);
 	if (obj->_present.flags)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_HEADER_FLAGS, obj->flags);
@@ -961,7 +961,7 @@ int ethtool_header_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.dev_name_len = len;
+			dst->_len.dev_name = len;
 			dst->dev_name = malloc(len + 1);
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
@@ -1125,14 +1125,21 @@ int ethtool_fec_stat_put(struct nlmsghdr *nlh, unsigned int attr_type,
 			 struct ethtool_fec_stat *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.corrected_len)
-		ynl_attr_put(nlh, ETHTOOL_A_FEC_STAT_CORRECTED, obj->corrected, obj->_present.corrected_len);
-	if (obj->_present.uncorr_len)
-		ynl_attr_put(nlh, ETHTOOL_A_FEC_STAT_UNCORR, obj->uncorr, obj->_present.uncorr_len);
-	if (obj->_present.corr_bits_len)
-		ynl_attr_put(nlh, ETHTOOL_A_FEC_STAT_CORR_BITS, obj->corr_bits, obj->_present.corr_bits_len);
+	if (obj->_count.corrected) {
+		i = obj->_count.corrected * sizeof(__u64);
+		ynl_attr_put(nlh, ETHTOOL_A_FEC_STAT_CORRECTED, obj->corrected, i);
+	}
+	if (obj->_count.uncorr) {
+		i = obj->_count.uncorr * sizeof(__u64);
+		ynl_attr_put(nlh, ETHTOOL_A_FEC_STAT_UNCORR, obj->uncorr, i);
+	}
+	if (obj->_count.corr_bits) {
+		i = obj->_count.corr_bits * sizeof(__u64);
+		ynl_attr_put(nlh, ETHTOOL_A_FEC_STAT_CORR_BITS, obj->corr_bits, i);
+	}
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -1154,7 +1161,8 @@ int ethtool_fec_stat_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.corrected_len = len;
+			dst->_count.corrected = len / sizeof(__u64);
+			len = dst->_count.corrected * sizeof(__u64);
 			dst->corrected = malloc(len);
 			memcpy(dst->corrected, ynl_attr_data(attr), len);
 		} else if (type == ETHTOOL_A_FEC_STAT_UNCORR) {
@@ -1164,7 +1172,8 @@ int ethtool_fec_stat_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.uncorr_len = len;
+			dst->_count.uncorr = len / sizeof(__u64);
+			len = dst->_count.uncorr * sizeof(__u64);
 			dst->uncorr = malloc(len);
 			memcpy(dst->uncorr, ynl_attr_data(attr), len);
 		} else if (type == ETHTOOL_A_FEC_STAT_CORR_BITS) {
@@ -1174,7 +1183,8 @@ int ethtool_fec_stat_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.corr_bits_len = len;
+			dst->_count.corr_bits = len / sizeof(__u64);
+			len = dst->_count.corr_bits * sizeof(__u64);
 			dst->corr_bits = malloc(len);
 			memcpy(dst->corr_bits, ynl_attr_data(attr), len);
 		}
@@ -1393,7 +1403,7 @@ int ethtool_bitset_bit_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.index)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_BITSET_BIT_INDEX, obj->index);
-	if (obj->_present.name_len)
+	if (obj->_len.name)
 		ynl_attr_put_str(nlh, ETHTOOL_A_BITSET_BIT_NAME, obj->name);
 	if (obj->_present.value)
 		ynl_attr_put(nlh, ETHTOOL_A_BITSET_BIT_VALUE, NULL, 0);
@@ -1423,7 +1433,7 @@ int ethtool_bitset_bit_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.name_len = len;
+			dst->_len.name = len;
 			dst->name = malloc(len + 1);
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
@@ -1479,7 +1489,7 @@ int ethtool_string_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.index)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_STRING_INDEX, obj->index);
-	if (obj->_present.value_len)
+	if (obj->_len.value)
 		ynl_attr_put_str(nlh, ETHTOOL_A_STRING_VALUE, obj->value);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1507,7 +1517,7 @@ int ethtool_string_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.value_len = len;
+			dst->_len.value = len;
 			dst->value = malloc(len + 1);
 			memcpy(dst->value, ynl_attr_get_str(attr), len);
 			dst->value[len] = 0;
@@ -1521,7 +1531,7 @@ void ethtool_profile_free(struct ethtool_profile *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_irq_moderation; i++)
+	for (i = 0; i < obj->_count.irq_moderation; i++)
 		ethtool_irq_moderation_free(&obj->irq_moderation[i]);
 	free(obj->irq_moderation);
 }
@@ -1533,7 +1543,7 @@ int ethtool_profile_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (i = 0; i < obj->n_irq_moderation; i++)
+	for (i = 0; i < obj->_count.irq_moderation; i++)
 		ethtool_irq_moderation_put(nlh, ETHTOOL_A_PROFILE_IRQ_MODERATION, &obj->irq_moderation[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1564,7 +1574,7 @@ int ethtool_profile_parse(struct ynl_parse_arg *yarg,
 
 	if (n_irq_moderation) {
 		dst->irq_moderation = calloc(n_irq_moderation, sizeof(*dst->irq_moderation));
-		dst->n_irq_moderation = n_irq_moderation;
+		dst->_count.irq_moderation = n_irq_moderation;
 		i = 0;
 		parg.rsp_policy = &ethtool_irq_moderation_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1626,7 +1636,7 @@ void ethtool_bitset_bits_free(struct ethtool_bitset_bits *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_bit; i++)
+	for (i = 0; i < obj->_count.bit; i++)
 		ethtool_bitset_bit_free(&obj->bit[i]);
 	free(obj->bit);
 }
@@ -1638,7 +1648,7 @@ int ethtool_bitset_bits_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (i = 0; i < obj->n_bit; i++)
+	for (i = 0; i < obj->_count.bit; i++)
 		ethtool_bitset_bit_put(nlh, ETHTOOL_A_BITSET_BITS_BIT, &obj->bit[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1669,7 +1679,7 @@ int ethtool_bitset_bits_parse(struct ynl_parse_arg *yarg,
 
 	if (n_bit) {
 		dst->bit = calloc(n_bit, sizeof(*dst->bit));
-		dst->n_bit = n_bit;
+		dst->_count.bit = n_bit;
 		i = 0;
 		parg.rsp_policy = &ethtool_bitset_bit_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1689,7 +1699,7 @@ void ethtool_strings_free(struct ethtool_strings *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_string; i++)
+	for (i = 0; i < obj->_count.string; i++)
 		ethtool_string_free(&obj->string[i]);
 	free(obj->string);
 }
@@ -1701,7 +1711,7 @@ int ethtool_strings_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (i = 0; i < obj->n_string; i++)
+	for (i = 0; i < obj->_count.string; i++)
 		ethtool_string_put(nlh, ETHTOOL_A_STRINGS_STRING, &obj->string[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1732,7 +1742,7 @@ int ethtool_strings_parse(struct ynl_parse_arg *yarg,
 
 	if (n_string) {
 		dst->string = calloc(n_string, sizeof(*dst->string));
-		dst->n_string = n_string;
+		dst->_count.string = n_string;
 		i = 0;
 		parg.rsp_policy = &ethtool_string_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1767,10 +1777,10 @@ int ethtool_bitset_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_u32(nlh, ETHTOOL_A_BITSET_SIZE, obj->size);
 	if (obj->_present.bits)
 		ethtool_bitset_bits_put(nlh, ETHTOOL_A_BITSET_BITS, &obj->bits);
-	if (obj->_present.value_len)
-		ynl_attr_put(nlh, ETHTOOL_A_BITSET_VALUE, obj->value, obj->_present.value_len);
-	if (obj->_present.mask_len)
-		ynl_attr_put(nlh, ETHTOOL_A_BITSET_MASK, obj->mask, obj->_present.mask_len);
+	if (obj->_len.value)
+		ynl_attr_put(nlh, ETHTOOL_A_BITSET_VALUE, obj->value, obj->_len.value);
+	if (obj->_len.mask)
+		ynl_attr_put(nlh, ETHTOOL_A_BITSET_MASK, obj->mask, obj->_len.mask);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -1813,7 +1823,7 @@ int ethtool_bitset_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.value_len = len;
+			dst->_len.value = len;
 			dst->value = malloc(len);
 			memcpy(dst->value, ynl_attr_data(attr), len);
 		} else if (type == ETHTOOL_A_BITSET_MASK) {
@@ -1823,7 +1833,7 @@ int ethtool_bitset_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mask_len = len;
+			dst->_len.mask = len;
 			dst->mask = malloc(len);
 			memcpy(dst->mask, ynl_attr_data(attr), len);
 		}
@@ -1836,7 +1846,7 @@ void ethtool_stringset_free(struct ethtool_stringset_ *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_strings; i++)
+	for (i = 0; i < obj->_count.strings; i++)
 		ethtool_strings_free(&obj->strings[i]);
 	free(obj->strings);
 }
@@ -1852,7 +1862,7 @@ int ethtool_stringset_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_u32(nlh, ETHTOOL_A_STRINGSET_ID, obj->id);
 	if (obj->_present.count)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_STRINGSET_COUNT, obj->count);
-	for (i = 0; i < obj->n_strings; i++)
+	for (i = 0; i < obj->_count.strings; i++)
 		ethtool_strings_put(nlh, ETHTOOL_A_STRINGSET_STRINGS, &obj->strings[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -1893,7 +1903,7 @@ int ethtool_stringset_parse(struct ynl_parse_arg *yarg,
 
 	if (n_strings) {
 		dst->strings = calloc(n_strings, sizeof(*dst->strings));
-		dst->n_strings = n_strings;
+		dst->_count.strings = n_strings;
 		i = 0;
 		parg.rsp_policy = &ethtool_strings_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1914,7 +1924,7 @@ void ethtool_tunnel_udp_table_free(struct ethtool_tunnel_udp_table *obj)
 	unsigned int i;
 
 	ethtool_bitset_free(&obj->types);
-	for (i = 0; i < obj->n_entry; i++)
+	for (i = 0; i < obj->_count.entry; i++)
 		ethtool_tunnel_udp_entry_free(&obj->entry[i]);
 	free(obj->entry);
 }
@@ -1957,7 +1967,7 @@ int ethtool_tunnel_udp_table_parse(struct ynl_parse_arg *yarg,
 
 	if (n_entry) {
 		dst->entry = calloc(n_entry, sizeof(*dst->entry));
-		dst->n_entry = n_entry;
+		dst->_count.entry = n_entry;
 		i = 0;
 		parg.rsp_policy = &ethtool_tunnel_udp_entry_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -1977,7 +1987,7 @@ void ethtool_stringsets_free(struct ethtool_stringsets *obj)
 {
 	unsigned int i;
 
-	for (i = 0; i < obj->n_stringset; i++)
+	for (i = 0; i < obj->_count.stringset; i++)
 		ethtool_stringset_free(&obj->stringset[i]);
 	free(obj->stringset);
 }
@@ -1989,7 +1999,7 @@ int ethtool_stringsets_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	for (i = 0; i < obj->n_stringset; i++)
+	for (i = 0; i < obj->_count.stringset; i++)
 		ethtool_stringset_put(nlh, ETHTOOL_A_STRINGSETS_STRINGSET, &obj->stringset[i]);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -2020,7 +2030,7 @@ int ethtool_stringsets_parse(struct ynl_parse_arg *yarg,
 
 	if (n_stringset) {
 		dst->stringset = calloc(n_stringset, sizeof(*dst->stringset));
-		dst->n_stringset = n_stringset;
+		dst->_count.stringset = n_stringset;
 		i = 0;
 		parg.rsp_policy = &ethtool_stringset_nest;
 		ynl_attr_for_each_nested(attr, nested) {
@@ -2131,6 +2141,7 @@ ethtool_strset_get(struct ynl_sock *ys, struct ethtool_strset_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_STRSET_GET, 1);
 	ys->req_policy = &ethtool_strset_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_strset_nest;
 
 	if (req->_present.header)
@@ -2195,6 +2206,7 @@ ethtool_strset_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_STRSET_GET, 1);
 	ys->req_policy = &ethtool_strset_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_STRSET_HEADER, &req->header);
@@ -2291,6 +2303,7 @@ ethtool_linkinfo_get(struct ynl_sock *ys, struct ethtool_linkinfo_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_LINKINFO_GET, 1);
 	ys->req_policy = &ethtool_linkinfo_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_linkinfo_nest;
 
 	if (req->_present.header)
@@ -2350,6 +2363,7 @@ ethtool_linkinfo_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_LINKINFO_GET, 1);
 	ys->req_policy = &ethtool_linkinfo_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_LINKINFO_HEADER, &req->header);
@@ -2389,6 +2403,7 @@ int ethtool_linkinfo_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_LINKINFO_SET, 1);
 	ys->req_policy = &ethtool_linkinfo_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_LINKINFO_HEADER, &req->header);
@@ -2518,6 +2533,7 @@ ethtool_linkmodes_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_LINKMODES_GET, 1);
 	ys->req_policy = &ethtool_linkmodes_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_linkmodes_nest;
 
 	if (req->_present.header)
@@ -2579,6 +2595,7 @@ ethtool_linkmodes_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_LINKMODES_GET, 1);
 	ys->req_policy = &ethtool_linkmodes_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_LINKMODES_HEADER, &req->header);
@@ -2622,6 +2639,7 @@ int ethtool_linkmodes_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_LINKMODES_SET, 1);
 	ys->req_policy = &ethtool_linkmodes_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_LINKMODES_HEADER, &req->header);
@@ -2734,6 +2752,7 @@ ethtool_linkstate_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_LINKSTATE_GET, 1);
 	ys->req_policy = &ethtool_linkstate_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_linkstate_nest;
 
 	if (req->_present.header)
@@ -2793,6 +2812,7 @@ ethtool_linkstate_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_LINKSTATE_GET, 1);
 	ys->req_policy = &ethtool_linkstate_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_LINKSTATE_HEADER, &req->header);
@@ -2870,6 +2890,7 @@ ethtool_debug_get(struct ynl_sock *ys, struct ethtool_debug_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_DEBUG_GET, 1);
 	ys->req_policy = &ethtool_debug_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_debug_nest;
 
 	if (req->_present.header)
@@ -2929,6 +2950,7 @@ ethtool_debug_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_DEBUG_GET, 1);
 	ys->req_policy = &ethtool_debug_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_DEBUG_HEADER, &req->header);
@@ -2969,6 +2991,7 @@ int ethtool_debug_set(struct ynl_sock *ys, struct ethtool_debug_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_DEBUG_SET, 1);
 	ys->req_policy = &ethtool_debug_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_DEBUG_HEADER, &req->header);
@@ -3036,7 +3059,7 @@ int ethtool_wol_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.sopass_len = len;
+			dst->_len.sopass = len;
 			dst->sopass = malloc(len);
 			memcpy(dst->sopass, ynl_attr_data(attr), len);
 		}
@@ -3055,6 +3078,7 @@ ethtool_wol_get(struct ynl_sock *ys, struct ethtool_wol_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_WOL_GET, 1);
 	ys->req_policy = &ethtool_wol_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_wol_nest;
 
 	if (req->_present.header)
@@ -3114,6 +3138,7 @@ ethtool_wol_get_dump(struct ynl_sock *ys, struct ethtool_wol_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_WOL_GET, 1);
 	ys->req_policy = &ethtool_wol_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_WOL_HEADER, &req->header);
@@ -3156,13 +3181,14 @@ int ethtool_wol_set(struct ynl_sock *ys, struct ethtool_wol_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_WOL_SET, 1);
 	ys->req_policy = &ethtool_wol_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_WOL_HEADER, &req->header);
 	if (req->_present.modes)
 		ethtool_bitset_put(nlh, ETHTOOL_A_WOL_MODES, &req->modes);
-	if (req->_present.sopass_len)
-		ynl_attr_put(nlh, ETHTOOL_A_WOL_SOPASS, req->sopass, req->_present.sopass_len);
+	if (req->_len.sopass)
+		ynl_attr_put(nlh, ETHTOOL_A_WOL_SOPASS, req->sopass, req->_len.sopass);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -3263,6 +3289,7 @@ ethtool_features_get(struct ynl_sock *ys, struct ethtool_features_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_FEATURES_GET, 1);
 	ys->req_policy = &ethtool_features_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_features_nest;
 
 	if (req->_present.header)
@@ -3326,6 +3353,7 @@ ethtool_features_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_FEATURES_GET, 1);
 	ys->req_policy = &ethtool_features_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_FEATURES_HEADER, &req->header);
@@ -3448,6 +3476,7 @@ ethtool_features_set(struct ynl_sock *ys, struct ethtool_features_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_FEATURES_SET, 1);
 	ys->req_policy = &ethtool_features_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_features_nest;
 
 	if (req->_present.header)
@@ -3540,6 +3569,7 @@ ethtool_privflags_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PRIVFLAGS_GET, 1);
 	ys->req_policy = &ethtool_privflags_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_privflags_nest;
 
 	if (req->_present.header)
@@ -3600,6 +3630,7 @@ ethtool_privflags_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PRIVFLAGS_GET, 1);
 	ys->req_policy = &ethtool_privflags_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PRIVFLAGS_HEADER, &req->header);
@@ -3641,6 +3672,7 @@ int ethtool_privflags_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PRIVFLAGS_SET, 1);
 	ys->req_policy = &ethtool_privflags_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PRIVFLAGS_HEADER, &req->header);
@@ -3791,6 +3823,7 @@ ethtool_rings_get(struct ynl_sock *ys, struct ethtool_rings_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_RINGS_GET, 1);
 	ys->req_policy = &ethtool_rings_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_rings_nest;
 
 	if (req->_present.header)
@@ -3849,6 +3882,7 @@ ethtool_rings_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_RINGS_GET, 1);
 	ys->req_policy = &ethtool_rings_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_RINGS_HEADER, &req->header);
@@ -3887,6 +3921,7 @@ int ethtool_rings_set(struct ynl_sock *ys, struct ethtool_rings_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_RINGS_SET, 1);
 	ys->req_policy = &ethtool_rings_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_RINGS_HEADER, &req->header);
@@ -4024,6 +4059,7 @@ ethtool_channels_get(struct ynl_sock *ys, struct ethtool_channels_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_CHANNELS_GET, 1);
 	ys->req_policy = &ethtool_channels_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_channels_nest;
 
 	if (req->_present.header)
@@ -4083,6 +4119,7 @@ ethtool_channels_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_CHANNELS_GET, 1);
 	ys->req_policy = &ethtool_channels_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_CHANNELS_HEADER, &req->header);
@@ -4122,6 +4159,7 @@ int ethtool_channels_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_CHANNELS_SET, 1);
 	ys->req_policy = &ethtool_channels_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_CHANNELS_HEADER, &req->header);
@@ -4356,6 +4394,7 @@ ethtool_coalesce_get(struct ynl_sock *ys, struct ethtool_coalesce_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_COALESCE_GET, 1);
 	ys->req_policy = &ethtool_coalesce_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_coalesce_nest;
 
 	if (req->_present.header)
@@ -4417,6 +4456,7 @@ ethtool_coalesce_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_COALESCE_GET, 1);
 	ys->req_policy = &ethtool_coalesce_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_COALESCE_HEADER, &req->header);
@@ -4460,6 +4500,7 @@ int ethtool_coalesce_set(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_COALESCE_SET, 1);
 	ys->req_policy = &ethtool_coalesce_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_COALESCE_HEADER, &req->header);
@@ -4611,6 +4652,7 @@ ethtool_pause_get(struct ynl_sock *ys, struct ethtool_pause_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PAUSE_GET, 1);
 	ys->req_policy = &ethtool_pause_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_pause_nest;
 
 	if (req->_present.header)
@@ -4670,6 +4712,7 @@ ethtool_pause_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PAUSE_GET, 1);
 	ys->req_policy = &ethtool_pause_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PAUSE_HEADER, &req->header);
@@ -4710,6 +4753,7 @@ int ethtool_pause_set(struct ynl_sock *ys, struct ethtool_pause_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PAUSE_SET, 1);
 	ys->req_policy = &ethtool_pause_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PAUSE_HEADER, &req->header);
@@ -4823,6 +4867,7 @@ ethtool_eee_get(struct ynl_sock *ys, struct ethtool_eee_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_EEE_GET, 1);
 	ys->req_policy = &ethtool_eee_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_eee_nest;
 
 	if (req->_present.header)
@@ -4882,6 +4927,7 @@ ethtool_eee_get_dump(struct ynl_sock *ys, struct ethtool_eee_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_EEE_GET, 1);
 	ys->req_policy = &ethtool_eee_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_EEE_HEADER, &req->header);
@@ -4924,6 +4970,7 @@ int ethtool_eee_set(struct ynl_sock *ys, struct ethtool_eee_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_EEE_SET, 1);
 	ys->req_policy = &ethtool_eee_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_EEE_HEADER, &req->header);
@@ -5055,6 +5102,7 @@ ethtool_tsinfo_get(struct ynl_sock *ys, struct ethtool_tsinfo_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_TSINFO_GET, 1);
 	ys->req_policy = &ethtool_tsinfo_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_tsinfo_nest;
 
 	if (req->_present.header)
@@ -5121,6 +5169,7 @@ ethtool_tsinfo_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_TSINFO_GET, 1);
 	ys->req_policy = &ethtool_tsinfo_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_TSINFO_HEADER, &req->header);
@@ -5155,6 +5204,7 @@ int ethtool_cable_test_act(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_CABLE_TEST_ACT, 1);
 	ys->req_policy = &ethtool_cable_test_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_CABLE_TEST_HEADER, &req->header);
@@ -5184,6 +5234,7 @@ int ethtool_cable_test_tdr_act(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_CABLE_TEST_TDR_ACT, 1);
 	ys->req_policy = &ethtool_cable_test_tdr_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_CABLE_TEST_TDR_HEADER, &req->header);
@@ -5258,6 +5309,7 @@ ethtool_tunnel_info_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_TUNNEL_INFO_GET, 1);
 	ys->req_policy = &ethtool_tunnel_info_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_tunnel_info_nest;
 
 	if (req->_present.header)
@@ -5319,6 +5371,7 @@ ethtool_tunnel_info_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_TUNNEL_INFO_GET, 1);
 	ys->req_policy = &ethtool_tunnel_info_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_TUNNEL_INFO_HEADER, &req->header);
@@ -5416,6 +5469,7 @@ ethtool_fec_get(struct ynl_sock *ys, struct ethtool_fec_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_FEC_GET, 1);
 	ys->req_policy = &ethtool_fec_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_fec_nest;
 
 	if (req->_present.header)
@@ -5475,6 +5529,7 @@ ethtool_fec_get_dump(struct ynl_sock *ys, struct ethtool_fec_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_FEC_GET, 1);
 	ys->req_policy = &ethtool_fec_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_FEC_HEADER, &req->header);
@@ -5517,6 +5572,7 @@ int ethtool_fec_set(struct ynl_sock *ys, struct ethtool_fec_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_FEC_SET, 1);
 	ys->req_policy = &ethtool_fec_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_FEC_HEADER, &req->header);
@@ -5607,7 +5663,7 @@ int ethtool_module_eeprom_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.data_len = len;
+			dst->_len.data = len;
 			dst->data = malloc(len);
 			memcpy(dst->data, ynl_attr_data(attr), len);
 		}
@@ -5627,6 +5683,7 @@ ethtool_module_eeprom_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MODULE_EEPROM_GET, 1);
 	ys->req_policy = &ethtool_module_eeprom_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_module_eeprom_nest;
 
 	if (req->_present.header)
@@ -5688,6 +5745,7 @@ ethtool_module_eeprom_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_MODULE_EEPROM_GET, 1);
 	ys->req_policy = &ethtool_module_eeprom_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_MODULE_EEPROM_HEADER, &req->header);
@@ -5761,6 +5819,7 @@ ethtool_phc_vclocks_get(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PHC_VCLOCKS_GET, 1);
 	ys->req_policy = &ethtool_phc_vclocks_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_phc_vclocks_nest;
 
 	if (req->_present.header)
@@ -5821,6 +5880,7 @@ ethtool_phc_vclocks_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PHC_VCLOCKS_GET, 1);
 	ys->req_policy = &ethtool_phc_vclocks_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PHC_VCLOCKS_HEADER, &req->header);
@@ -5898,6 +5958,7 @@ ethtool_module_get(struct ynl_sock *ys, struct ethtool_module_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MODULE_GET, 1);
 	ys->req_policy = &ethtool_module_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_module_nest;
 
 	if (req->_present.header)
@@ -5956,6 +6017,7 @@ ethtool_module_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_MODULE_GET, 1);
 	ys->req_policy = &ethtool_module_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_MODULE_HEADER, &req->header);
@@ -5994,6 +6056,7 @@ int ethtool_module_set(struct ynl_sock *ys, struct ethtool_module_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MODULE_SET, 1);
 	ys->req_policy = &ethtool_module_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_MODULE_HEADER, &req->header);
@@ -6022,7 +6085,7 @@ void ethtool_pse_get_rsp_free(struct ethtool_pse_get_rsp *rsp)
 	unsigned int i;
 
 	ethtool_header_free(&rsp->header);
-	for (i = 0; i < rsp->n_c33_pse_pw_limit_ranges; i++)
+	for (i = 0; i < rsp->_count.c33_pse_pw_limit_ranges; i++)
 		ethtool_c33_pse_pw_limit_free(&rsp->c33_pse_pw_limit_ranges[i]);
 	free(rsp->c33_pse_pw_limit_ranges);
 	free(rsp);
@@ -6117,7 +6180,7 @@ int ethtool_pse_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_c33_pse_pw_limit_ranges) {
 		dst->c33_pse_pw_limit_ranges = calloc(n_c33_pse_pw_limit_ranges, sizeof(*dst->c33_pse_pw_limit_ranges));
-		dst->n_c33_pse_pw_limit_ranges = n_c33_pse_pw_limit_ranges;
+		dst->_count.c33_pse_pw_limit_ranges = n_c33_pse_pw_limit_ranges;
 		i = 0;
 		parg.rsp_policy = &ethtool_c33_pse_pw_limit_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -6143,6 +6206,7 @@ ethtool_pse_get(struct ynl_sock *ys, struct ethtool_pse_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PSE_GET, 1);
 	ys->req_policy = &ethtool_pse_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_pse_nest;
 
 	if (req->_present.header)
@@ -6182,7 +6246,7 @@ void ethtool_pse_get_list_free(struct ethtool_pse_get_list *rsp)
 		next = rsp->next;
 
 		ethtool_header_free(&rsp->obj.header);
-		for (i = 0; i < rsp->obj.n_c33_pse_pw_limit_ranges; i++)
+		for (i = 0; i < rsp->obj._count.c33_pse_pw_limit_ranges; i++)
 			ethtool_c33_pse_pw_limit_free(&rsp->obj.c33_pse_pw_limit_ranges[i]);
 		free(rsp->obj.c33_pse_pw_limit_ranges);
 		free(rsp);
@@ -6205,6 +6269,7 @@ ethtool_pse_get_dump(struct ynl_sock *ys, struct ethtool_pse_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PSE_GET, 1);
 	ys->req_policy = &ethtool_pse_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PSE_HEADER, &req->header);
@@ -6236,6 +6301,7 @@ int ethtool_pse_set(struct ynl_sock *ys, struct ethtool_pse_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PSE_SET, 1);
 	ys->req_policy = &ethtool_pse_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PSE_HEADER, &req->header);
@@ -6308,7 +6374,8 @@ int ethtool_rss_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.indir_len = len;
+			dst->_count.indir = len / sizeof(__u32);
+			len = dst->_count.indir * sizeof(__u32);
 			dst->indir = malloc(len);
 			memcpy(dst->indir, ynl_attr_data(attr), len);
 		} else if (type == ETHTOOL_A_RSS_HKEY) {
@@ -6318,7 +6385,7 @@ int ethtool_rss_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.hkey_len = len;
+			dst->_len.hkey = len;
 			dst->hkey = malloc(len);
 			memcpy(dst->hkey, ynl_attr_data(attr), len);
 		} else if (type == ETHTOOL_A_RSS_INPUT_XFRM) {
@@ -6342,6 +6409,7 @@ ethtool_rss_get(struct ynl_sock *ys, struct ethtool_rss_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_RSS_GET, 1);
 	ys->req_policy = &ethtool_rss_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_rss_nest;
 
 	if (req->_present.header)
@@ -6403,6 +6471,7 @@ ethtool_rss_get_dump(struct ynl_sock *ys, struct ethtool_rss_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_RSS_GET, 1);
 	ys->req_policy = &ethtool_rss_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_RSS_HEADER, &req->header);
@@ -6512,6 +6581,7 @@ ethtool_plca_get_cfg(struct ynl_sock *ys, struct ethtool_plca_get_cfg_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PLCA_GET_CFG, 1);
 	ys->req_policy = &ethtool_plca_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_plca_nest;
 
 	if (req->_present.header)
@@ -6571,6 +6641,7 @@ ethtool_plca_get_cfg_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PLCA_GET_CFG, 1);
 	ys->req_policy = &ethtool_plca_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PLCA_HEADER, &req->header);
@@ -6610,6 +6681,7 @@ int ethtool_plca_set_cfg(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PLCA_SET_CFG, 1);
 	ys->req_policy = &ethtool_plca_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PLCA_HEADER, &req->header);
@@ -6730,6 +6802,7 @@ ethtool_plca_get_status(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PLCA_GET_STATUS, 1);
 	ys->req_policy = &ethtool_plca_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_plca_nest;
 
 	if (req->_present.header)
@@ -6790,6 +6863,7 @@ ethtool_plca_get_status_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PLCA_GET_STATUS, 1);
 	ys->req_policy = &ethtool_plca_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PLCA_HEADER, &req->header);
@@ -6907,6 +6981,7 @@ ethtool_mm_get(struct ynl_sock *ys, struct ethtool_mm_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MM_GET, 1);
 	ys->req_policy = &ethtool_mm_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_mm_nest;
 
 	if (req->_present.header)
@@ -6965,6 +7040,7 @@ ethtool_mm_get_dump(struct ynl_sock *ys, struct ethtool_mm_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_MM_GET, 1);
 	ys->req_policy = &ethtool_mm_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_MM_HEADER, &req->header);
@@ -7004,6 +7080,7 @@ int ethtool_mm_set(struct ynl_sock *ys, struct ethtool_mm_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MM_SET, 1);
 	ys->req_policy = &ethtool_mm_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_MM_HEADER, &req->header);
@@ -7044,10 +7121,11 @@ int ethtool_module_fw_flash_act(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_MODULE_FW_FLASH_ACT, 1);
 	ys->req_policy = &ethtool_module_fw_flash_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_MODULE_FW_FLASH_HEADER, &req->header);
-	if (req->_present.file_name_len)
+	if (req->_len.file_name)
 		ynl_attr_put_str(nlh, ETHTOOL_A_MODULE_FW_FLASH_FILE_NAME, req->file_name);
 	if (req->_present.password)
 		ynl_attr_put_u32(nlh, ETHTOOL_A_MODULE_FW_FLASH_PASSWORD, req->password);
@@ -7111,7 +7189,7 @@ int ethtool_phy_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.drvname_len = len;
+			dst->_len.drvname = len;
 			dst->drvname = malloc(len + 1);
 			memcpy(dst->drvname, ynl_attr_get_str(attr), len);
 			dst->drvname[len] = 0;
@@ -7122,7 +7200,7 @@ int ethtool_phy_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.name_len = len;
+			dst->_len.name = len;
 			dst->name = malloc(len + 1);
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
@@ -7143,7 +7221,7 @@ int ethtool_phy_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.upstream_sfp_name_len = len;
+			dst->_len.upstream_sfp_name = len;
 			dst->upstream_sfp_name = malloc(len + 1);
 			memcpy(dst->upstream_sfp_name, ynl_attr_get_str(attr), len);
 			dst->upstream_sfp_name[len] = 0;
@@ -7154,7 +7232,7 @@ int ethtool_phy_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.downstream_sfp_name_len = len;
+			dst->_len.downstream_sfp_name = len;
 			dst->downstream_sfp_name = malloc(len + 1);
 			memcpy(dst->downstream_sfp_name, ynl_attr_get_str(attr), len);
 			dst->downstream_sfp_name[len] = 0;
@@ -7174,6 +7252,7 @@ ethtool_phy_get(struct ynl_sock *ys, struct ethtool_phy_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_PHY_GET, 1);
 	ys->req_policy = &ethtool_phy_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_phy_nest;
 
 	if (req->_present.header)
@@ -7235,6 +7314,7 @@ ethtool_phy_get_dump(struct ynl_sock *ys, struct ethtool_phy_get_req_dump *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_PHY_GET, 1);
 	ys->req_policy = &ethtool_phy_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_PHY_HEADER, &req->header);
@@ -7353,6 +7433,7 @@ ethtool_tsconfig_get(struct ynl_sock *ys, struct ethtool_tsconfig_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_TSCONFIG_GET, 1);
 	ys->req_policy = &ethtool_tsconfig_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_tsconfig_nest;
 
 	if (req->_present.header)
@@ -7416,6 +7497,7 @@ ethtool_tsconfig_get_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, ETHTOOL_MSG_TSCONFIG_GET, 1);
 	ys->req_policy = &ethtool_tsconfig_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.header)
 		ethtool_header_put(nlh, ETHTOOL_A_TSCONFIG_HEADER, &req->header);
@@ -7527,6 +7609,7 @@ ethtool_tsconfig_set(struct ynl_sock *ys, struct ethtool_tsconfig_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, ETHTOOL_MSG_TSCONFIG_SET, 1);
 	ys->req_policy = &ethtool_tsconfig_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ethtool_tsconfig_nest;
 
 	if (req->_present.header)
@@ -7681,7 +7764,7 @@ int ethtool_module_fw_flash_ntf_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.status_msg_len = len;
+			dst->_len.status_msg = len;
 			dst->status_msg = malloc(len + 1);
 			memcpy(dst->status_msg, ynl_attr_get_str(attr), len);
 			dst->status_msg[len] = 0;

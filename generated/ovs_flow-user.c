@@ -387,12 +387,12 @@ int ovs_flow_ovs_nsh_key_attrs_put(struct nlmsghdr *nlh,
 	struct nlattr *nest;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.base_len)
-		ynl_attr_put(nlh, OVS_NSH_KEY_ATTR_BASE, obj->base, obj->_present.base_len);
-	if (obj->_present.md1_len)
-		ynl_attr_put(nlh, OVS_NSH_KEY_ATTR_MD1, obj->md1, obj->_present.md1_len);
-	if (obj->_present.md2_len)
-		ynl_attr_put(nlh, OVS_NSH_KEY_ATTR_MD2, obj->md2, obj->_present.md2_len);
+	if (obj->_len.base)
+		ynl_attr_put(nlh, OVS_NSH_KEY_ATTR_BASE, obj->base, obj->_len.base);
+	if (obj->_len.md1)
+		ynl_attr_put(nlh, OVS_NSH_KEY_ATTR_MD1, obj->md1, obj->_len.md1);
+	if (obj->_len.md2)
+		ynl_attr_put(nlh, OVS_NSH_KEY_ATTR_MD2, obj->md2, obj->_len.md2);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -414,7 +414,7 @@ int ovs_flow_ovs_nsh_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.base_len = len;
+			dst->_len.base = len;
 			dst->base = malloc(len);
 			memcpy(dst->base, ynl_attr_data(attr), len);
 		} else if (type == OVS_NSH_KEY_ATTR_MD1) {
@@ -424,7 +424,7 @@ int ovs_flow_ovs_nsh_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.md1_len = len;
+			dst->_len.md1 = len;
 			dst->md1 = malloc(len);
 			memcpy(dst->md1, ynl_attr_data(attr), len);
 		} else if (type == OVS_NSH_KEY_ATTR_MD2) {
@@ -434,7 +434,7 @@ int ovs_flow_ovs_nsh_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.md2_len = len;
+			dst->_len.md2 = len;
 			dst->md2 = malloc(len);
 			memcpy(dst->md2, ynl_attr_data(attr), len);
 		}
@@ -456,8 +456,8 @@ int ovs_flow_userspace_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.pid)
 		ynl_attr_put_u32(nlh, OVS_USERSPACE_ATTR_PID, obj->pid);
-	if (obj->_present.userdata_len)
-		ynl_attr_put(nlh, OVS_USERSPACE_ATTR_USERDATA, obj->userdata, obj->_present.userdata_len);
+	if (obj->_len.userdata)
+		ynl_attr_put(nlh, OVS_USERSPACE_ATTR_USERDATA, obj->userdata, obj->_len.userdata);
 	if (obj->_present.egress_tun_port)
 		ynl_attr_put_u32(nlh, OVS_USERSPACE_ATTR_EGRESS_TUN_PORT, obj->egress_tun_port);
 	if (obj->_present.actions)
@@ -488,7 +488,7 @@ int ovs_flow_userspace_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.userdata_len = len;
+			dst->_len.userdata = len;
 			dst->userdata = malloc(len);
 			memcpy(dst->userdata, ynl_attr_data(attr), len);
 		} else if (type == OVS_USERSPACE_ATTR_EGRESS_TUN_PORT) {
@@ -519,8 +519,8 @@ int ovs_flow_psample_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.group)
 		ynl_attr_put_u32(nlh, OVS_PSAMPLE_ATTR_GROUP, obj->group);
-	if (obj->_present.cookie_len)
-		ynl_attr_put(nlh, OVS_PSAMPLE_ATTR_COOKIE, obj->cookie, obj->_present.cookie_len);
+	if (obj->_len.cookie)
+		ynl_attr_put(nlh, OVS_PSAMPLE_ATTR_COOKIE, obj->cookie, obj->_len.cookie);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -547,7 +547,7 @@ int ovs_flow_psample_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.cookie_len = len;
+			dst->_len.cookie = len;
 			dst->cookie = malloc(len);
 			memcpy(dst->cookie, ynl_attr_data(attr), len);
 		}
@@ -609,10 +609,10 @@ int ovs_flow_nat_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put(nlh, OVS_NAT_ATTR_SRC, NULL, 0);
 	if (obj->_present.dst)
 		ynl_attr_put(nlh, OVS_NAT_ATTR_DST, NULL, 0);
-	if (obj->_present.ip_min_len)
-		ynl_attr_put(nlh, OVS_NAT_ATTR_IP_MIN, obj->ip_min, obj->_present.ip_min_len);
-	if (obj->_present.ip_max_len)
-		ynl_attr_put(nlh, OVS_NAT_ATTR_IP_MAX, obj->ip_max, obj->_present.ip_max_len);
+	if (obj->_len.ip_min)
+		ynl_attr_put(nlh, OVS_NAT_ATTR_IP_MIN, obj->ip_min, obj->_len.ip_min);
+	if (obj->_len.ip_max)
+		ynl_attr_put(nlh, OVS_NAT_ATTR_IP_MAX, obj->ip_max, obj->_len.ip_max);
 	if (obj->_present.proto_min)
 		ynl_attr_put_u16(nlh, OVS_NAT_ATTR_PROTO_MIN, obj->proto_min);
 	if (obj->_present.proto_max)
@@ -652,7 +652,7 @@ int ovs_flow_nat_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ip_min_len = len;
+			dst->_len.ip_min = len;
 			dst->ip_min = malloc(len);
 			memcpy(dst->ip_min, ynl_attr_data(attr), len);
 		} else if (type == OVS_NAT_ATTR_IP_MAX) {
@@ -662,7 +662,7 @@ int ovs_flow_nat_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ip_max_len = len;
+			dst->_len.ip_max = len;
 			dst->ip_max = malloc(len);
 			memcpy(dst->ip_max, ynl_attr_data(attr), len);
 		} else if (type == OVS_NAT_ATTR_PROTO_MIN) {
@@ -707,6 +707,7 @@ int ovs_flow_tunnel_key_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 				  struct ovs_flow_tunnel_key_attrs *obj)
 {
 	struct nlattr *nest;
+	unsigned int i;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.id)
@@ -725,22 +726,24 @@ int ovs_flow_tunnel_key_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_CSUM, NULL, 0);
 	if (obj->_present.oam)
 		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_OAM, NULL, 0);
-	if (obj->_present.geneve_opts_len)
-		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_GENEVE_OPTS, obj->geneve_opts, obj->_present.geneve_opts_len);
+	if (obj->_count.geneve_opts) {
+		i = obj->_count.geneve_opts * sizeof(__u32);
+		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_GENEVE_OPTS, obj->geneve_opts, i);
+	}
 	if (obj->_present.tp_src)
 		ynl_attr_put_u16(nlh, OVS_TUNNEL_KEY_ATTR_TP_SRC, obj->tp_src);
 	if (obj->_present.tp_dst)
 		ynl_attr_put_u16(nlh, OVS_TUNNEL_KEY_ATTR_TP_DST, obj->tp_dst);
 	if (obj->_present.vxlan_opts)
 		ovs_flow_vxlan_ext_attrs_put(nlh, OVS_TUNNEL_KEY_ATTR_VXLAN_OPTS, &obj->vxlan_opts);
-	if (obj->_present.ipv6_src_len)
-		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_IPV6_SRC, obj->ipv6_src, obj->_present.ipv6_src_len);
-	if (obj->_present.ipv6_dst_len)
-		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_IPV6_DST, obj->ipv6_dst, obj->_present.ipv6_dst_len);
-	if (obj->_present.pad_len)
-		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_PAD, obj->pad, obj->_present.pad_len);
-	if (obj->_present.erspan_opts_len)
-		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_ERSPAN_OPTS, obj->erspan_opts, obj->_present.erspan_opts_len);
+	if (obj->_len.ipv6_src)
+		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_IPV6_SRC, obj->ipv6_src, obj->_len.ipv6_src);
+	if (obj->_len.ipv6_dst)
+		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_IPV6_DST, obj->ipv6_dst, obj->_len.ipv6_dst);
+	if (obj->_len.pad)
+		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_PAD, obj->pad, obj->_len.pad);
+	if (obj->_len.erspan_opts)
+		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_ERSPAN_OPTS, obj->erspan_opts, obj->_len.erspan_opts);
 	if (obj->_present.ipv4_info_bridge)
 		ynl_attr_put(nlh, OVS_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE, NULL, 0);
 	ynl_attr_nest_end(nlh, nest);
@@ -804,7 +807,8 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.geneve_opts_len = len;
+			dst->_count.geneve_opts = len / sizeof(__u32);
+			len = dst->_count.geneve_opts * sizeof(__u32);
 			dst->geneve_opts = malloc(len);
 			memcpy(dst->geneve_opts, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_TP_SRC) {
@@ -833,7 +837,7 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ipv6_src_len = len;
+			dst->_len.ipv6_src = len;
 			dst->ipv6_src = malloc(len);
 			memcpy(dst->ipv6_src, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_IPV6_DST) {
@@ -843,7 +847,7 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ipv6_dst_len = len;
+			dst->_len.ipv6_dst = len;
 			dst->ipv6_dst = malloc(len);
 			memcpy(dst->ipv6_dst, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_PAD) {
@@ -853,7 +857,7 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.pad_len = len;
+			dst->_len.pad = len;
 			dst->pad = malloc(len);
 			memcpy(dst->pad, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_ERSPAN_OPTS) {
@@ -863,7 +867,7 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.erspan_opts_len = len;
+			dst->_len.erspan_opts = len;
 			dst->erspan_opts = malloc(len);
 			memcpy(dst->erspan_opts, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_IPV4_INFO_BRIDGE) {
@@ -895,11 +899,11 @@ int ovs_flow_ct_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put(nlh, OVS_CT_ATTR_COMMIT, NULL, 0);
 	if (obj->_present.zone)
 		ynl_attr_put_u16(nlh, OVS_CT_ATTR_ZONE, obj->zone);
-	if (obj->_present.mark_len)
-		ynl_attr_put(nlh, OVS_CT_ATTR_MARK, obj->mark, obj->_present.mark_len);
-	if (obj->_present.labels_len)
-		ynl_attr_put(nlh, OVS_CT_ATTR_LABELS, obj->labels, obj->_present.labels_len);
-	if (obj->_present.helper_len)
+	if (obj->_len.mark)
+		ynl_attr_put(nlh, OVS_CT_ATTR_MARK, obj->mark, obj->_len.mark);
+	if (obj->_len.labels)
+		ynl_attr_put(nlh, OVS_CT_ATTR_LABELS, obj->labels, obj->_len.labels);
+	if (obj->_len.helper)
 		ynl_attr_put_str(nlh, OVS_CT_ATTR_HELPER, obj->helper);
 	if (obj->_present.nat)
 		ovs_flow_nat_attrs_put(nlh, OVS_CT_ATTR_NAT, &obj->nat);
@@ -907,7 +911,7 @@ int ovs_flow_ct_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put(nlh, OVS_CT_ATTR_FORCE_COMMIT, NULL, 0);
 	if (obj->_present.eventmask)
 		ynl_attr_put_u32(nlh, OVS_CT_ATTR_EVENTMASK, obj->eventmask);
-	if (obj->_present.timeout_len)
+	if (obj->_len.timeout)
 		ynl_attr_put_str(nlh, OVS_CT_ATTR_TIMEOUT, obj->timeout);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -942,7 +946,7 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mark_len = len;
+			dst->_len.mark = len;
 			dst->mark = malloc(len);
 			memcpy(dst->mark, ynl_attr_data(attr), len);
 		} else if (type == OVS_CT_ATTR_LABELS) {
@@ -952,7 +956,7 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.labels_len = len;
+			dst->_len.labels = len;
 			dst->labels = malloc(len);
 			memcpy(dst->labels, ynl_attr_data(attr), len);
 		} else if (type == OVS_CT_ATTR_HELPER) {
@@ -962,7 +966,7 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.helper_len = len;
+			dst->_len.helper = len;
 			dst->helper = malloc(len + 1);
 			memcpy(dst->helper, ynl_attr_get_str(attr), len);
 			dst->helper[len] = 0;
@@ -991,7 +995,7 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.timeout_len = len;
+			dst->_len.timeout = len;
 			dst->timeout = malloc(len + 1);
 			memcpy(dst->timeout, ynl_attr_get_str(attr), len);
 			dst->timeout[len] = 0;
@@ -1038,64 +1042,64 @@ int ovs_flow_key_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_PRIORITY, obj->priority);
 	if (obj->_present.in_port)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_IN_PORT, obj->in_port);
-	if (obj->_present.ethernet_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_ETHERNET, obj->ethernet, obj->_present.ethernet_len);
+	if (obj->_len.ethernet)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_ETHERNET, obj->ethernet, obj->_len.ethernet);
 	if (obj->_present.vlan)
 		ynl_attr_put_u16(nlh, OVS_KEY_ATTR_VLAN, obj->vlan);
 	if (obj->_present.ethertype)
 		ynl_attr_put_u16(nlh, OVS_KEY_ATTR_ETHERTYPE, obj->ethertype);
-	if (obj->_present.ipv4_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_IPV4, obj->ipv4, obj->_present.ipv4_len);
-	if (obj->_present.ipv6_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_IPV6, obj->ipv6, obj->_present.ipv6_len);
-	if (obj->_present.tcp_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_TCP, obj->tcp, obj->_present.tcp_len);
-	if (obj->_present.udp_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_UDP, obj->udp, obj->_present.udp_len);
-	if (obj->_present.icmp_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_ICMP, obj->icmp, obj->_present.icmp_len);
-	if (obj->_present.icmpv6_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_ICMPV6, obj->icmpv6, obj->_present.icmpv6_len);
-	if (obj->_present.arp_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_ARP, obj->arp, obj->_present.arp_len);
-	if (obj->_present.nd_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_ND, obj->nd, obj->_present.nd_len);
+	if (obj->_len.ipv4)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_IPV4, obj->ipv4, obj->_len.ipv4);
+	if (obj->_len.ipv6)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_IPV6, obj->ipv6, obj->_len.ipv6);
+	if (obj->_len.tcp)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_TCP, obj->tcp, obj->_len.tcp);
+	if (obj->_len.udp)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_UDP, obj->udp, obj->_len.udp);
+	if (obj->_len.icmp)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_ICMP, obj->icmp, obj->_len.icmp);
+	if (obj->_len.icmpv6)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_ICMPV6, obj->icmpv6, obj->_len.icmpv6);
+	if (obj->_len.arp)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_ARP, obj->arp, obj->_len.arp);
+	if (obj->_len.nd)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_ND, obj->nd, obj->_len.nd);
 	if (obj->_present.skb_mark)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_SKB_MARK, obj->skb_mark);
 	if (obj->_present.tunnel)
 		ovs_flow_tunnel_key_attrs_put(nlh, OVS_KEY_ATTR_TUNNEL, &obj->tunnel);
-	if (obj->_present.sctp_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_SCTP, obj->sctp, obj->_present.sctp_len);
+	if (obj->_len.sctp)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_SCTP, obj->sctp, obj->_len.sctp);
 	if (obj->_present.tcp_flags)
 		ynl_attr_put_u16(nlh, OVS_KEY_ATTR_TCP_FLAGS, obj->tcp_flags);
 	if (obj->_present.dp_hash)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_DP_HASH, obj->dp_hash);
 	if (obj->_present.recirc_id)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_RECIRC_ID, obj->recirc_id);
-	if (obj->_present.mpls_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_MPLS, obj->mpls, obj->_present.mpls_len);
+	if (obj->_len.mpls)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_MPLS, obj->mpls, obj->_len.mpls);
 	if (obj->_present.ct_state)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_CT_STATE, obj->ct_state);
 	if (obj->_present.ct_zone)
 		ynl_attr_put_u16(nlh, OVS_KEY_ATTR_CT_ZONE, obj->ct_zone);
 	if (obj->_present.ct_mark)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_CT_MARK, obj->ct_mark);
-	if (obj->_present.ct_labels_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_CT_LABELS, obj->ct_labels, obj->_present.ct_labels_len);
-	if (obj->_present.ct_orig_tuple_ipv4_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV4, obj->ct_orig_tuple_ipv4, obj->_present.ct_orig_tuple_ipv4_len);
-	if (obj->_present.ct_orig_tuple_ipv6_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV6, obj->ct_orig_tuple_ipv6, obj->_present.ct_orig_tuple_ipv6_len);
+	if (obj->_len.ct_labels)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_CT_LABELS, obj->ct_labels, obj->_len.ct_labels);
+	if (obj->_len.ct_orig_tuple_ipv4)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV4, obj->ct_orig_tuple_ipv4, obj->_len.ct_orig_tuple_ipv4);
+	if (obj->_len.ct_orig_tuple_ipv6)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV6, obj->ct_orig_tuple_ipv6, obj->_len.ct_orig_tuple_ipv6);
 	if (obj->_present.nsh)
 		ovs_flow_ovs_nsh_key_attrs_put(nlh, OVS_KEY_ATTR_NSH, &obj->nsh);
 	if (obj->_present.packet_type)
 		ynl_attr_put_u32(nlh, OVS_KEY_ATTR_PACKET_TYPE, obj->packet_type);
-	if (obj->_present.nd_extensions_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_ND_EXTENSIONS, obj->nd_extensions, obj->_present.nd_extensions_len);
-	if (obj->_present.tunnel_info_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_TUNNEL_INFO, obj->tunnel_info, obj->_present.tunnel_info_len);
-	if (obj->_present.ipv6_exthdrs_len)
-		ynl_attr_put(nlh, OVS_KEY_ATTR_IPV6_EXTHDRS, obj->ipv6_exthdrs, obj->_present.ipv6_exthdrs_len);
+	if (obj->_len.nd_extensions)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_ND_EXTENSIONS, obj->nd_extensions, obj->_len.nd_extensions);
+	if (obj->_len.tunnel_info)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_TUNNEL_INFO, obj->tunnel_info, obj->_len.tunnel_info);
+	if (obj->_len.ipv6_exthdrs)
+		ynl_attr_put(nlh, OVS_KEY_ATTR_IPV6_EXTHDRS, obj->ipv6_exthdrs, obj->_len.ipv6_exthdrs);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -1139,8 +1143,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ethernet_len = len;
-			dst->ethernet = malloc(len);
+			dst->_len.ethernet = len;
+			if (len < sizeof(struct ovs_key_ethernet))
+				dst->ethernet = calloc(1, sizeof(struct ovs_key_ethernet));
+			else
+				dst->ethernet = malloc(len);
 			memcpy(dst->ethernet, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_VLAN) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1159,8 +1166,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ipv4_len = len;
-			dst->ipv4 = malloc(len);
+			dst->_len.ipv4 = len;
+			if (len < sizeof(struct ovs_key_ipv4))
+				dst->ipv4 = calloc(1, sizeof(struct ovs_key_ipv4));
+			else
+				dst->ipv4 = malloc(len);
 			memcpy(dst->ipv4, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_IPV6) {
 			unsigned int len;
@@ -1169,8 +1179,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ipv6_len = len;
-			dst->ipv6 = malloc(len);
+			dst->_len.ipv6 = len;
+			if (len < sizeof(struct ovs_key_ipv6))
+				dst->ipv6 = calloc(1, sizeof(struct ovs_key_ipv6));
+			else
+				dst->ipv6 = malloc(len);
 			memcpy(dst->ipv6, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_TCP) {
 			unsigned int len;
@@ -1179,8 +1192,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.tcp_len = len;
-			dst->tcp = malloc(len);
+			dst->_len.tcp = len;
+			if (len < sizeof(struct ovs_key_tcp))
+				dst->tcp = calloc(1, sizeof(struct ovs_key_tcp));
+			else
+				dst->tcp = malloc(len);
 			memcpy(dst->tcp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_UDP) {
 			unsigned int len;
@@ -1189,8 +1205,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.udp_len = len;
-			dst->udp = malloc(len);
+			dst->_len.udp = len;
+			if (len < sizeof(struct ovs_key_udp))
+				dst->udp = calloc(1, sizeof(struct ovs_key_udp));
+			else
+				dst->udp = malloc(len);
 			memcpy(dst->udp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ICMP) {
 			unsigned int len;
@@ -1199,8 +1218,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.icmp_len = len;
-			dst->icmp = malloc(len);
+			dst->_len.icmp = len;
+			if (len < sizeof(struct ovs_key_icmp))
+				dst->icmp = calloc(1, sizeof(struct ovs_key_icmp));
+			else
+				dst->icmp = malloc(len);
 			memcpy(dst->icmp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ICMPV6) {
 			unsigned int len;
@@ -1209,8 +1231,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.icmpv6_len = len;
-			dst->icmpv6 = malloc(len);
+			dst->_len.icmpv6 = len;
+			if (len < sizeof(struct ovs_key_icmp))
+				dst->icmpv6 = calloc(1, sizeof(struct ovs_key_icmp));
+			else
+				dst->icmpv6 = malloc(len);
 			memcpy(dst->icmpv6, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ARP) {
 			unsigned int len;
@@ -1219,8 +1244,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.arp_len = len;
-			dst->arp = malloc(len);
+			dst->_len.arp = len;
+			if (len < sizeof(struct ovs_key_arp))
+				dst->arp = calloc(1, sizeof(struct ovs_key_arp));
+			else
+				dst->arp = malloc(len);
 			memcpy(dst->arp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ND) {
 			unsigned int len;
@@ -1229,8 +1257,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.nd_len = len;
-			dst->nd = malloc(len);
+			dst->_len.nd = len;
+			if (len < sizeof(struct ovs_key_nd))
+				dst->nd = calloc(1, sizeof(struct ovs_key_nd));
+			else
+				dst->nd = malloc(len);
 			memcpy(dst->nd, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_SKB_MARK) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1253,8 +1284,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.sctp_len = len;
-			dst->sctp = malloc(len);
+			dst->_len.sctp = len;
+			if (len < sizeof(struct ovs_key_sctp))
+				dst->sctp = calloc(1, sizeof(struct ovs_key_sctp));
+			else
+				dst->sctp = malloc(len);
 			memcpy(dst->sctp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_TCP_FLAGS) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1278,8 +1312,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mpls_len = len;
-			dst->mpls = malloc(len);
+			dst->_len.mpls = len;
+			if (len < sizeof(struct ovs_key_mpls))
+				dst->mpls = calloc(1, sizeof(struct ovs_key_mpls));
+			else
+				dst->mpls = malloc(len);
 			memcpy(dst->mpls, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_CT_STATE) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1303,7 +1340,7 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ct_labels_len = len;
+			dst->_len.ct_labels = len;
 			dst->ct_labels = malloc(len);
 			memcpy(dst->ct_labels, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV4) {
@@ -1313,8 +1350,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ct_orig_tuple_ipv4_len = len;
-			dst->ct_orig_tuple_ipv4 = malloc(len);
+			dst->_len.ct_orig_tuple_ipv4 = len;
+			if (len < sizeof(struct ovs_key_ct_tuple_ipv4))
+				dst->ct_orig_tuple_ipv4 = calloc(1, sizeof(struct ovs_key_ct_tuple_ipv4));
+			else
+				dst->ct_orig_tuple_ipv4 = malloc(len);
 			memcpy(dst->ct_orig_tuple_ipv4, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV6) {
 			unsigned int len;
@@ -1323,7 +1363,7 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ct_orig_tuple_ipv6_len = len;
+			dst->_len.ct_orig_tuple_ipv6 = len;
 			dst->ct_orig_tuple_ipv6 = malloc(len);
 			memcpy(dst->ct_orig_tuple_ipv6, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_NSH) {
@@ -1347,7 +1387,7 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.nd_extensions_len = len;
+			dst->_len.nd_extensions = len;
 			dst->nd_extensions = malloc(len);
 			memcpy(dst->nd_extensions, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_TUNNEL_INFO) {
@@ -1357,7 +1397,7 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.tunnel_info_len = len;
+			dst->_len.tunnel_info = len;
 			dst->tunnel_info = malloc(len);
 			memcpy(dst->tunnel_info, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_IPV6_EXTHDRS) {
@@ -1367,8 +1407,11 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ipv6_exthdrs_len = len;
-			dst->ipv6_exthdrs = malloc(len);
+			dst->_len.ipv6_exthdrs = len;
+			if (len < sizeof(struct ovs_key_ipv6_exthdrs))
+				dst->ipv6_exthdrs = calloc(1, sizeof(struct ovs_key_ipv6_exthdrs));
+			else
+				dst->ipv6_exthdrs = malloc(len);
 			memcpy(dst->ipv6_exthdrs, ynl_attr_data(attr), len);
 		}
 	}
@@ -1577,18 +1620,18 @@ int ovs_flow_action_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ovs_flow_userspace_attrs_put(nlh, OVS_ACTION_ATTR_USERSPACE, &obj->userspace);
 	if (obj->_present.set)
 		ovs_flow_key_attrs_put(nlh, OVS_ACTION_ATTR_SET, obj->set);
-	if (obj->_present.push_vlan_len)
-		ynl_attr_put(nlh, OVS_ACTION_ATTR_PUSH_VLAN, obj->push_vlan, obj->_present.push_vlan_len);
+	if (obj->_len.push_vlan)
+		ynl_attr_put(nlh, OVS_ACTION_ATTR_PUSH_VLAN, obj->push_vlan, obj->_len.push_vlan);
 	if (obj->_present.pop_vlan)
 		ynl_attr_put(nlh, OVS_ACTION_ATTR_POP_VLAN, NULL, 0);
 	if (obj->_present.sample)
 		ovs_flow_sample_attrs_put(nlh, OVS_ACTION_ATTR_SAMPLE, &obj->sample);
 	if (obj->_present.recirc)
 		ynl_attr_put_u32(nlh, OVS_ACTION_ATTR_RECIRC, obj->recirc);
-	if (obj->_present.hash_len)
-		ynl_attr_put(nlh, OVS_ACTION_ATTR_HASH, obj->hash, obj->_present.hash_len);
-	if (obj->_present.push_mpls_len)
-		ynl_attr_put(nlh, OVS_ACTION_ATTR_PUSH_MPLS, obj->push_mpls, obj->_present.push_mpls_len);
+	if (obj->_len.hash)
+		ynl_attr_put(nlh, OVS_ACTION_ATTR_HASH, obj->hash, obj->_len.hash);
+	if (obj->_len.push_mpls)
+		ynl_attr_put(nlh, OVS_ACTION_ATTR_PUSH_MPLS, obj->push_mpls, obj->_len.push_mpls);
 	if (obj->_present.pop_mpls)
 		ynl_attr_put_u16(nlh, OVS_ACTION_ATTR_POP_MPLS, obj->pop_mpls);
 	if (obj->_present.set_masked)
@@ -1597,8 +1640,8 @@ int ovs_flow_action_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ovs_flow_ct_attrs_put(nlh, OVS_ACTION_ATTR_CT, &obj->ct);
 	if (obj->_present.trunc)
 		ynl_attr_put_u32(nlh, OVS_ACTION_ATTR_TRUNC, obj->trunc);
-	if (obj->_present.push_eth_len)
-		ynl_attr_put(nlh, OVS_ACTION_ATTR_PUSH_ETH, obj->push_eth, obj->_present.push_eth_len);
+	if (obj->_len.push_eth)
+		ynl_attr_put(nlh, OVS_ACTION_ATTR_PUSH_ETH, obj->push_eth, obj->_len.push_eth);
 	if (obj->_present.pop_eth)
 		ynl_attr_put(nlh, OVS_ACTION_ATTR_POP_ETH, NULL, 0);
 	if (obj->_present.ct_clear)
@@ -1613,8 +1656,8 @@ int ovs_flow_action_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ovs_flow_action_attrs_put(nlh, OVS_ACTION_ATTR_CLONE, obj->clone);
 	if (obj->_present.check_pkt_len)
 		ovs_flow_check_pkt_len_attrs_put(nlh, OVS_ACTION_ATTR_CHECK_PKT_LEN, &obj->check_pkt_len);
-	if (obj->_present.add_mpls_len)
-		ynl_attr_put(nlh, OVS_ACTION_ATTR_ADD_MPLS, obj->add_mpls, obj->_present.add_mpls_len);
+	if (obj->_len.add_mpls)
+		ynl_attr_put(nlh, OVS_ACTION_ATTR_ADD_MPLS, obj->add_mpls, obj->_len.add_mpls);
 	if (obj->_present.dec_ttl)
 		ovs_flow_dec_ttl_attrs_put(nlh, OVS_ACTION_ATTR_DEC_TTL, &obj->dec_ttl);
 	if (obj->_present.psample)
@@ -1666,8 +1709,11 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.push_vlan_len = len;
-			dst->push_vlan = malloc(len);
+			dst->_len.push_vlan = len;
+			if (len < sizeof(struct ovs_action_push_vlan))
+				dst->push_vlan = calloc(1, sizeof(struct ovs_action_push_vlan));
+			else
+				dst->push_vlan = malloc(len);
 			memcpy(dst->push_vlan, ynl_attr_data(attr), len);
 		} else if (type == OVS_ACTION_ATTR_POP_VLAN) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1694,8 +1740,11 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.hash_len = len;
-			dst->hash = malloc(len);
+			dst->_len.hash = len;
+			if (len < sizeof(struct ovs_action_hash))
+				dst->hash = calloc(1, sizeof(struct ovs_action_hash));
+			else
+				dst->hash = malloc(len);
 			memcpy(dst->hash, ynl_attr_data(attr), len);
 		} else if (type == OVS_ACTION_ATTR_PUSH_MPLS) {
 			unsigned int len;
@@ -1704,8 +1753,11 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.push_mpls_len = len;
-			dst->push_mpls = malloc(len);
+			dst->_len.push_mpls = len;
+			if (len < sizeof(struct ovs_action_push_mpls))
+				dst->push_mpls = calloc(1, sizeof(struct ovs_action_push_mpls));
+			else
+				dst->push_mpls = malloc(len);
 			memcpy(dst->push_mpls, ynl_attr_data(attr), len);
 		} else if (type == OVS_ACTION_ATTR_POP_MPLS) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1742,7 +1794,7 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.push_eth_len = len;
+			dst->_len.push_eth = len;
 			dst->push_eth = malloc(len);
 			memcpy(dst->push_eth, ynl_attr_data(attr), len);
 		} else if (type == OVS_ACTION_ATTR_POP_ETH) {
@@ -1796,8 +1848,11 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.add_mpls_len = len;
-			dst->add_mpls = malloc(len);
+			dst->_len.add_mpls = len;
+			if (len < sizeof(struct ovs_action_add_mpls))
+				dst->add_mpls = calloc(1, sizeof(struct ovs_action_add_mpls));
+			else
+				dst->add_mpls = malloc(len);
 			memcpy(dst->add_mpls, ynl_attr_data(attr), len);
 		} else if (type == OVS_ACTION_ATTR_DEC_TTL) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1875,7 +1930,7 @@ int ovs_flow_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ufid_len = len;
+			dst->_len.ufid = len;
 			dst->ufid = malloc(len);
 			memcpy(dst->ufid, ynl_attr_data(attr), len);
 		} else if (type == OVS_FLOW_ATTR_MASK) {
@@ -1894,8 +1949,11 @@ int ovs_flow_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.stats_len = len;
-			dst->stats = malloc(len);
+			dst->_len.stats = len;
+			if (len < sizeof(struct ovs_flow_stats))
+				dst->stats = calloc(1, sizeof(struct ovs_flow_stats));
+			else
+				dst->stats = malloc(len);
 			memcpy(dst->stats, ynl_attr_data(attr), len);
 		} else if (type == OVS_FLOW_ATTR_ACTIONS) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1924,6 +1982,7 @@ ovs_flow_get(struct ynl_sock *ys, struct ovs_flow_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVS_FLOW_CMD_GET, 1);
 	ys->req_policy = &ovs_flow_flow_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ovs_flow_flow_attrs_nest;
 
 	hdr_len = sizeof(req->_hdr);
@@ -1932,8 +1991,8 @@ ovs_flow_get(struct ynl_sock *ys, struct ovs_flow_get_req *req)
 
 	if (req->_present.key)
 		ovs_flow_key_attrs_put(nlh, OVS_FLOW_ATTR_KEY, &req->key);
-	if (req->_present.ufid_len)
-		ynl_attr_put(nlh, OVS_FLOW_ATTR_UFID, req->ufid, req->_present.ufid_len);
+	if (req->_len.ufid)
+		ynl_attr_put(nlh, OVS_FLOW_ATTR_UFID, req->ufid, req->_len.ufid);
 	if (req->_present.ufid_flags)
 		ynl_attr_put_u32(nlh, OVS_FLOW_ATTR_UFID_FLAGS, req->ufid_flags);
 
@@ -2000,11 +2059,12 @@ ovs_flow_get_dump(struct ynl_sock *ys, struct ovs_flow_get_req_dump *req)
 	memcpy(hdr, &req->_hdr, hdr_len);
 
 	ys->req_policy = &ovs_flow_flow_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.key)
 		ovs_flow_key_attrs_put(nlh, OVS_FLOW_ATTR_KEY, &req->key);
-	if (req->_present.ufid_len)
-		ynl_attr_put(nlh, OVS_FLOW_ATTR_UFID, req->ufid, req->_present.ufid_len);
+	if (req->_len.ufid)
+		ynl_attr_put(nlh, OVS_FLOW_ATTR_UFID, req->ufid, req->_len.ufid);
 	if (req->_present.ufid_flags)
 		ynl_attr_put_u32(nlh, OVS_FLOW_ATTR_UFID_FLAGS, req->ufid_flags);
 
@@ -2040,6 +2100,7 @@ int ovs_flow_new(struct ynl_sock *ys, struct ovs_flow_new_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVS_FLOW_CMD_NEW, 1);
 	ys->req_policy = &ovs_flow_flow_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
@@ -2047,8 +2108,8 @@ int ovs_flow_new(struct ynl_sock *ys, struct ovs_flow_new_req *req)
 
 	if (req->_present.key)
 		ovs_flow_key_attrs_put(nlh, OVS_FLOW_ATTR_KEY, &req->key);
-	if (req->_present.ufid_len)
-		ynl_attr_put(nlh, OVS_FLOW_ATTR_UFID, req->ufid, req->_present.ufid_len);
+	if (req->_len.ufid)
+		ynl_attr_put(nlh, OVS_FLOW_ATTR_UFID, req->ufid, req->_len.ufid);
 	if (req->_present.mask)
 		ovs_flow_key_attrs_put(nlh, OVS_FLOW_ATTR_MASK, &req->mask);
 	if (req->_present.actions)

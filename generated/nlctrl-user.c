@@ -192,7 +192,7 @@ int nlctrl_mcast_group_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.name_len = len;
+			dst->_len.name = len;
 			dst->name = malloc(len + 1);
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
@@ -367,7 +367,7 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.family_name_len = len;
+			dst->_len.family_name = len;
 			dst->family_name = malloc(len + 1);
 			memcpy(dst->family_name, ynl_attr_get_str(attr), len);
 			dst->family_name[len] = 0;
@@ -388,7 +388,7 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_mcast_groups++;
+				dst->_count.mcast_groups++;
 			}
 		} else if (type == CTRL_ATTR_OPS) {
 			const struct nlattr *attr2;
@@ -397,7 +397,7 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_ops++;
+				dst->_count.ops++;
 			}
 		} else if (type == CTRL_ATTR_VERSION) {
 			if (ynl_attr_validate(yarg, attr))
@@ -409,7 +409,7 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_mcast_groups) {
 		dst->mcast_groups = calloc(n_mcast_groups, sizeof(*dst->mcast_groups));
-		dst->n_mcast_groups = n_mcast_groups;
+		dst->_count.mcast_groups = n_mcast_groups;
 		i = 0;
 		parg.rsp_policy = &nlctrl_mcast_group_attrs_nest;
 		ynl_attr_for_each_nested(attr, attr_mcast_groups) {
@@ -421,7 +421,7 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_ops) {
 		dst->ops = calloc(n_ops, sizeof(*dst->ops));
-		dst->n_ops = n_ops;
+		dst->_count.ops = n_ops;
 		i = 0;
 		parg.rsp_policy = &nlctrl_op_attrs_nest;
 		ynl_attr_for_each_nested(attr, attr_ops) {
@@ -445,9 +445,10 @@ nlctrl_getfamily(struct ynl_sock *ys, struct nlctrl_getfamily_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, CTRL_CMD_GETFAMILY, 1);
 	ys->req_policy = &nlctrl_ctrl_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nlctrl_ctrl_attrs_nest;
 
-	if (req->_present.family_name_len)
+	if (req->_len.family_name)
 		ynl_attr_put_str(nlh, CTRL_ATTR_FAMILY_NAME, req->family_name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -596,8 +597,9 @@ nlctrl_getpolicy_dump(struct ynl_sock *ys, struct nlctrl_getpolicy_req *req)
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, CTRL_CMD_GETPOLICY, 1);
 	ys->req_policy = &nlctrl_ctrl_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.family_name_len)
+	if (req->_len.family_name)
 		ynl_attr_put_str(nlh, CTRL_ATTR_FAMILY_NAME, req->family_name);
 	if (req->_present.family_id)
 		ynl_attr_put_u16(nlh, CTRL_ATTR_FAMILY_ID, req->family_id);

@@ -140,18 +140,18 @@ struct nl80211_bitrate_attrs {
 
 struct nl80211_iftype_data_attrs {
 	struct {
-		__u32 iftypes_len;
-		__u32 he_cap_mac_len;
-		__u32 he_cap_phy_len;
-		__u32 he_cap_mcs_set_len;
-		__u32 he_cap_ppe_len;
-		__u32 he_6ghz_capa_len;
-		__u32 vendor_elems_len;
-		__u32 eht_cap_mac_len;
-		__u32 eht_cap_phy_len;
-		__u32 eht_cap_mcs_set_len;
-		__u32 eht_cap_ppe_len;
-	} _present;
+		__u32 iftypes;
+		__u32 he_cap_mac;
+		__u32 he_cap_phy;
+		__u32 he_cap_mcs_set;
+		__u32 he_cap_ppe;
+		__u32 he_6ghz_capa;
+		__u32 vendor_elems;
+		__u32 eht_cap_mac;
+		__u32 eht_cap_phy;
+		__u32 eht_cap_mcs_set;
+		__u32 eht_cap_ppe;
+	} _len;
 
 	__u32 idx;
 	void *iftypes;
@@ -223,9 +223,11 @@ struct nl80211_if_combination_attributes {
 		__u32 radar_detect_regions:1;
 		__u32 bi_min_gcd:1;
 	} _present;
+	struct {
+		__u32 limits;
+	} _count;
 
 	__u32 idx;
-	unsigned int n_limits;
 	struct nl80211_iface_limit_attributes *limits;
 	__u32 maxnum;
 	__u32 num_channels;
@@ -238,9 +240,11 @@ struct nl80211_sar_attributes {
 	struct {
 		__u32 type:1;
 	} _present;
+	struct {
+		__u32 specs;
+	} _count;
 
 	__u32 type;
-	unsigned int n_specs;
 	struct nl80211_sar_specs *specs;
 };
 
@@ -253,32 +257,37 @@ struct nl80211_frequency_attrs {
 		__u32 radar:1;
 		__u32 max_tx_power:1;
 		__u32 dfs_state:1;
-		__u32 dfs_time_len;
-		__u32 no_ht40_minus_len;
-		__u32 no_ht40_plus_len;
-		__u32 no_80mhz_len;
-		__u32 no_160mhz_len;
-		__u32 dfs_cac_time_len;
-		__u32 indoor_only_len;
-		__u32 ir_concurrent_len;
-		__u32 no_20mhz_len;
-		__u32 no_10mhz_len;
-		__u32 no_he_len;
 		__u32 offset:1;
-		__u32 _1mhz_len;
-		__u32 _2mhz_len;
-		__u32 _4mhz_len;
-		__u32 _8mhz_len;
-		__u32 _16mhz_len;
-		__u32 no_320mhz_len;
-		__u32 no_eht_len;
-		__u32 psd_len;
-		__u32 dfs_concurrent_len;
-		__u32 no_6ghz_vlp_client_len;
-		__u32 no_6ghz_afc_client_len;
-		__u32 can_monitor_len;
-		__u32 allow_6ghz_vlp_ap_len;
 	} _present;
+	struct {
+		__u32 dfs_time;
+		__u32 no_ht40_minus;
+		__u32 no_ht40_plus;
+		__u32 no_80mhz;
+		__u32 no_160mhz;
+		__u32 dfs_cac_time;
+		__u32 indoor_only;
+		__u32 ir_concurrent;
+		__u32 no_20mhz;
+		__u32 no_10mhz;
+		__u32 no_he;
+		__u32 _1mhz;
+		__u32 _2mhz;
+		__u32 _4mhz;
+		__u32 _8mhz;
+		__u32 _16mhz;
+		__u32 no_320mhz;
+		__u32 no_eht;
+		__u32 psd;
+		__u32 dfs_concurrent;
+		__u32 no_6ghz_vlp_client;
+		__u32 no_6ghz_afc_client;
+		__u32 can_monitor;
+		__u32 allow_6ghz_vlp_ap;
+	} _len;
+	struct {
+		__u32 wmm;
+	} _count;
 
 	__u32 idx;
 	__u32 freq;
@@ -294,7 +303,6 @@ struct nl80211_frequency_attrs {
 	void *ir_concurrent;
 	void *no_20mhz;
 	void *no_10mhz;
-	unsigned int n_wmm;
 	struct nl80211_wmm_attrs *wmm;
 	void *no_he;
 	__u32 offset;
@@ -315,21 +323,26 @@ struct nl80211_frequency_attrs {
 
 struct nl80211_band_attrs {
 	struct {
-		__u32 ht_mcs_set_len;
 		__u32 ht_capa:1;
 		__u32 ht_ampdu_factor:1;
 		__u32 ht_ampdu_density:1;
-		__u32 vht_mcs_set_len;
 		__u32 vht_capa:1;
-		__u32 edmg_channels_len;
-		__u32 edmg_bw_config_len;
-		__u32 s1g_mcs_nss_set_len;
-		__u32 s1g_capa_len;
 	} _present;
+	struct {
+		__u32 ht_mcs_set;
+		__u32 vht_mcs_set;
+		__u32 edmg_channels;
+		__u32 edmg_bw_config;
+		__u32 s1g_mcs_nss_set;
+		__u32 s1g_capa;
+	} _len;
+	struct {
+		__u32 freqs;
+		__u32 rates;
+		__u32 iftype_data;
+	} _count;
 
-	unsigned int n_freqs;
 	struct nl80211_frequency_attrs *freqs;
-	unsigned int n_rates;
 	struct nl80211_bitrate_attrs *rates;
 	void *ht_mcs_set;
 	__u16 ht_capa;
@@ -337,7 +350,6 @@ struct nl80211_band_attrs {
 	__u8 ht_ampdu_density;
 	void *vht_mcs_set;
 	__u32 vht_capa;
-	unsigned int n_iftype_data;
 	struct nl80211_iftype_data_attrs *iftype_data;
 	void *edmg_channels;
 	void *edmg_bw_config;
@@ -406,18 +418,11 @@ nl80211_get_wiphy_req_set_ifindex(struct nl80211_get_wiphy_req *req,
 struct nl80211_get_wiphy_rsp {
 	struct {
 		__u32 bands:1;
-		__u32 cipher_suites_len;
 		__u32 control_port_ethertype:1;
-		__u32 ext_capa_len;
-		__u32 ext_capa_mask_len;
-		__u32 ext_features_len;
 		__u32 feature_flags:1;
 		__u32 generation:1;
-		__u32 ht_capability_mask_len;
-		__u32 mac_len;
 		__u32 max_csa_counters:1;
 		__u32 max_match_sets:1;
-		__u32 max_num_akm_suites_len;
 		__u32 max_num_pmkids:1;
 		__u32 max_num_scan_ssids:1;
 		__u32 max_num_sched_scan_plans:1;
@@ -441,7 +446,6 @@ struct nl80211_get_wiphy_rsp {
 		__u32 txq_memory_limit:1;
 		__u32 txq_quantum:1;
 		__u32 txq_stats:1;
-		__u32 vht_capability_mask_len;
 		__u32 wiphy:1;
 		__u32 wiphy_antenna_avail_rx:1;
 		__u32 wiphy_antenna_avail_tx:1;
@@ -450,22 +454,35 @@ struct nl80211_get_wiphy_rsp {
 		__u32 wiphy_bands:1;
 		__u32 wiphy_coverage_class:1;
 		__u32 wiphy_frag_threshold:1;
-		__u32 wiphy_name_len;
 		__u32 wiphy_retry_long:1;
 		__u32 wiphy_retry_short:1;
 		__u32 wiphy_rts_threshold:1;
 		__u32 wowlan_triggers_supported:1;
 	} _present;
+	struct {
+		__u32 ext_capa;
+		__u32 ext_capa_mask;
+		__u32 ext_features;
+		__u32 ht_capability_mask;
+		__u32 mac;
+		__u32 max_num_akm_suites;
+		__u32 vht_capability_mask;
+		__u32 wiphy_name;
+	} _len;
+	struct {
+		__u32 cipher_suites;
+		__u32 interface_combinations;
+		__u32 supported_commands;
+	} _count;
 
 	__u32 bands;
-	void *cipher_suites;
+	__u32 *cipher_suites;
 	void *ext_capa;
 	void *ext_capa_mask;
 	void *ext_features;
 	__u32 feature_flags;
 	__u32 generation;
 	void *ht_capability_mask;
-	unsigned int n_interface_combinations;
 	struct nl80211_if_combination_attributes *interface_combinations;
 	void *mac;
 	__u8 max_csa_counters;
@@ -484,7 +501,6 @@ struct nl80211_get_wiphy_rsp {
 	struct nl80211_sar_attributes sar_spec;
 	__u32 sched_scan_max_reqs;
 	struct nl80211_supported_iftypes software_iftypes;
-	unsigned int n_supported_commands;
 	__u32 *supported_commands;
 	struct nl80211_supported_iftypes supported_iftypes;
 	struct nl80211_iftype_attrs tx_frame_types;
@@ -569,18 +585,11 @@ nl80211_get_wiphy_req_dump_set_split_wiphy_dump(struct nl80211_get_wiphy_req_dum
 struct nl80211_get_wiphy_rsp_dump {
 	struct {
 		__u32 bands:1;
-		__u32 cipher_suites_len;
 		__u32 control_port_ethertype:1;
-		__u32 ext_capa_len;
-		__u32 ext_capa_mask_len;
-		__u32 ext_features_len;
 		__u32 feature_flags:1;
 		__u32 generation:1;
-		__u32 ht_capability_mask_len;
-		__u32 mac_len;
 		__u32 max_csa_counters:1;
 		__u32 max_match_sets:1;
-		__u32 max_num_akm_suites_len;
 		__u32 max_num_pmkids:1;
 		__u32 max_num_scan_ssids:1;
 		__u32 max_num_sched_scan_plans:1;
@@ -604,7 +613,6 @@ struct nl80211_get_wiphy_rsp_dump {
 		__u32 txq_memory_limit:1;
 		__u32 txq_quantum:1;
 		__u32 txq_stats:1;
-		__u32 vht_capability_mask_len;
 		__u32 wiphy:1;
 		__u32 wiphy_antenna_avail_rx:1;
 		__u32 wiphy_antenna_avail_tx:1;
@@ -613,22 +621,35 @@ struct nl80211_get_wiphy_rsp_dump {
 		__u32 wiphy_bands:1;
 		__u32 wiphy_coverage_class:1;
 		__u32 wiphy_frag_threshold:1;
-		__u32 wiphy_name_len;
 		__u32 wiphy_retry_long:1;
 		__u32 wiphy_retry_short:1;
 		__u32 wiphy_rts_threshold:1;
 		__u32 wowlan_triggers_supported:1;
 	} _present;
+	struct {
+		__u32 ext_capa;
+		__u32 ext_capa_mask;
+		__u32 ext_features;
+		__u32 ht_capability_mask;
+		__u32 mac;
+		__u32 max_num_akm_suites;
+		__u32 vht_capability_mask;
+		__u32 wiphy_name;
+	} _len;
+	struct {
+		__u32 cipher_suites;
+		__u32 interface_combinations;
+		__u32 supported_commands;
+	} _count;
 
 	__u32 bands;
-	void *cipher_suites;
+	__u32 *cipher_suites;
 	void *ext_capa;
 	void *ext_capa_mask;
 	void *ext_features;
 	__u32 feature_flags;
 	__u32 generation;
 	void *ht_capability_mask;
-	unsigned int n_interface_combinations;
 	struct nl80211_if_combination_attributes *interface_combinations;
 	void *mac;
 	__u8 max_csa_counters;
@@ -647,7 +668,6 @@ struct nl80211_get_wiphy_rsp_dump {
 	struct nl80211_sar_attributes sar_spec;
 	__u32 sched_scan_max_reqs;
 	struct nl80211_supported_iftypes software_iftypes;
-	unsigned int n_supported_commands;
 	__u32 *supported_commands;
 	struct nl80211_supported_iftypes supported_iftypes;
 	struct nl80211_iftype_attrs tx_frame_types;
@@ -686,8 +706,8 @@ nl80211_get_wiphy_dump(struct ynl_sock *ys,
 /* NL80211_CMD_GET_INTERFACE - do */
 struct nl80211_get_interface_req {
 	struct {
-		__u32 ifname_len;
-	} _present;
+		__u32 ifname;
+	} _len;
 
 	char *ifname;
 };
@@ -704,24 +724,26 @@ nl80211_get_interface_req_set_ifname(struct nl80211_get_interface_req *req,
 				     const char *ifname)
 {
 	free(req->ifname);
-	req->_present.ifname_len = strlen(ifname);
-	req->ifname = malloc(req->_present.ifname_len + 1);
-	memcpy(req->ifname, ifname, req->_present.ifname_len);
-	req->ifname[req->_present.ifname_len] = 0;
+	req->_len.ifname = strlen(ifname);
+	req->ifname = malloc(req->_len.ifname + 1);
+	memcpy(req->ifname, ifname, req->_len.ifname);
+	req->ifname[req->_len.ifname] = 0;
 }
 
 struct nl80211_get_interface_rsp {
 	struct {
-		__u32 ifname_len;
 		__u32 iftype:1;
 		__u32 ifindex:1;
 		__u32 wiphy:1;
 		__u32 wdev:1;
-		__u32 mac_len;
 		__u32 generation:1;
 		__u32 txq_stats:1;
 		__u32 _4addr:1;
 	} _present;
+	struct {
+		__u32 ifname;
+		__u32 mac;
+	} _len;
 
 	char *ifname;
 	__u32 iftype;
@@ -746,8 +768,8 @@ nl80211_get_interface(struct ynl_sock *ys,
 /* NL80211_CMD_GET_INTERFACE - dump */
 struct nl80211_get_interface_req_dump {
 	struct {
-		__u32 ifname_len;
-	} _present;
+		__u32 ifname;
+	} _len;
 
 	char *ifname;
 };
@@ -765,24 +787,26 @@ nl80211_get_interface_req_dump_set_ifname(struct nl80211_get_interface_req_dump 
 					  const char *ifname)
 {
 	free(req->ifname);
-	req->_present.ifname_len = strlen(ifname);
-	req->ifname = malloc(req->_present.ifname_len + 1);
-	memcpy(req->ifname, ifname, req->_present.ifname_len);
-	req->ifname[req->_present.ifname_len] = 0;
+	req->_len.ifname = strlen(ifname);
+	req->ifname = malloc(req->_len.ifname + 1);
+	memcpy(req->ifname, ifname, req->_len.ifname);
+	req->ifname[req->_len.ifname] = 0;
 }
 
 struct nl80211_get_interface_rsp_dump {
 	struct {
-		__u32 ifname_len;
 		__u32 iftype:1;
 		__u32 ifindex:1;
 		__u32 wiphy:1;
 		__u32 wdev:1;
-		__u32 mac_len;
 		__u32 generation:1;
 		__u32 txq_stats:1;
 		__u32 _4addr:1;
 	} _present;
+	struct {
+		__u32 ifname;
+		__u32 mac;
+	} _len;
 
 	char *ifname;
 	__u32 iftype;

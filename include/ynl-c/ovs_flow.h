@@ -25,10 +25,10 @@ const char *ovs_flow_ct_state_flags_str(int value);
 /* Common nested types */
 struct ovs_flow_ovs_nsh_key_attrs {
 	struct {
-		__u32 base_len;
-		__u32 md1_len;
-		__u32 md2_len;
-	} _present;
+		__u32 base;
+		__u32 md1;
+		__u32 md2;
+	} _len;
 
 	void *base;
 	void *md1;
@@ -38,10 +38,12 @@ struct ovs_flow_ovs_nsh_key_attrs {
 struct ovs_flow_userspace_attrs {
 	struct {
 		__u32 pid:1;
-		__u32 userdata_len;
 		__u32 egress_tun_port:1;
 		__u32 actions:1;
 	} _present;
+	struct {
+		__u32 userdata;
+	} _len;
 
 	__u32 pid;
 	void *userdata;
@@ -51,8 +53,10 @@ struct ovs_flow_userspace_attrs {
 struct ovs_flow_psample_attrs {
 	struct {
 		__u32 group:1;
-		__u32 cookie_len;
 	} _present;
+	struct {
+		__u32 cookie;
+	} _len;
 
 	__u32 group;
 	void *cookie;
@@ -70,14 +74,16 @@ struct ovs_flow_nat_attrs {
 	struct {
 		__u32 src:1;
 		__u32 dst:1;
-		__u32 ip_min_len;
-		__u32 ip_max_len;
 		__u32 proto_min:1;
 		__u32 proto_max:1;
 		__u32 persistent:1;
 		__u32 proto_hash:1;
 		__u32 proto_random:1;
 	} _present;
+	struct {
+		__u32 ip_min;
+		__u32 ip_max;
+	} _len;
 
 	void *ip_min;
 	void *ip_max;
@@ -95,23 +101,27 @@ struct ovs_flow_tunnel_key_attrs {
 		__u32 dont_fragment:1;
 		__u32 csum:1;
 		__u32 oam:1;
-		__u32 geneve_opts_len;
 		__u32 tp_src:1;
 		__u32 tp_dst:1;
 		__u32 vxlan_opts:1;
-		__u32 ipv6_src_len;
-		__u32 ipv6_dst_len;
-		__u32 pad_len;
-		__u32 erspan_opts_len;
 		__u32 ipv4_info_bridge:1;
 	} _present;
+	struct {
+		__u32 ipv6_src;
+		__u32 ipv6_dst;
+		__u32 pad;
+		__u32 erspan_opts;
+	} _len;
+	struct {
+		__u32 geneve_opts;
+	} _count;
 
 	__u64 id /* big-endian */;
 	__u32 ipv4_src /* big-endian */;
 	__u32 ipv4_dst /* big-endian */;
 	__u8 tos;
 	__u8 ttl;
-	void *geneve_opts;
+	__u32 *geneve_opts;
 	__u16 tp_src /* big-endian */;
 	__u16 tp_dst /* big-endian */;
 	struct ovs_flow_vxlan_ext_attrs vxlan_opts;
@@ -125,14 +135,16 @@ struct ovs_flow_ct_attrs {
 	struct {
 		__u32 commit:1;
 		__u32 zone:1;
-		__u32 mark_len;
-		__u32 labels_len;
-		__u32 helper_len;
 		__u32 nat:1;
 		__u32 force_commit:1;
 		__u32 eventmask:1;
-		__u32 timeout_len;
 	} _present;
+	struct {
+		__u32 mark;
+		__u32 labels;
+		__u32 helper;
+		__u32 timeout;
+	} _len;
 
 	__u16 zone;
 	void *mark;
@@ -148,69 +160,71 @@ struct ovs_flow_key_attrs {
 		__u32 encap:1;
 		__u32 priority:1;
 		__u32 in_port:1;
-		__u32 ethernet_len;
 		__u32 vlan:1;
 		__u32 ethertype:1;
-		__u32 ipv4_len;
-		__u32 ipv6_len;
-		__u32 tcp_len;
-		__u32 udp_len;
-		__u32 icmp_len;
-		__u32 icmpv6_len;
-		__u32 arp_len;
-		__u32 nd_len;
 		__u32 skb_mark:1;
 		__u32 tunnel:1;
-		__u32 sctp_len;
 		__u32 tcp_flags:1;
 		__u32 dp_hash:1;
 		__u32 recirc_id:1;
-		__u32 mpls_len;
 		__u32 ct_state:1;
 		__u32 ct_zone:1;
 		__u32 ct_mark:1;
-		__u32 ct_labels_len;
-		__u32 ct_orig_tuple_ipv4_len;
-		__u32 ct_orig_tuple_ipv6_len;
 		__u32 nsh:1;
 		__u32 packet_type:1;
-		__u32 nd_extensions_len;
-		__u32 tunnel_info_len;
-		__u32 ipv6_exthdrs_len;
 	} _present;
+	struct {
+		__u32 ethernet;
+		__u32 ipv4;
+		__u32 ipv6;
+		__u32 tcp;
+		__u32 udp;
+		__u32 icmp;
+		__u32 icmpv6;
+		__u32 arp;
+		__u32 nd;
+		__u32 sctp;
+		__u32 mpls;
+		__u32 ct_labels;
+		__u32 ct_orig_tuple_ipv4;
+		__u32 ct_orig_tuple_ipv6;
+		__u32 nd_extensions;
+		__u32 tunnel_info;
+		__u32 ipv6_exthdrs;
+	} _len;
 
 	struct ovs_flow_key_attrs *encap;
 	__u32 priority;
 	__u32 in_port;
-	void *ethernet;
+	struct ovs_key_ethernet *ethernet;
 	__u16 vlan /* big-endian */;
 	__u16 ethertype /* big-endian */;
-	void *ipv4;
-	void *ipv6;
-	void *tcp;
-	void *udp;
-	void *icmp;
-	void *icmpv6;
-	void *arp;
-	void *nd;
+	struct ovs_key_ipv4 *ipv4;
+	struct ovs_key_ipv6 *ipv6;
+	struct ovs_key_tcp *tcp;
+	struct ovs_key_udp *udp;
+	struct ovs_key_icmp *icmp;
+	struct ovs_key_icmp *icmpv6;
+	struct ovs_key_arp *arp;
+	struct ovs_key_nd *nd;
 	__u32 skb_mark;
 	struct ovs_flow_tunnel_key_attrs tunnel;
-	void *sctp;
+	struct ovs_key_sctp *sctp;
 	__u16 tcp_flags /* big-endian */;
 	__u32 dp_hash;
 	__u32 recirc_id;
-	void *mpls;
+	struct ovs_key_mpls *mpls;
 	__u32 ct_state;
 	__u16 ct_zone;
 	__u32 ct_mark;
 	void *ct_labels;
-	void *ct_orig_tuple_ipv4;
+	struct ovs_key_ct_tuple_ipv4 *ct_orig_tuple_ipv4;
 	void *ct_orig_tuple_ipv6;
 	struct ovs_flow_ovs_nsh_key_attrs nsh;
 	__u32 packet_type /* big-endian */;
 	void *nd_extensions;
 	void *tunnel_info;
-	void *ipv6_exthdrs;
+	struct ovs_key_ipv6_exthdrs *ipv6_exthdrs;
 };
 
 struct ovs_flow_sample_attrs {
@@ -248,17 +262,13 @@ struct ovs_flow_action_attrs {
 		__u32 output:1;
 		__u32 userspace:1;
 		__u32 set:1;
-		__u32 push_vlan_len;
 		__u32 pop_vlan:1;
 		__u32 sample:1;
 		__u32 recirc:1;
-		__u32 hash_len;
-		__u32 push_mpls_len;
 		__u32 pop_mpls:1;
 		__u32 set_masked:1;
 		__u32 ct:1;
 		__u32 trunc:1;
-		__u32 push_eth_len;
 		__u32 pop_eth:1;
 		__u32 ct_clear:1;
 		__u32 push_nsh:1;
@@ -266,19 +276,25 @@ struct ovs_flow_action_attrs {
 		__u32 meter:1;
 		__u32 clone:1;
 		__u32 check_pkt_len:1;
-		__u32 add_mpls_len;
 		__u32 dec_ttl:1;
 		__u32 psample:1;
 	} _present;
+	struct {
+		__u32 push_vlan;
+		__u32 hash;
+		__u32 push_mpls;
+		__u32 push_eth;
+		__u32 add_mpls;
+	} _len;
 
 	__u32 output;
 	struct ovs_flow_userspace_attrs userspace;
 	struct ovs_flow_key_attrs *set;
-	void *push_vlan;
+	struct ovs_action_push_vlan *push_vlan;
 	struct ovs_flow_sample_attrs sample;
 	__u32 recirc;
-	void *hash;
-	void *push_mpls;
+	struct ovs_action_hash *hash;
+	struct ovs_action_push_mpls *push_mpls;
 	__u16 pop_mpls /* big-endian */;
 	struct ovs_flow_key_attrs *set_masked;
 	struct ovs_flow_ct_attrs ct;
@@ -288,7 +304,7 @@ struct ovs_flow_action_attrs {
 	__u32 meter;
 	struct ovs_flow_action_attrs *clone;
 	struct ovs_flow_check_pkt_len_attrs check_pkt_len;
-	void *add_mpls;
+	struct ovs_action_add_mpls *add_mpls;
 	struct ovs_flow_dec_ttl_attrs dec_ttl;
 	struct ovs_flow_psample_attrs psample;
 };
@@ -300,9 +316,11 @@ struct ovs_flow_get_req {
 
 	struct {
 		__u32 key:1;
-		__u32 ufid_len;
 		__u32 ufid_flags:1;
 	} _present;
+	struct {
+		__u32 ufid;
+	} _len;
 
 	struct ovs_flow_key_attrs key;
 	void *ufid;
@@ -335,9 +353,9 @@ ovs_flow_get_req_set_key_ethernet(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ethernet);
-	req->key._present.ethernet_len = len;
-	req->key.ethernet = malloc(req->key._present.ethernet_len);
-	memcpy(req->key.ethernet, ethernet, req->key._present.ethernet_len);
+	req->key._len.ethernet = len;
+	req->key.ethernet = malloc(req->key._len.ethernet);
+	memcpy(req->key.ethernet, ethernet, req->key._len.ethernet);
 }
 static inline void
 ovs_flow_get_req_set_key_vlan(struct ovs_flow_get_req *req,
@@ -361,9 +379,9 @@ ovs_flow_get_req_set_key_ipv4(struct ovs_flow_get_req *req, const void *ipv4,
 {
 	req->_present.key = 1;
 	free(req->key.ipv4);
-	req->key._present.ipv4_len = len;
-	req->key.ipv4 = malloc(req->key._present.ipv4_len);
-	memcpy(req->key.ipv4, ipv4, req->key._present.ipv4_len);
+	req->key._len.ipv4 = len;
+	req->key.ipv4 = malloc(req->key._len.ipv4);
+	memcpy(req->key.ipv4, ipv4, req->key._len.ipv4);
 }
 static inline void
 ovs_flow_get_req_set_key_ipv6(struct ovs_flow_get_req *req, const void *ipv6,
@@ -371,9 +389,9 @@ ovs_flow_get_req_set_key_ipv6(struct ovs_flow_get_req *req, const void *ipv6,
 {
 	req->_present.key = 1;
 	free(req->key.ipv6);
-	req->key._present.ipv6_len = len;
-	req->key.ipv6 = malloc(req->key._present.ipv6_len);
-	memcpy(req->key.ipv6, ipv6, req->key._present.ipv6_len);
+	req->key._len.ipv6 = len;
+	req->key.ipv6 = malloc(req->key._len.ipv6);
+	memcpy(req->key.ipv6, ipv6, req->key._len.ipv6);
 }
 static inline void
 ovs_flow_get_req_set_key_tcp(struct ovs_flow_get_req *req, const void *tcp,
@@ -381,9 +399,9 @@ ovs_flow_get_req_set_key_tcp(struct ovs_flow_get_req *req, const void *tcp,
 {
 	req->_present.key = 1;
 	free(req->key.tcp);
-	req->key._present.tcp_len = len;
-	req->key.tcp = malloc(req->key._present.tcp_len);
-	memcpy(req->key.tcp, tcp, req->key._present.tcp_len);
+	req->key._len.tcp = len;
+	req->key.tcp = malloc(req->key._len.tcp);
+	memcpy(req->key.tcp, tcp, req->key._len.tcp);
 }
 static inline void
 ovs_flow_get_req_set_key_udp(struct ovs_flow_get_req *req, const void *udp,
@@ -391,9 +409,9 @@ ovs_flow_get_req_set_key_udp(struct ovs_flow_get_req *req, const void *udp,
 {
 	req->_present.key = 1;
 	free(req->key.udp);
-	req->key._present.udp_len = len;
-	req->key.udp = malloc(req->key._present.udp_len);
-	memcpy(req->key.udp, udp, req->key._present.udp_len);
+	req->key._len.udp = len;
+	req->key.udp = malloc(req->key._len.udp);
+	memcpy(req->key.udp, udp, req->key._len.udp);
 }
 static inline void
 ovs_flow_get_req_set_key_icmp(struct ovs_flow_get_req *req, const void *icmp,
@@ -401,9 +419,9 @@ ovs_flow_get_req_set_key_icmp(struct ovs_flow_get_req *req, const void *icmp,
 {
 	req->_present.key = 1;
 	free(req->key.icmp);
-	req->key._present.icmp_len = len;
-	req->key.icmp = malloc(req->key._present.icmp_len);
-	memcpy(req->key.icmp, icmp, req->key._present.icmp_len);
+	req->key._len.icmp = len;
+	req->key.icmp = malloc(req->key._len.icmp);
+	memcpy(req->key.icmp, icmp, req->key._len.icmp);
 }
 static inline void
 ovs_flow_get_req_set_key_icmpv6(struct ovs_flow_get_req *req,
@@ -411,9 +429,9 @@ ovs_flow_get_req_set_key_icmpv6(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.icmpv6);
-	req->key._present.icmpv6_len = len;
-	req->key.icmpv6 = malloc(req->key._present.icmpv6_len);
-	memcpy(req->key.icmpv6, icmpv6, req->key._present.icmpv6_len);
+	req->key._len.icmpv6 = len;
+	req->key.icmpv6 = malloc(req->key._len.icmpv6);
+	memcpy(req->key.icmpv6, icmpv6, req->key._len.icmpv6);
 }
 static inline void
 ovs_flow_get_req_set_key_arp(struct ovs_flow_get_req *req, const void *arp,
@@ -421,9 +439,9 @@ ovs_flow_get_req_set_key_arp(struct ovs_flow_get_req *req, const void *arp,
 {
 	req->_present.key = 1;
 	free(req->key.arp);
-	req->key._present.arp_len = len;
-	req->key.arp = malloc(req->key._present.arp_len);
-	memcpy(req->key.arp, arp, req->key._present.arp_len);
+	req->key._len.arp = len;
+	req->key.arp = malloc(req->key._len.arp);
+	memcpy(req->key.arp, arp, req->key._len.arp);
 }
 static inline void
 ovs_flow_get_req_set_key_nd(struct ovs_flow_get_req *req, const void *nd,
@@ -431,9 +449,9 @@ ovs_flow_get_req_set_key_nd(struct ovs_flow_get_req *req, const void *nd,
 {
 	req->_present.key = 1;
 	free(req->key.nd);
-	req->key._present.nd_len = len;
-	req->key.nd = malloc(req->key._present.nd_len);
-	memcpy(req->key.nd, nd, req->key._present.nd_len);
+	req->key._len.nd = len;
+	req->key.nd = malloc(req->key._len.nd);
+	memcpy(req->key.nd, nd, req->key._len.nd);
 }
 static inline void
 ovs_flow_get_req_set_key_skb_mark(struct ovs_flow_get_req *req, __u32 skb_mark)
@@ -508,15 +526,15 @@ ovs_flow_get_req_set_key_tunnel_oam(struct ovs_flow_get_req *req)
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_geneve_opts(struct ovs_flow_get_req *req,
-					    const void *geneve_opts,
-					    size_t len)
+					    __u32 *geneve_opts, size_t count)
 {
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.geneve_opts);
-	req->key.tunnel._present.geneve_opts_len = len;
-	req->key.tunnel.geneve_opts = malloc(req->key.tunnel._present.geneve_opts_len);
-	memcpy(req->key.tunnel.geneve_opts, geneve_opts, req->key.tunnel._present.geneve_opts_len);
+	req->key.tunnel._count.geneve_opts = count;
+	count *= sizeof(__u32);
+	req->key.tunnel.geneve_opts = malloc(count);
+	memcpy(req->key.tunnel.geneve_opts, geneve_opts, count);
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_tp_src(struct ovs_flow_get_req *req,
@@ -553,9 +571,9 @@ ovs_flow_get_req_set_key_tunnel_ipv6_src(struct ovs_flow_get_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.ipv6_src);
-	req->key.tunnel._present.ipv6_src_len = len;
-	req->key.tunnel.ipv6_src = malloc(req->key.tunnel._present.ipv6_src_len);
-	memcpy(req->key.tunnel.ipv6_src, ipv6_src, req->key.tunnel._present.ipv6_src_len);
+	req->key.tunnel._len.ipv6_src = len;
+	req->key.tunnel.ipv6_src = malloc(req->key.tunnel._len.ipv6_src);
+	memcpy(req->key.tunnel.ipv6_src, ipv6_src, req->key.tunnel._len.ipv6_src);
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_ipv6_dst(struct ovs_flow_get_req *req,
@@ -564,9 +582,9 @@ ovs_flow_get_req_set_key_tunnel_ipv6_dst(struct ovs_flow_get_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.ipv6_dst);
-	req->key.tunnel._present.ipv6_dst_len = len;
-	req->key.tunnel.ipv6_dst = malloc(req->key.tunnel._present.ipv6_dst_len);
-	memcpy(req->key.tunnel.ipv6_dst, ipv6_dst, req->key.tunnel._present.ipv6_dst_len);
+	req->key.tunnel._len.ipv6_dst = len;
+	req->key.tunnel.ipv6_dst = malloc(req->key.tunnel._len.ipv6_dst);
+	memcpy(req->key.tunnel.ipv6_dst, ipv6_dst, req->key.tunnel._len.ipv6_dst);
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_pad(struct ovs_flow_get_req *req,
@@ -575,9 +593,9 @@ ovs_flow_get_req_set_key_tunnel_pad(struct ovs_flow_get_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.pad);
-	req->key.tunnel._present.pad_len = len;
-	req->key.tunnel.pad = malloc(req->key.tunnel._present.pad_len);
-	memcpy(req->key.tunnel.pad, pad, req->key.tunnel._present.pad_len);
+	req->key.tunnel._len.pad = len;
+	req->key.tunnel.pad = malloc(req->key.tunnel._len.pad);
+	memcpy(req->key.tunnel.pad, pad, req->key.tunnel._len.pad);
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_erspan_opts(struct ovs_flow_get_req *req,
@@ -587,9 +605,9 @@ ovs_flow_get_req_set_key_tunnel_erspan_opts(struct ovs_flow_get_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.erspan_opts);
-	req->key.tunnel._present.erspan_opts_len = len;
-	req->key.tunnel.erspan_opts = malloc(req->key.tunnel._present.erspan_opts_len);
-	memcpy(req->key.tunnel.erspan_opts, erspan_opts, req->key.tunnel._present.erspan_opts_len);
+	req->key.tunnel._len.erspan_opts = len;
+	req->key.tunnel.erspan_opts = malloc(req->key.tunnel._len.erspan_opts);
+	memcpy(req->key.tunnel.erspan_opts, erspan_opts, req->key.tunnel._len.erspan_opts);
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_ipv4_info_bridge(struct ovs_flow_get_req *req)
@@ -604,9 +622,9 @@ ovs_flow_get_req_set_key_sctp(struct ovs_flow_get_req *req, const void *sctp,
 {
 	req->_present.key = 1;
 	free(req->key.sctp);
-	req->key._present.sctp_len = len;
-	req->key.sctp = malloc(req->key._present.sctp_len);
-	memcpy(req->key.sctp, sctp, req->key._present.sctp_len);
+	req->key._len.sctp = len;
+	req->key.sctp = malloc(req->key._len.sctp);
+	memcpy(req->key.sctp, sctp, req->key._len.sctp);
 }
 static inline void
 ovs_flow_get_req_set_key_tcp_flags(struct ovs_flow_get_req *req,
@@ -637,9 +655,9 @@ ovs_flow_get_req_set_key_mpls(struct ovs_flow_get_req *req, const void *mpls,
 {
 	req->_present.key = 1;
 	free(req->key.mpls);
-	req->key._present.mpls_len = len;
-	req->key.mpls = malloc(req->key._present.mpls_len);
-	memcpy(req->key.mpls, mpls, req->key._present.mpls_len);
+	req->key._len.mpls = len;
+	req->key.mpls = malloc(req->key._len.mpls);
+	memcpy(req->key.mpls, mpls, req->key._len.mpls);
 }
 static inline void
 ovs_flow_get_req_set_key_ct_state(struct ovs_flow_get_req *req, __u32 ct_state)
@@ -668,9 +686,9 @@ ovs_flow_get_req_set_key_ct_labels(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_labels);
-	req->key._present.ct_labels_len = len;
-	req->key.ct_labels = malloc(req->key._present.ct_labels_len);
-	memcpy(req->key.ct_labels, ct_labels, req->key._present.ct_labels_len);
+	req->key._len.ct_labels = len;
+	req->key.ct_labels = malloc(req->key._len.ct_labels);
+	memcpy(req->key.ct_labels, ct_labels, req->key._len.ct_labels);
 }
 static inline void
 ovs_flow_get_req_set_key_ct_orig_tuple_ipv4(struct ovs_flow_get_req *req,
@@ -679,9 +697,9 @@ ovs_flow_get_req_set_key_ct_orig_tuple_ipv4(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_orig_tuple_ipv4);
-	req->key._present.ct_orig_tuple_ipv4_len = len;
-	req->key.ct_orig_tuple_ipv4 = malloc(req->key._present.ct_orig_tuple_ipv4_len);
-	memcpy(req->key.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->key._present.ct_orig_tuple_ipv4_len);
+	req->key._len.ct_orig_tuple_ipv4 = len;
+	req->key.ct_orig_tuple_ipv4 = malloc(req->key._len.ct_orig_tuple_ipv4);
+	memcpy(req->key.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->key._len.ct_orig_tuple_ipv4);
 }
 static inline void
 ovs_flow_get_req_set_key_ct_orig_tuple_ipv6(struct ovs_flow_get_req *req,
@@ -690,9 +708,9 @@ ovs_flow_get_req_set_key_ct_orig_tuple_ipv6(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_orig_tuple_ipv6);
-	req->key._present.ct_orig_tuple_ipv6_len = len;
-	req->key.ct_orig_tuple_ipv6 = malloc(req->key._present.ct_orig_tuple_ipv6_len);
-	memcpy(req->key.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->key._present.ct_orig_tuple_ipv6_len);
+	req->key._len.ct_orig_tuple_ipv6 = len;
+	req->key.ct_orig_tuple_ipv6 = malloc(req->key._len.ct_orig_tuple_ipv6);
+	memcpy(req->key.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->key._len.ct_orig_tuple_ipv6);
 }
 static inline void
 ovs_flow_get_req_set_key_nsh_base(struct ovs_flow_get_req *req,
@@ -701,9 +719,9 @@ ovs_flow_get_req_set_key_nsh_base(struct ovs_flow_get_req *req,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.base);
-	req->key.nsh._present.base_len = len;
-	req->key.nsh.base = malloc(req->key.nsh._present.base_len);
-	memcpy(req->key.nsh.base, base, req->key.nsh._present.base_len);
+	req->key.nsh._len.base = len;
+	req->key.nsh.base = malloc(req->key.nsh._len.base);
+	memcpy(req->key.nsh.base, base, req->key.nsh._len.base);
 }
 static inline void
 ovs_flow_get_req_set_key_nsh_md1(struct ovs_flow_get_req *req, const void *md1,
@@ -712,9 +730,9 @@ ovs_flow_get_req_set_key_nsh_md1(struct ovs_flow_get_req *req, const void *md1,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.md1);
-	req->key.nsh._present.md1_len = len;
-	req->key.nsh.md1 = malloc(req->key.nsh._present.md1_len);
-	memcpy(req->key.nsh.md1, md1, req->key.nsh._present.md1_len);
+	req->key.nsh._len.md1 = len;
+	req->key.nsh.md1 = malloc(req->key.nsh._len.md1);
+	memcpy(req->key.nsh.md1, md1, req->key.nsh._len.md1);
 }
 static inline void
 ovs_flow_get_req_set_key_nsh_md2(struct ovs_flow_get_req *req, const void *md2,
@@ -723,9 +741,9 @@ ovs_flow_get_req_set_key_nsh_md2(struct ovs_flow_get_req *req, const void *md2,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.md2);
-	req->key.nsh._present.md2_len = len;
-	req->key.nsh.md2 = malloc(req->key.nsh._present.md2_len);
-	memcpy(req->key.nsh.md2, md2, req->key.nsh._present.md2_len);
+	req->key.nsh._len.md2 = len;
+	req->key.nsh.md2 = malloc(req->key.nsh._len.md2);
+	memcpy(req->key.nsh.md2, md2, req->key.nsh._len.md2);
 }
 static inline void
 ovs_flow_get_req_set_key_packet_type(struct ovs_flow_get_req *req,
@@ -741,9 +759,9 @@ ovs_flow_get_req_set_key_nd_extensions(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.nd_extensions);
-	req->key._present.nd_extensions_len = len;
-	req->key.nd_extensions = malloc(req->key._present.nd_extensions_len);
-	memcpy(req->key.nd_extensions, nd_extensions, req->key._present.nd_extensions_len);
+	req->key._len.nd_extensions = len;
+	req->key.nd_extensions = malloc(req->key._len.nd_extensions);
+	memcpy(req->key.nd_extensions, nd_extensions, req->key._len.nd_extensions);
 }
 static inline void
 ovs_flow_get_req_set_key_tunnel_info(struct ovs_flow_get_req *req,
@@ -751,9 +769,9 @@ ovs_flow_get_req_set_key_tunnel_info(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.tunnel_info);
-	req->key._present.tunnel_info_len = len;
-	req->key.tunnel_info = malloc(req->key._present.tunnel_info_len);
-	memcpy(req->key.tunnel_info, tunnel_info, req->key._present.tunnel_info_len);
+	req->key._len.tunnel_info = len;
+	req->key.tunnel_info = malloc(req->key._len.tunnel_info);
+	memcpy(req->key.tunnel_info, tunnel_info, req->key._len.tunnel_info);
 }
 static inline void
 ovs_flow_get_req_set_key_ipv6_exthdrs(struct ovs_flow_get_req *req,
@@ -761,18 +779,18 @@ ovs_flow_get_req_set_key_ipv6_exthdrs(struct ovs_flow_get_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ipv6_exthdrs);
-	req->key._present.ipv6_exthdrs_len = len;
-	req->key.ipv6_exthdrs = malloc(req->key._present.ipv6_exthdrs_len);
-	memcpy(req->key.ipv6_exthdrs, ipv6_exthdrs, req->key._present.ipv6_exthdrs_len);
+	req->key._len.ipv6_exthdrs = len;
+	req->key.ipv6_exthdrs = malloc(req->key._len.ipv6_exthdrs);
+	memcpy(req->key.ipv6_exthdrs, ipv6_exthdrs, req->key._len.ipv6_exthdrs);
 }
 static inline void
 ovs_flow_get_req_set_ufid(struct ovs_flow_get_req *req, const void *ufid,
 			  size_t len)
 {
 	free(req->ufid);
-	req->_present.ufid_len = len;
-	req->ufid = malloc(req->_present.ufid_len);
-	memcpy(req->ufid, ufid, req->_present.ufid_len);
+	req->_len.ufid = len;
+	req->ufid = malloc(req->_len.ufid);
+	memcpy(req->ufid, ufid, req->_len.ufid);
 }
 static inline void
 ovs_flow_get_req_set_ufid_flags(struct ovs_flow_get_req *req, __u32 ufid_flags)
@@ -786,16 +804,18 @@ struct ovs_flow_get_rsp {
 
 	struct {
 		__u32 key:1;
-		__u32 ufid_len;
 		__u32 mask:1;
-		__u32 stats_len;
 		__u32 actions:1;
 	} _present;
+	struct {
+		__u32 ufid;
+		__u32 stats;
+	} _len;
 
 	struct ovs_flow_key_attrs key;
 	void *ufid;
 	struct ovs_flow_key_attrs mask;
-	void *stats;
+	struct ovs_flow_stats *stats;
 	struct ovs_flow_action_attrs actions;
 };
 
@@ -813,9 +833,11 @@ struct ovs_flow_get_req_dump {
 
 	struct {
 		__u32 key:1;
-		__u32 ufid_len;
 		__u32 ufid_flags:1;
 	} _present;
+	struct {
+		__u32 ufid;
+	} _len;
 
 	struct ovs_flow_key_attrs key;
 	void *ufid;
@@ -850,9 +872,9 @@ ovs_flow_get_req_dump_set_key_ethernet(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.ethernet);
-	req->key._present.ethernet_len = len;
-	req->key.ethernet = malloc(req->key._present.ethernet_len);
-	memcpy(req->key.ethernet, ethernet, req->key._present.ethernet_len);
+	req->key._len.ethernet = len;
+	req->key.ethernet = malloc(req->key._len.ethernet);
+	memcpy(req->key.ethernet, ethernet, req->key._len.ethernet);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_vlan(struct ovs_flow_get_req_dump *req,
@@ -876,9 +898,9 @@ ovs_flow_get_req_dump_set_key_ipv4(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.ipv4);
-	req->key._present.ipv4_len = len;
-	req->key.ipv4 = malloc(req->key._present.ipv4_len);
-	memcpy(req->key.ipv4, ipv4, req->key._present.ipv4_len);
+	req->key._len.ipv4 = len;
+	req->key.ipv4 = malloc(req->key._len.ipv4);
+	memcpy(req->key.ipv4, ipv4, req->key._len.ipv4);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_ipv6(struct ovs_flow_get_req_dump *req,
@@ -886,9 +908,9 @@ ovs_flow_get_req_dump_set_key_ipv6(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.ipv6);
-	req->key._present.ipv6_len = len;
-	req->key.ipv6 = malloc(req->key._present.ipv6_len);
-	memcpy(req->key.ipv6, ipv6, req->key._present.ipv6_len);
+	req->key._len.ipv6 = len;
+	req->key.ipv6 = malloc(req->key._len.ipv6);
+	memcpy(req->key.ipv6, ipv6, req->key._len.ipv6);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tcp(struct ovs_flow_get_req_dump *req,
@@ -896,9 +918,9 @@ ovs_flow_get_req_dump_set_key_tcp(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.tcp);
-	req->key._present.tcp_len = len;
-	req->key.tcp = malloc(req->key._present.tcp_len);
-	memcpy(req->key.tcp, tcp, req->key._present.tcp_len);
+	req->key._len.tcp = len;
+	req->key.tcp = malloc(req->key._len.tcp);
+	memcpy(req->key.tcp, tcp, req->key._len.tcp);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_udp(struct ovs_flow_get_req_dump *req,
@@ -906,9 +928,9 @@ ovs_flow_get_req_dump_set_key_udp(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.udp);
-	req->key._present.udp_len = len;
-	req->key.udp = malloc(req->key._present.udp_len);
-	memcpy(req->key.udp, udp, req->key._present.udp_len);
+	req->key._len.udp = len;
+	req->key.udp = malloc(req->key._len.udp);
+	memcpy(req->key.udp, udp, req->key._len.udp);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_icmp(struct ovs_flow_get_req_dump *req,
@@ -916,9 +938,9 @@ ovs_flow_get_req_dump_set_key_icmp(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.icmp);
-	req->key._present.icmp_len = len;
-	req->key.icmp = malloc(req->key._present.icmp_len);
-	memcpy(req->key.icmp, icmp, req->key._present.icmp_len);
+	req->key._len.icmp = len;
+	req->key.icmp = malloc(req->key._len.icmp);
+	memcpy(req->key.icmp, icmp, req->key._len.icmp);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_icmpv6(struct ovs_flow_get_req_dump *req,
@@ -926,9 +948,9 @@ ovs_flow_get_req_dump_set_key_icmpv6(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.icmpv6);
-	req->key._present.icmpv6_len = len;
-	req->key.icmpv6 = malloc(req->key._present.icmpv6_len);
-	memcpy(req->key.icmpv6, icmpv6, req->key._present.icmpv6_len);
+	req->key._len.icmpv6 = len;
+	req->key.icmpv6 = malloc(req->key._len.icmpv6);
+	memcpy(req->key.icmpv6, icmpv6, req->key._len.icmpv6);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_arp(struct ovs_flow_get_req_dump *req,
@@ -936,9 +958,9 @@ ovs_flow_get_req_dump_set_key_arp(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.arp);
-	req->key._present.arp_len = len;
-	req->key.arp = malloc(req->key._present.arp_len);
-	memcpy(req->key.arp, arp, req->key._present.arp_len);
+	req->key._len.arp = len;
+	req->key.arp = malloc(req->key._len.arp);
+	memcpy(req->key.arp, arp, req->key._len.arp);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_nd(struct ovs_flow_get_req_dump *req,
@@ -946,9 +968,9 @@ ovs_flow_get_req_dump_set_key_nd(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.nd);
-	req->key._present.nd_len = len;
-	req->key.nd = malloc(req->key._present.nd_len);
-	memcpy(req->key.nd, nd, req->key._present.nd_len);
+	req->key._len.nd = len;
+	req->key.nd = malloc(req->key._len.nd);
+	memcpy(req->key.nd, nd, req->key._len.nd);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_skb_mark(struct ovs_flow_get_req_dump *req,
@@ -1026,15 +1048,16 @@ ovs_flow_get_req_dump_set_key_tunnel_oam(struct ovs_flow_get_req_dump *req)
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_geneve_opts(struct ovs_flow_get_req_dump *req,
-						 const void *geneve_opts,
-						 size_t len)
+						 __u32 *geneve_opts,
+						 size_t count)
 {
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.geneve_opts);
-	req->key.tunnel._present.geneve_opts_len = len;
-	req->key.tunnel.geneve_opts = malloc(req->key.tunnel._present.geneve_opts_len);
-	memcpy(req->key.tunnel.geneve_opts, geneve_opts, req->key.tunnel._present.geneve_opts_len);
+	req->key.tunnel._count.geneve_opts = count;
+	count *= sizeof(__u32);
+	req->key.tunnel.geneve_opts = malloc(count);
+	memcpy(req->key.tunnel.geneve_opts, geneve_opts, count);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_tp_src(struct ovs_flow_get_req_dump *req,
@@ -1071,9 +1094,9 @@ ovs_flow_get_req_dump_set_key_tunnel_ipv6_src(struct ovs_flow_get_req_dump *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.ipv6_src);
-	req->key.tunnel._present.ipv6_src_len = len;
-	req->key.tunnel.ipv6_src = malloc(req->key.tunnel._present.ipv6_src_len);
-	memcpy(req->key.tunnel.ipv6_src, ipv6_src, req->key.tunnel._present.ipv6_src_len);
+	req->key.tunnel._len.ipv6_src = len;
+	req->key.tunnel.ipv6_src = malloc(req->key.tunnel._len.ipv6_src);
+	memcpy(req->key.tunnel.ipv6_src, ipv6_src, req->key.tunnel._len.ipv6_src);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_ipv6_dst(struct ovs_flow_get_req_dump *req,
@@ -1082,9 +1105,9 @@ ovs_flow_get_req_dump_set_key_tunnel_ipv6_dst(struct ovs_flow_get_req_dump *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.ipv6_dst);
-	req->key.tunnel._present.ipv6_dst_len = len;
-	req->key.tunnel.ipv6_dst = malloc(req->key.tunnel._present.ipv6_dst_len);
-	memcpy(req->key.tunnel.ipv6_dst, ipv6_dst, req->key.tunnel._present.ipv6_dst_len);
+	req->key.tunnel._len.ipv6_dst = len;
+	req->key.tunnel.ipv6_dst = malloc(req->key.tunnel._len.ipv6_dst);
+	memcpy(req->key.tunnel.ipv6_dst, ipv6_dst, req->key.tunnel._len.ipv6_dst);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_pad(struct ovs_flow_get_req_dump *req,
@@ -1093,9 +1116,9 @@ ovs_flow_get_req_dump_set_key_tunnel_pad(struct ovs_flow_get_req_dump *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.pad);
-	req->key.tunnel._present.pad_len = len;
-	req->key.tunnel.pad = malloc(req->key.tunnel._present.pad_len);
-	memcpy(req->key.tunnel.pad, pad, req->key.tunnel._present.pad_len);
+	req->key.tunnel._len.pad = len;
+	req->key.tunnel.pad = malloc(req->key.tunnel._len.pad);
+	memcpy(req->key.tunnel.pad, pad, req->key.tunnel._len.pad);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_erspan_opts(struct ovs_flow_get_req_dump *req,
@@ -1105,9 +1128,9 @@ ovs_flow_get_req_dump_set_key_tunnel_erspan_opts(struct ovs_flow_get_req_dump *r
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.erspan_opts);
-	req->key.tunnel._present.erspan_opts_len = len;
-	req->key.tunnel.erspan_opts = malloc(req->key.tunnel._present.erspan_opts_len);
-	memcpy(req->key.tunnel.erspan_opts, erspan_opts, req->key.tunnel._present.erspan_opts_len);
+	req->key.tunnel._len.erspan_opts = len;
+	req->key.tunnel.erspan_opts = malloc(req->key.tunnel._len.erspan_opts);
+	memcpy(req->key.tunnel.erspan_opts, erspan_opts, req->key.tunnel._len.erspan_opts);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_ipv4_info_bridge(struct ovs_flow_get_req_dump *req)
@@ -1122,9 +1145,9 @@ ovs_flow_get_req_dump_set_key_sctp(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.sctp);
-	req->key._present.sctp_len = len;
-	req->key.sctp = malloc(req->key._present.sctp_len);
-	memcpy(req->key.sctp, sctp, req->key._present.sctp_len);
+	req->key._len.sctp = len;
+	req->key.sctp = malloc(req->key._len.sctp);
+	memcpy(req->key.sctp, sctp, req->key._len.sctp);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tcp_flags(struct ovs_flow_get_req_dump *req,
@@ -1156,9 +1179,9 @@ ovs_flow_get_req_dump_set_key_mpls(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.mpls);
-	req->key._present.mpls_len = len;
-	req->key.mpls = malloc(req->key._present.mpls_len);
-	memcpy(req->key.mpls, mpls, req->key._present.mpls_len);
+	req->key._len.mpls = len;
+	req->key.mpls = malloc(req->key._len.mpls);
+	memcpy(req->key.mpls, mpls, req->key._len.mpls);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_ct_state(struct ovs_flow_get_req_dump *req,
@@ -1190,9 +1213,9 @@ ovs_flow_get_req_dump_set_key_ct_labels(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_labels);
-	req->key._present.ct_labels_len = len;
-	req->key.ct_labels = malloc(req->key._present.ct_labels_len);
-	memcpy(req->key.ct_labels, ct_labels, req->key._present.ct_labels_len);
+	req->key._len.ct_labels = len;
+	req->key.ct_labels = malloc(req->key._len.ct_labels);
+	memcpy(req->key.ct_labels, ct_labels, req->key._len.ct_labels);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_ct_orig_tuple_ipv4(struct ovs_flow_get_req_dump *req,
@@ -1201,9 +1224,9 @@ ovs_flow_get_req_dump_set_key_ct_orig_tuple_ipv4(struct ovs_flow_get_req_dump *r
 {
 	req->_present.key = 1;
 	free(req->key.ct_orig_tuple_ipv4);
-	req->key._present.ct_orig_tuple_ipv4_len = len;
-	req->key.ct_orig_tuple_ipv4 = malloc(req->key._present.ct_orig_tuple_ipv4_len);
-	memcpy(req->key.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->key._present.ct_orig_tuple_ipv4_len);
+	req->key._len.ct_orig_tuple_ipv4 = len;
+	req->key.ct_orig_tuple_ipv4 = malloc(req->key._len.ct_orig_tuple_ipv4);
+	memcpy(req->key.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->key._len.ct_orig_tuple_ipv4);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_ct_orig_tuple_ipv6(struct ovs_flow_get_req_dump *req,
@@ -1212,9 +1235,9 @@ ovs_flow_get_req_dump_set_key_ct_orig_tuple_ipv6(struct ovs_flow_get_req_dump *r
 {
 	req->_present.key = 1;
 	free(req->key.ct_orig_tuple_ipv6);
-	req->key._present.ct_orig_tuple_ipv6_len = len;
-	req->key.ct_orig_tuple_ipv6 = malloc(req->key._present.ct_orig_tuple_ipv6_len);
-	memcpy(req->key.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->key._present.ct_orig_tuple_ipv6_len);
+	req->key._len.ct_orig_tuple_ipv6 = len;
+	req->key.ct_orig_tuple_ipv6 = malloc(req->key._len.ct_orig_tuple_ipv6);
+	memcpy(req->key.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->key._len.ct_orig_tuple_ipv6);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_nsh_base(struct ovs_flow_get_req_dump *req,
@@ -1223,9 +1246,9 @@ ovs_flow_get_req_dump_set_key_nsh_base(struct ovs_flow_get_req_dump *req,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.base);
-	req->key.nsh._present.base_len = len;
-	req->key.nsh.base = malloc(req->key.nsh._present.base_len);
-	memcpy(req->key.nsh.base, base, req->key.nsh._present.base_len);
+	req->key.nsh._len.base = len;
+	req->key.nsh.base = malloc(req->key.nsh._len.base);
+	memcpy(req->key.nsh.base, base, req->key.nsh._len.base);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_nsh_md1(struct ovs_flow_get_req_dump *req,
@@ -1234,9 +1257,9 @@ ovs_flow_get_req_dump_set_key_nsh_md1(struct ovs_flow_get_req_dump *req,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.md1);
-	req->key.nsh._present.md1_len = len;
-	req->key.nsh.md1 = malloc(req->key.nsh._present.md1_len);
-	memcpy(req->key.nsh.md1, md1, req->key.nsh._present.md1_len);
+	req->key.nsh._len.md1 = len;
+	req->key.nsh.md1 = malloc(req->key.nsh._len.md1);
+	memcpy(req->key.nsh.md1, md1, req->key.nsh._len.md1);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_nsh_md2(struct ovs_flow_get_req_dump *req,
@@ -1245,9 +1268,9 @@ ovs_flow_get_req_dump_set_key_nsh_md2(struct ovs_flow_get_req_dump *req,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.md2);
-	req->key.nsh._present.md2_len = len;
-	req->key.nsh.md2 = malloc(req->key.nsh._present.md2_len);
-	memcpy(req->key.nsh.md2, md2, req->key.nsh._present.md2_len);
+	req->key.nsh._len.md2 = len;
+	req->key.nsh.md2 = malloc(req->key.nsh._len.md2);
+	memcpy(req->key.nsh.md2, md2, req->key.nsh._len.md2);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_packet_type(struct ovs_flow_get_req_dump *req,
@@ -1264,9 +1287,9 @@ ovs_flow_get_req_dump_set_key_nd_extensions(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.nd_extensions);
-	req->key._present.nd_extensions_len = len;
-	req->key.nd_extensions = malloc(req->key._present.nd_extensions_len);
-	memcpy(req->key.nd_extensions, nd_extensions, req->key._present.nd_extensions_len);
+	req->key._len.nd_extensions = len;
+	req->key.nd_extensions = malloc(req->key._len.nd_extensions);
+	memcpy(req->key.nd_extensions, nd_extensions, req->key._len.nd_extensions);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_tunnel_info(struct ovs_flow_get_req_dump *req,
@@ -1274,9 +1297,9 @@ ovs_flow_get_req_dump_set_key_tunnel_info(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.tunnel_info);
-	req->key._present.tunnel_info_len = len;
-	req->key.tunnel_info = malloc(req->key._present.tunnel_info_len);
-	memcpy(req->key.tunnel_info, tunnel_info, req->key._present.tunnel_info_len);
+	req->key._len.tunnel_info = len;
+	req->key.tunnel_info = malloc(req->key._len.tunnel_info);
+	memcpy(req->key.tunnel_info, tunnel_info, req->key._len.tunnel_info);
 }
 static inline void
 ovs_flow_get_req_dump_set_key_ipv6_exthdrs(struct ovs_flow_get_req_dump *req,
@@ -1285,18 +1308,18 @@ ovs_flow_get_req_dump_set_key_ipv6_exthdrs(struct ovs_flow_get_req_dump *req,
 {
 	req->_present.key = 1;
 	free(req->key.ipv6_exthdrs);
-	req->key._present.ipv6_exthdrs_len = len;
-	req->key.ipv6_exthdrs = malloc(req->key._present.ipv6_exthdrs_len);
-	memcpy(req->key.ipv6_exthdrs, ipv6_exthdrs, req->key._present.ipv6_exthdrs_len);
+	req->key._len.ipv6_exthdrs = len;
+	req->key.ipv6_exthdrs = malloc(req->key._len.ipv6_exthdrs);
+	memcpy(req->key.ipv6_exthdrs, ipv6_exthdrs, req->key._len.ipv6_exthdrs);
 }
 static inline void
 ovs_flow_get_req_dump_set_ufid(struct ovs_flow_get_req_dump *req,
 			       const void *ufid, size_t len)
 {
 	free(req->ufid);
-	req->_present.ufid_len = len;
-	req->ufid = malloc(req->_present.ufid_len);
-	memcpy(req->ufid, ufid, req->_present.ufid_len);
+	req->_len.ufid = len;
+	req->ufid = malloc(req->_len.ufid);
+	memcpy(req->ufid, ufid, req->_len.ufid);
 }
 static inline void
 ovs_flow_get_req_dump_set_ufid_flags(struct ovs_flow_get_req_dump *req,
@@ -1323,10 +1346,12 @@ struct ovs_flow_new_req {
 
 	struct {
 		__u32 key:1;
-		__u32 ufid_len;
 		__u32 mask:1;
 		__u32 actions:1;
 	} _present;
+	struct {
+		__u32 ufid;
+	} _len;
 
 	struct ovs_flow_key_attrs key;
 	void *ufid;
@@ -1360,9 +1385,9 @@ ovs_flow_new_req_set_key_ethernet(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ethernet);
-	req->key._present.ethernet_len = len;
-	req->key.ethernet = malloc(req->key._present.ethernet_len);
-	memcpy(req->key.ethernet, ethernet, req->key._present.ethernet_len);
+	req->key._len.ethernet = len;
+	req->key.ethernet = malloc(req->key._len.ethernet);
+	memcpy(req->key.ethernet, ethernet, req->key._len.ethernet);
 }
 static inline void
 ovs_flow_new_req_set_key_vlan(struct ovs_flow_new_req *req,
@@ -1386,9 +1411,9 @@ ovs_flow_new_req_set_key_ipv4(struct ovs_flow_new_req *req, const void *ipv4,
 {
 	req->_present.key = 1;
 	free(req->key.ipv4);
-	req->key._present.ipv4_len = len;
-	req->key.ipv4 = malloc(req->key._present.ipv4_len);
-	memcpy(req->key.ipv4, ipv4, req->key._present.ipv4_len);
+	req->key._len.ipv4 = len;
+	req->key.ipv4 = malloc(req->key._len.ipv4);
+	memcpy(req->key.ipv4, ipv4, req->key._len.ipv4);
 }
 static inline void
 ovs_flow_new_req_set_key_ipv6(struct ovs_flow_new_req *req, const void *ipv6,
@@ -1396,9 +1421,9 @@ ovs_flow_new_req_set_key_ipv6(struct ovs_flow_new_req *req, const void *ipv6,
 {
 	req->_present.key = 1;
 	free(req->key.ipv6);
-	req->key._present.ipv6_len = len;
-	req->key.ipv6 = malloc(req->key._present.ipv6_len);
-	memcpy(req->key.ipv6, ipv6, req->key._present.ipv6_len);
+	req->key._len.ipv6 = len;
+	req->key.ipv6 = malloc(req->key._len.ipv6);
+	memcpy(req->key.ipv6, ipv6, req->key._len.ipv6);
 }
 static inline void
 ovs_flow_new_req_set_key_tcp(struct ovs_flow_new_req *req, const void *tcp,
@@ -1406,9 +1431,9 @@ ovs_flow_new_req_set_key_tcp(struct ovs_flow_new_req *req, const void *tcp,
 {
 	req->_present.key = 1;
 	free(req->key.tcp);
-	req->key._present.tcp_len = len;
-	req->key.tcp = malloc(req->key._present.tcp_len);
-	memcpy(req->key.tcp, tcp, req->key._present.tcp_len);
+	req->key._len.tcp = len;
+	req->key.tcp = malloc(req->key._len.tcp);
+	memcpy(req->key.tcp, tcp, req->key._len.tcp);
 }
 static inline void
 ovs_flow_new_req_set_key_udp(struct ovs_flow_new_req *req, const void *udp,
@@ -1416,9 +1441,9 @@ ovs_flow_new_req_set_key_udp(struct ovs_flow_new_req *req, const void *udp,
 {
 	req->_present.key = 1;
 	free(req->key.udp);
-	req->key._present.udp_len = len;
-	req->key.udp = malloc(req->key._present.udp_len);
-	memcpy(req->key.udp, udp, req->key._present.udp_len);
+	req->key._len.udp = len;
+	req->key.udp = malloc(req->key._len.udp);
+	memcpy(req->key.udp, udp, req->key._len.udp);
 }
 static inline void
 ovs_flow_new_req_set_key_icmp(struct ovs_flow_new_req *req, const void *icmp,
@@ -1426,9 +1451,9 @@ ovs_flow_new_req_set_key_icmp(struct ovs_flow_new_req *req, const void *icmp,
 {
 	req->_present.key = 1;
 	free(req->key.icmp);
-	req->key._present.icmp_len = len;
-	req->key.icmp = malloc(req->key._present.icmp_len);
-	memcpy(req->key.icmp, icmp, req->key._present.icmp_len);
+	req->key._len.icmp = len;
+	req->key.icmp = malloc(req->key._len.icmp);
+	memcpy(req->key.icmp, icmp, req->key._len.icmp);
 }
 static inline void
 ovs_flow_new_req_set_key_icmpv6(struct ovs_flow_new_req *req,
@@ -1436,9 +1461,9 @@ ovs_flow_new_req_set_key_icmpv6(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.icmpv6);
-	req->key._present.icmpv6_len = len;
-	req->key.icmpv6 = malloc(req->key._present.icmpv6_len);
-	memcpy(req->key.icmpv6, icmpv6, req->key._present.icmpv6_len);
+	req->key._len.icmpv6 = len;
+	req->key.icmpv6 = malloc(req->key._len.icmpv6);
+	memcpy(req->key.icmpv6, icmpv6, req->key._len.icmpv6);
 }
 static inline void
 ovs_flow_new_req_set_key_arp(struct ovs_flow_new_req *req, const void *arp,
@@ -1446,9 +1471,9 @@ ovs_flow_new_req_set_key_arp(struct ovs_flow_new_req *req, const void *arp,
 {
 	req->_present.key = 1;
 	free(req->key.arp);
-	req->key._present.arp_len = len;
-	req->key.arp = malloc(req->key._present.arp_len);
-	memcpy(req->key.arp, arp, req->key._present.arp_len);
+	req->key._len.arp = len;
+	req->key.arp = malloc(req->key._len.arp);
+	memcpy(req->key.arp, arp, req->key._len.arp);
 }
 static inline void
 ovs_flow_new_req_set_key_nd(struct ovs_flow_new_req *req, const void *nd,
@@ -1456,9 +1481,9 @@ ovs_flow_new_req_set_key_nd(struct ovs_flow_new_req *req, const void *nd,
 {
 	req->_present.key = 1;
 	free(req->key.nd);
-	req->key._present.nd_len = len;
-	req->key.nd = malloc(req->key._present.nd_len);
-	memcpy(req->key.nd, nd, req->key._present.nd_len);
+	req->key._len.nd = len;
+	req->key.nd = malloc(req->key._len.nd);
+	memcpy(req->key.nd, nd, req->key._len.nd);
 }
 static inline void
 ovs_flow_new_req_set_key_skb_mark(struct ovs_flow_new_req *req, __u32 skb_mark)
@@ -1533,15 +1558,15 @@ ovs_flow_new_req_set_key_tunnel_oam(struct ovs_flow_new_req *req)
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_geneve_opts(struct ovs_flow_new_req *req,
-					    const void *geneve_opts,
-					    size_t len)
+					    __u32 *geneve_opts, size_t count)
 {
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.geneve_opts);
-	req->key.tunnel._present.geneve_opts_len = len;
-	req->key.tunnel.geneve_opts = malloc(req->key.tunnel._present.geneve_opts_len);
-	memcpy(req->key.tunnel.geneve_opts, geneve_opts, req->key.tunnel._present.geneve_opts_len);
+	req->key.tunnel._count.geneve_opts = count;
+	count *= sizeof(__u32);
+	req->key.tunnel.geneve_opts = malloc(count);
+	memcpy(req->key.tunnel.geneve_opts, geneve_opts, count);
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_tp_src(struct ovs_flow_new_req *req,
@@ -1578,9 +1603,9 @@ ovs_flow_new_req_set_key_tunnel_ipv6_src(struct ovs_flow_new_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.ipv6_src);
-	req->key.tunnel._present.ipv6_src_len = len;
-	req->key.tunnel.ipv6_src = malloc(req->key.tunnel._present.ipv6_src_len);
-	memcpy(req->key.tunnel.ipv6_src, ipv6_src, req->key.tunnel._present.ipv6_src_len);
+	req->key.tunnel._len.ipv6_src = len;
+	req->key.tunnel.ipv6_src = malloc(req->key.tunnel._len.ipv6_src);
+	memcpy(req->key.tunnel.ipv6_src, ipv6_src, req->key.tunnel._len.ipv6_src);
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_ipv6_dst(struct ovs_flow_new_req *req,
@@ -1589,9 +1614,9 @@ ovs_flow_new_req_set_key_tunnel_ipv6_dst(struct ovs_flow_new_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.ipv6_dst);
-	req->key.tunnel._present.ipv6_dst_len = len;
-	req->key.tunnel.ipv6_dst = malloc(req->key.tunnel._present.ipv6_dst_len);
-	memcpy(req->key.tunnel.ipv6_dst, ipv6_dst, req->key.tunnel._present.ipv6_dst_len);
+	req->key.tunnel._len.ipv6_dst = len;
+	req->key.tunnel.ipv6_dst = malloc(req->key.tunnel._len.ipv6_dst);
+	memcpy(req->key.tunnel.ipv6_dst, ipv6_dst, req->key.tunnel._len.ipv6_dst);
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_pad(struct ovs_flow_new_req *req,
@@ -1600,9 +1625,9 @@ ovs_flow_new_req_set_key_tunnel_pad(struct ovs_flow_new_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.pad);
-	req->key.tunnel._present.pad_len = len;
-	req->key.tunnel.pad = malloc(req->key.tunnel._present.pad_len);
-	memcpy(req->key.tunnel.pad, pad, req->key.tunnel._present.pad_len);
+	req->key.tunnel._len.pad = len;
+	req->key.tunnel.pad = malloc(req->key.tunnel._len.pad);
+	memcpy(req->key.tunnel.pad, pad, req->key.tunnel._len.pad);
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_erspan_opts(struct ovs_flow_new_req *req,
@@ -1612,9 +1637,9 @@ ovs_flow_new_req_set_key_tunnel_erspan_opts(struct ovs_flow_new_req *req,
 	req->_present.key = 1;
 	req->key._present.tunnel = 1;
 	free(req->key.tunnel.erspan_opts);
-	req->key.tunnel._present.erspan_opts_len = len;
-	req->key.tunnel.erspan_opts = malloc(req->key.tunnel._present.erspan_opts_len);
-	memcpy(req->key.tunnel.erspan_opts, erspan_opts, req->key.tunnel._present.erspan_opts_len);
+	req->key.tunnel._len.erspan_opts = len;
+	req->key.tunnel.erspan_opts = malloc(req->key.tunnel._len.erspan_opts);
+	memcpy(req->key.tunnel.erspan_opts, erspan_opts, req->key.tunnel._len.erspan_opts);
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_ipv4_info_bridge(struct ovs_flow_new_req *req)
@@ -1629,9 +1654,9 @@ ovs_flow_new_req_set_key_sctp(struct ovs_flow_new_req *req, const void *sctp,
 {
 	req->_present.key = 1;
 	free(req->key.sctp);
-	req->key._present.sctp_len = len;
-	req->key.sctp = malloc(req->key._present.sctp_len);
-	memcpy(req->key.sctp, sctp, req->key._present.sctp_len);
+	req->key._len.sctp = len;
+	req->key.sctp = malloc(req->key._len.sctp);
+	memcpy(req->key.sctp, sctp, req->key._len.sctp);
 }
 static inline void
 ovs_flow_new_req_set_key_tcp_flags(struct ovs_flow_new_req *req,
@@ -1662,9 +1687,9 @@ ovs_flow_new_req_set_key_mpls(struct ovs_flow_new_req *req, const void *mpls,
 {
 	req->_present.key = 1;
 	free(req->key.mpls);
-	req->key._present.mpls_len = len;
-	req->key.mpls = malloc(req->key._present.mpls_len);
-	memcpy(req->key.mpls, mpls, req->key._present.mpls_len);
+	req->key._len.mpls = len;
+	req->key.mpls = malloc(req->key._len.mpls);
+	memcpy(req->key.mpls, mpls, req->key._len.mpls);
 }
 static inline void
 ovs_flow_new_req_set_key_ct_state(struct ovs_flow_new_req *req, __u32 ct_state)
@@ -1693,9 +1718,9 @@ ovs_flow_new_req_set_key_ct_labels(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_labels);
-	req->key._present.ct_labels_len = len;
-	req->key.ct_labels = malloc(req->key._present.ct_labels_len);
-	memcpy(req->key.ct_labels, ct_labels, req->key._present.ct_labels_len);
+	req->key._len.ct_labels = len;
+	req->key.ct_labels = malloc(req->key._len.ct_labels);
+	memcpy(req->key.ct_labels, ct_labels, req->key._len.ct_labels);
 }
 static inline void
 ovs_flow_new_req_set_key_ct_orig_tuple_ipv4(struct ovs_flow_new_req *req,
@@ -1704,9 +1729,9 @@ ovs_flow_new_req_set_key_ct_orig_tuple_ipv4(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_orig_tuple_ipv4);
-	req->key._present.ct_orig_tuple_ipv4_len = len;
-	req->key.ct_orig_tuple_ipv4 = malloc(req->key._present.ct_orig_tuple_ipv4_len);
-	memcpy(req->key.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->key._present.ct_orig_tuple_ipv4_len);
+	req->key._len.ct_orig_tuple_ipv4 = len;
+	req->key.ct_orig_tuple_ipv4 = malloc(req->key._len.ct_orig_tuple_ipv4);
+	memcpy(req->key.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->key._len.ct_orig_tuple_ipv4);
 }
 static inline void
 ovs_flow_new_req_set_key_ct_orig_tuple_ipv6(struct ovs_flow_new_req *req,
@@ -1715,9 +1740,9 @@ ovs_flow_new_req_set_key_ct_orig_tuple_ipv6(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ct_orig_tuple_ipv6);
-	req->key._present.ct_orig_tuple_ipv6_len = len;
-	req->key.ct_orig_tuple_ipv6 = malloc(req->key._present.ct_orig_tuple_ipv6_len);
-	memcpy(req->key.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->key._present.ct_orig_tuple_ipv6_len);
+	req->key._len.ct_orig_tuple_ipv6 = len;
+	req->key.ct_orig_tuple_ipv6 = malloc(req->key._len.ct_orig_tuple_ipv6);
+	memcpy(req->key.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->key._len.ct_orig_tuple_ipv6);
 }
 static inline void
 ovs_flow_new_req_set_key_nsh_base(struct ovs_flow_new_req *req,
@@ -1726,9 +1751,9 @@ ovs_flow_new_req_set_key_nsh_base(struct ovs_flow_new_req *req,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.base);
-	req->key.nsh._present.base_len = len;
-	req->key.nsh.base = malloc(req->key.nsh._present.base_len);
-	memcpy(req->key.nsh.base, base, req->key.nsh._present.base_len);
+	req->key.nsh._len.base = len;
+	req->key.nsh.base = malloc(req->key.nsh._len.base);
+	memcpy(req->key.nsh.base, base, req->key.nsh._len.base);
 }
 static inline void
 ovs_flow_new_req_set_key_nsh_md1(struct ovs_flow_new_req *req, const void *md1,
@@ -1737,9 +1762,9 @@ ovs_flow_new_req_set_key_nsh_md1(struct ovs_flow_new_req *req, const void *md1,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.md1);
-	req->key.nsh._present.md1_len = len;
-	req->key.nsh.md1 = malloc(req->key.nsh._present.md1_len);
-	memcpy(req->key.nsh.md1, md1, req->key.nsh._present.md1_len);
+	req->key.nsh._len.md1 = len;
+	req->key.nsh.md1 = malloc(req->key.nsh._len.md1);
+	memcpy(req->key.nsh.md1, md1, req->key.nsh._len.md1);
 }
 static inline void
 ovs_flow_new_req_set_key_nsh_md2(struct ovs_flow_new_req *req, const void *md2,
@@ -1748,9 +1773,9 @@ ovs_flow_new_req_set_key_nsh_md2(struct ovs_flow_new_req *req, const void *md2,
 	req->_present.key = 1;
 	req->key._present.nsh = 1;
 	free(req->key.nsh.md2);
-	req->key.nsh._present.md2_len = len;
-	req->key.nsh.md2 = malloc(req->key.nsh._present.md2_len);
-	memcpy(req->key.nsh.md2, md2, req->key.nsh._present.md2_len);
+	req->key.nsh._len.md2 = len;
+	req->key.nsh.md2 = malloc(req->key.nsh._len.md2);
+	memcpy(req->key.nsh.md2, md2, req->key.nsh._len.md2);
 }
 static inline void
 ovs_flow_new_req_set_key_packet_type(struct ovs_flow_new_req *req,
@@ -1766,9 +1791,9 @@ ovs_flow_new_req_set_key_nd_extensions(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.nd_extensions);
-	req->key._present.nd_extensions_len = len;
-	req->key.nd_extensions = malloc(req->key._present.nd_extensions_len);
-	memcpy(req->key.nd_extensions, nd_extensions, req->key._present.nd_extensions_len);
+	req->key._len.nd_extensions = len;
+	req->key.nd_extensions = malloc(req->key._len.nd_extensions);
+	memcpy(req->key.nd_extensions, nd_extensions, req->key._len.nd_extensions);
 }
 static inline void
 ovs_flow_new_req_set_key_tunnel_info(struct ovs_flow_new_req *req,
@@ -1776,9 +1801,9 @@ ovs_flow_new_req_set_key_tunnel_info(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.tunnel_info);
-	req->key._present.tunnel_info_len = len;
-	req->key.tunnel_info = malloc(req->key._present.tunnel_info_len);
-	memcpy(req->key.tunnel_info, tunnel_info, req->key._present.tunnel_info_len);
+	req->key._len.tunnel_info = len;
+	req->key.tunnel_info = malloc(req->key._len.tunnel_info);
+	memcpy(req->key.tunnel_info, tunnel_info, req->key._len.tunnel_info);
 }
 static inline void
 ovs_flow_new_req_set_key_ipv6_exthdrs(struct ovs_flow_new_req *req,
@@ -1786,18 +1811,18 @@ ovs_flow_new_req_set_key_ipv6_exthdrs(struct ovs_flow_new_req *req,
 {
 	req->_present.key = 1;
 	free(req->key.ipv6_exthdrs);
-	req->key._present.ipv6_exthdrs_len = len;
-	req->key.ipv6_exthdrs = malloc(req->key._present.ipv6_exthdrs_len);
-	memcpy(req->key.ipv6_exthdrs, ipv6_exthdrs, req->key._present.ipv6_exthdrs_len);
+	req->key._len.ipv6_exthdrs = len;
+	req->key.ipv6_exthdrs = malloc(req->key._len.ipv6_exthdrs);
+	memcpy(req->key.ipv6_exthdrs, ipv6_exthdrs, req->key._len.ipv6_exthdrs);
 }
 static inline void
 ovs_flow_new_req_set_ufid(struct ovs_flow_new_req *req, const void *ufid,
 			  size_t len)
 {
 	free(req->ufid);
-	req->_present.ufid_len = len;
-	req->ufid = malloc(req->_present.ufid_len);
-	memcpy(req->ufid, ufid, req->_present.ufid_len);
+	req->_len.ufid = len;
+	req->ufid = malloc(req->_len.ufid);
+	memcpy(req->ufid, ufid, req->_len.ufid);
 }
 static inline void
 ovs_flow_new_req_set_mask_priority(struct ovs_flow_new_req *req,
@@ -1820,9 +1845,9 @@ ovs_flow_new_req_set_mask_ethernet(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.ethernet);
-	req->mask._present.ethernet_len = len;
-	req->mask.ethernet = malloc(req->mask._present.ethernet_len);
-	memcpy(req->mask.ethernet, ethernet, req->mask._present.ethernet_len);
+	req->mask._len.ethernet = len;
+	req->mask.ethernet = malloc(req->mask._len.ethernet);
+	memcpy(req->mask.ethernet, ethernet, req->mask._len.ethernet);
 }
 static inline void
 ovs_flow_new_req_set_mask_vlan(struct ovs_flow_new_req *req,
@@ -1846,9 +1871,9 @@ ovs_flow_new_req_set_mask_ipv4(struct ovs_flow_new_req *req, const void *ipv4,
 {
 	req->_present.mask = 1;
 	free(req->mask.ipv4);
-	req->mask._present.ipv4_len = len;
-	req->mask.ipv4 = malloc(req->mask._present.ipv4_len);
-	memcpy(req->mask.ipv4, ipv4, req->mask._present.ipv4_len);
+	req->mask._len.ipv4 = len;
+	req->mask.ipv4 = malloc(req->mask._len.ipv4);
+	memcpy(req->mask.ipv4, ipv4, req->mask._len.ipv4);
 }
 static inline void
 ovs_flow_new_req_set_mask_ipv6(struct ovs_flow_new_req *req, const void *ipv6,
@@ -1856,9 +1881,9 @@ ovs_flow_new_req_set_mask_ipv6(struct ovs_flow_new_req *req, const void *ipv6,
 {
 	req->_present.mask = 1;
 	free(req->mask.ipv6);
-	req->mask._present.ipv6_len = len;
-	req->mask.ipv6 = malloc(req->mask._present.ipv6_len);
-	memcpy(req->mask.ipv6, ipv6, req->mask._present.ipv6_len);
+	req->mask._len.ipv6 = len;
+	req->mask.ipv6 = malloc(req->mask._len.ipv6);
+	memcpy(req->mask.ipv6, ipv6, req->mask._len.ipv6);
 }
 static inline void
 ovs_flow_new_req_set_mask_tcp(struct ovs_flow_new_req *req, const void *tcp,
@@ -1866,9 +1891,9 @@ ovs_flow_new_req_set_mask_tcp(struct ovs_flow_new_req *req, const void *tcp,
 {
 	req->_present.mask = 1;
 	free(req->mask.tcp);
-	req->mask._present.tcp_len = len;
-	req->mask.tcp = malloc(req->mask._present.tcp_len);
-	memcpy(req->mask.tcp, tcp, req->mask._present.tcp_len);
+	req->mask._len.tcp = len;
+	req->mask.tcp = malloc(req->mask._len.tcp);
+	memcpy(req->mask.tcp, tcp, req->mask._len.tcp);
 }
 static inline void
 ovs_flow_new_req_set_mask_udp(struct ovs_flow_new_req *req, const void *udp,
@@ -1876,9 +1901,9 @@ ovs_flow_new_req_set_mask_udp(struct ovs_flow_new_req *req, const void *udp,
 {
 	req->_present.mask = 1;
 	free(req->mask.udp);
-	req->mask._present.udp_len = len;
-	req->mask.udp = malloc(req->mask._present.udp_len);
-	memcpy(req->mask.udp, udp, req->mask._present.udp_len);
+	req->mask._len.udp = len;
+	req->mask.udp = malloc(req->mask._len.udp);
+	memcpy(req->mask.udp, udp, req->mask._len.udp);
 }
 static inline void
 ovs_flow_new_req_set_mask_icmp(struct ovs_flow_new_req *req, const void *icmp,
@@ -1886,9 +1911,9 @@ ovs_flow_new_req_set_mask_icmp(struct ovs_flow_new_req *req, const void *icmp,
 {
 	req->_present.mask = 1;
 	free(req->mask.icmp);
-	req->mask._present.icmp_len = len;
-	req->mask.icmp = malloc(req->mask._present.icmp_len);
-	memcpy(req->mask.icmp, icmp, req->mask._present.icmp_len);
+	req->mask._len.icmp = len;
+	req->mask.icmp = malloc(req->mask._len.icmp);
+	memcpy(req->mask.icmp, icmp, req->mask._len.icmp);
 }
 static inline void
 ovs_flow_new_req_set_mask_icmpv6(struct ovs_flow_new_req *req,
@@ -1896,9 +1921,9 @@ ovs_flow_new_req_set_mask_icmpv6(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.icmpv6);
-	req->mask._present.icmpv6_len = len;
-	req->mask.icmpv6 = malloc(req->mask._present.icmpv6_len);
-	memcpy(req->mask.icmpv6, icmpv6, req->mask._present.icmpv6_len);
+	req->mask._len.icmpv6 = len;
+	req->mask.icmpv6 = malloc(req->mask._len.icmpv6);
+	memcpy(req->mask.icmpv6, icmpv6, req->mask._len.icmpv6);
 }
 static inline void
 ovs_flow_new_req_set_mask_arp(struct ovs_flow_new_req *req, const void *arp,
@@ -1906,9 +1931,9 @@ ovs_flow_new_req_set_mask_arp(struct ovs_flow_new_req *req, const void *arp,
 {
 	req->_present.mask = 1;
 	free(req->mask.arp);
-	req->mask._present.arp_len = len;
-	req->mask.arp = malloc(req->mask._present.arp_len);
-	memcpy(req->mask.arp, arp, req->mask._present.arp_len);
+	req->mask._len.arp = len;
+	req->mask.arp = malloc(req->mask._len.arp);
+	memcpy(req->mask.arp, arp, req->mask._len.arp);
 }
 static inline void
 ovs_flow_new_req_set_mask_nd(struct ovs_flow_new_req *req, const void *nd,
@@ -1916,9 +1941,9 @@ ovs_flow_new_req_set_mask_nd(struct ovs_flow_new_req *req, const void *nd,
 {
 	req->_present.mask = 1;
 	free(req->mask.nd);
-	req->mask._present.nd_len = len;
-	req->mask.nd = malloc(req->mask._present.nd_len);
-	memcpy(req->mask.nd, nd, req->mask._present.nd_len);
+	req->mask._len.nd = len;
+	req->mask.nd = malloc(req->mask._len.nd);
+	memcpy(req->mask.nd, nd, req->mask._len.nd);
 }
 static inline void
 ovs_flow_new_req_set_mask_skb_mark(struct ovs_flow_new_req *req,
@@ -1994,15 +2019,15 @@ ovs_flow_new_req_set_mask_tunnel_oam(struct ovs_flow_new_req *req)
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_geneve_opts(struct ovs_flow_new_req *req,
-					     const void *geneve_opts,
-					     size_t len)
+					     __u32 *geneve_opts, size_t count)
 {
 	req->_present.mask = 1;
 	req->mask._present.tunnel = 1;
 	free(req->mask.tunnel.geneve_opts);
-	req->mask.tunnel._present.geneve_opts_len = len;
-	req->mask.tunnel.geneve_opts = malloc(req->mask.tunnel._present.geneve_opts_len);
-	memcpy(req->mask.tunnel.geneve_opts, geneve_opts, req->mask.tunnel._present.geneve_opts_len);
+	req->mask.tunnel._count.geneve_opts = count;
+	count *= sizeof(__u32);
+	req->mask.tunnel.geneve_opts = malloc(count);
+	memcpy(req->mask.tunnel.geneve_opts, geneve_opts, count);
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_tp_src(struct ovs_flow_new_req *req,
@@ -2039,9 +2064,9 @@ ovs_flow_new_req_set_mask_tunnel_ipv6_src(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.tunnel = 1;
 	free(req->mask.tunnel.ipv6_src);
-	req->mask.tunnel._present.ipv6_src_len = len;
-	req->mask.tunnel.ipv6_src = malloc(req->mask.tunnel._present.ipv6_src_len);
-	memcpy(req->mask.tunnel.ipv6_src, ipv6_src, req->mask.tunnel._present.ipv6_src_len);
+	req->mask.tunnel._len.ipv6_src = len;
+	req->mask.tunnel.ipv6_src = malloc(req->mask.tunnel._len.ipv6_src);
+	memcpy(req->mask.tunnel.ipv6_src, ipv6_src, req->mask.tunnel._len.ipv6_src);
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_ipv6_dst(struct ovs_flow_new_req *req,
@@ -2050,9 +2075,9 @@ ovs_flow_new_req_set_mask_tunnel_ipv6_dst(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.tunnel = 1;
 	free(req->mask.tunnel.ipv6_dst);
-	req->mask.tunnel._present.ipv6_dst_len = len;
-	req->mask.tunnel.ipv6_dst = malloc(req->mask.tunnel._present.ipv6_dst_len);
-	memcpy(req->mask.tunnel.ipv6_dst, ipv6_dst, req->mask.tunnel._present.ipv6_dst_len);
+	req->mask.tunnel._len.ipv6_dst = len;
+	req->mask.tunnel.ipv6_dst = malloc(req->mask.tunnel._len.ipv6_dst);
+	memcpy(req->mask.tunnel.ipv6_dst, ipv6_dst, req->mask.tunnel._len.ipv6_dst);
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_pad(struct ovs_flow_new_req *req,
@@ -2061,9 +2086,9 @@ ovs_flow_new_req_set_mask_tunnel_pad(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.tunnel = 1;
 	free(req->mask.tunnel.pad);
-	req->mask.tunnel._present.pad_len = len;
-	req->mask.tunnel.pad = malloc(req->mask.tunnel._present.pad_len);
-	memcpy(req->mask.tunnel.pad, pad, req->mask.tunnel._present.pad_len);
+	req->mask.tunnel._len.pad = len;
+	req->mask.tunnel.pad = malloc(req->mask.tunnel._len.pad);
+	memcpy(req->mask.tunnel.pad, pad, req->mask.tunnel._len.pad);
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_erspan_opts(struct ovs_flow_new_req *req,
@@ -2073,9 +2098,9 @@ ovs_flow_new_req_set_mask_tunnel_erspan_opts(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.tunnel = 1;
 	free(req->mask.tunnel.erspan_opts);
-	req->mask.tunnel._present.erspan_opts_len = len;
-	req->mask.tunnel.erspan_opts = malloc(req->mask.tunnel._present.erspan_opts_len);
-	memcpy(req->mask.tunnel.erspan_opts, erspan_opts, req->mask.tunnel._present.erspan_opts_len);
+	req->mask.tunnel._len.erspan_opts = len;
+	req->mask.tunnel.erspan_opts = malloc(req->mask.tunnel._len.erspan_opts);
+	memcpy(req->mask.tunnel.erspan_opts, erspan_opts, req->mask.tunnel._len.erspan_opts);
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_ipv4_info_bridge(struct ovs_flow_new_req *req)
@@ -2090,9 +2115,9 @@ ovs_flow_new_req_set_mask_sctp(struct ovs_flow_new_req *req, const void *sctp,
 {
 	req->_present.mask = 1;
 	free(req->mask.sctp);
-	req->mask._present.sctp_len = len;
-	req->mask.sctp = malloc(req->mask._present.sctp_len);
-	memcpy(req->mask.sctp, sctp, req->mask._present.sctp_len);
+	req->mask._len.sctp = len;
+	req->mask.sctp = malloc(req->mask._len.sctp);
+	memcpy(req->mask.sctp, sctp, req->mask._len.sctp);
 }
 static inline void
 ovs_flow_new_req_set_mask_tcp_flags(struct ovs_flow_new_req *req,
@@ -2123,9 +2148,9 @@ ovs_flow_new_req_set_mask_mpls(struct ovs_flow_new_req *req, const void *mpls,
 {
 	req->_present.mask = 1;
 	free(req->mask.mpls);
-	req->mask._present.mpls_len = len;
-	req->mask.mpls = malloc(req->mask._present.mpls_len);
-	memcpy(req->mask.mpls, mpls, req->mask._present.mpls_len);
+	req->mask._len.mpls = len;
+	req->mask.mpls = malloc(req->mask._len.mpls);
+	memcpy(req->mask.mpls, mpls, req->mask._len.mpls);
 }
 static inline void
 ovs_flow_new_req_set_mask_ct_state(struct ovs_flow_new_req *req,
@@ -2155,9 +2180,9 @@ ovs_flow_new_req_set_mask_ct_labels(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.ct_labels);
-	req->mask._present.ct_labels_len = len;
-	req->mask.ct_labels = malloc(req->mask._present.ct_labels_len);
-	memcpy(req->mask.ct_labels, ct_labels, req->mask._present.ct_labels_len);
+	req->mask._len.ct_labels = len;
+	req->mask.ct_labels = malloc(req->mask._len.ct_labels);
+	memcpy(req->mask.ct_labels, ct_labels, req->mask._len.ct_labels);
 }
 static inline void
 ovs_flow_new_req_set_mask_ct_orig_tuple_ipv4(struct ovs_flow_new_req *req,
@@ -2166,9 +2191,9 @@ ovs_flow_new_req_set_mask_ct_orig_tuple_ipv4(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.ct_orig_tuple_ipv4);
-	req->mask._present.ct_orig_tuple_ipv4_len = len;
-	req->mask.ct_orig_tuple_ipv4 = malloc(req->mask._present.ct_orig_tuple_ipv4_len);
-	memcpy(req->mask.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->mask._present.ct_orig_tuple_ipv4_len);
+	req->mask._len.ct_orig_tuple_ipv4 = len;
+	req->mask.ct_orig_tuple_ipv4 = malloc(req->mask._len.ct_orig_tuple_ipv4);
+	memcpy(req->mask.ct_orig_tuple_ipv4, ct_orig_tuple_ipv4, req->mask._len.ct_orig_tuple_ipv4);
 }
 static inline void
 ovs_flow_new_req_set_mask_ct_orig_tuple_ipv6(struct ovs_flow_new_req *req,
@@ -2177,9 +2202,9 @@ ovs_flow_new_req_set_mask_ct_orig_tuple_ipv6(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.ct_orig_tuple_ipv6);
-	req->mask._present.ct_orig_tuple_ipv6_len = len;
-	req->mask.ct_orig_tuple_ipv6 = malloc(req->mask._present.ct_orig_tuple_ipv6_len);
-	memcpy(req->mask.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->mask._present.ct_orig_tuple_ipv6_len);
+	req->mask._len.ct_orig_tuple_ipv6 = len;
+	req->mask.ct_orig_tuple_ipv6 = malloc(req->mask._len.ct_orig_tuple_ipv6);
+	memcpy(req->mask.ct_orig_tuple_ipv6, ct_orig_tuple_ipv6, req->mask._len.ct_orig_tuple_ipv6);
 }
 static inline void
 ovs_flow_new_req_set_mask_nsh_base(struct ovs_flow_new_req *req,
@@ -2188,9 +2213,9 @@ ovs_flow_new_req_set_mask_nsh_base(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.nsh = 1;
 	free(req->mask.nsh.base);
-	req->mask.nsh._present.base_len = len;
-	req->mask.nsh.base = malloc(req->mask.nsh._present.base_len);
-	memcpy(req->mask.nsh.base, base, req->mask.nsh._present.base_len);
+	req->mask.nsh._len.base = len;
+	req->mask.nsh.base = malloc(req->mask.nsh._len.base);
+	memcpy(req->mask.nsh.base, base, req->mask.nsh._len.base);
 }
 static inline void
 ovs_flow_new_req_set_mask_nsh_md1(struct ovs_flow_new_req *req,
@@ -2199,9 +2224,9 @@ ovs_flow_new_req_set_mask_nsh_md1(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.nsh = 1;
 	free(req->mask.nsh.md1);
-	req->mask.nsh._present.md1_len = len;
-	req->mask.nsh.md1 = malloc(req->mask.nsh._present.md1_len);
-	memcpy(req->mask.nsh.md1, md1, req->mask.nsh._present.md1_len);
+	req->mask.nsh._len.md1 = len;
+	req->mask.nsh.md1 = malloc(req->mask.nsh._len.md1);
+	memcpy(req->mask.nsh.md1, md1, req->mask.nsh._len.md1);
 }
 static inline void
 ovs_flow_new_req_set_mask_nsh_md2(struct ovs_flow_new_req *req,
@@ -2210,9 +2235,9 @@ ovs_flow_new_req_set_mask_nsh_md2(struct ovs_flow_new_req *req,
 	req->_present.mask = 1;
 	req->mask._present.nsh = 1;
 	free(req->mask.nsh.md2);
-	req->mask.nsh._present.md2_len = len;
-	req->mask.nsh.md2 = malloc(req->mask.nsh._present.md2_len);
-	memcpy(req->mask.nsh.md2, md2, req->mask.nsh._present.md2_len);
+	req->mask.nsh._len.md2 = len;
+	req->mask.nsh.md2 = malloc(req->mask.nsh._len.md2);
+	memcpy(req->mask.nsh.md2, md2, req->mask.nsh._len.md2);
 }
 static inline void
 ovs_flow_new_req_set_mask_packet_type(struct ovs_flow_new_req *req,
@@ -2228,9 +2253,9 @@ ovs_flow_new_req_set_mask_nd_extensions(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.nd_extensions);
-	req->mask._present.nd_extensions_len = len;
-	req->mask.nd_extensions = malloc(req->mask._present.nd_extensions_len);
-	memcpy(req->mask.nd_extensions, nd_extensions, req->mask._present.nd_extensions_len);
+	req->mask._len.nd_extensions = len;
+	req->mask.nd_extensions = malloc(req->mask._len.nd_extensions);
+	memcpy(req->mask.nd_extensions, nd_extensions, req->mask._len.nd_extensions);
 }
 static inline void
 ovs_flow_new_req_set_mask_tunnel_info(struct ovs_flow_new_req *req,
@@ -2238,9 +2263,9 @@ ovs_flow_new_req_set_mask_tunnel_info(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.tunnel_info);
-	req->mask._present.tunnel_info_len = len;
-	req->mask.tunnel_info = malloc(req->mask._present.tunnel_info_len);
-	memcpy(req->mask.tunnel_info, tunnel_info, req->mask._present.tunnel_info_len);
+	req->mask._len.tunnel_info = len;
+	req->mask.tunnel_info = malloc(req->mask._len.tunnel_info);
+	memcpy(req->mask.tunnel_info, tunnel_info, req->mask._len.tunnel_info);
 }
 static inline void
 ovs_flow_new_req_set_mask_ipv6_exthdrs(struct ovs_flow_new_req *req,
@@ -2248,9 +2273,9 @@ ovs_flow_new_req_set_mask_ipv6_exthdrs(struct ovs_flow_new_req *req,
 {
 	req->_present.mask = 1;
 	free(req->mask.ipv6_exthdrs);
-	req->mask._present.ipv6_exthdrs_len = len;
-	req->mask.ipv6_exthdrs = malloc(req->mask._present.ipv6_exthdrs_len);
-	memcpy(req->mask.ipv6_exthdrs, ipv6_exthdrs, req->mask._present.ipv6_exthdrs_len);
+	req->mask._len.ipv6_exthdrs = len;
+	req->mask.ipv6_exthdrs = malloc(req->mask._len.ipv6_exthdrs);
+	memcpy(req->mask.ipv6_exthdrs, ipv6_exthdrs, req->mask._len.ipv6_exthdrs);
 }
 static inline void
 ovs_flow_new_req_set_actions_output(struct ovs_flow_new_req *req, __u32 output)
@@ -2276,9 +2301,9 @@ ovs_flow_new_req_set_actions_userspace_userdata(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.userspace = 1;
 	free(req->actions.userspace.userdata);
-	req->actions.userspace._present.userdata_len = len;
-	req->actions.userspace.userdata = malloc(req->actions.userspace._present.userdata_len);
-	memcpy(req->actions.userspace.userdata, userdata, req->actions.userspace._present.userdata_len);
+	req->actions.userspace._len.userdata = len;
+	req->actions.userspace.userdata = malloc(req->actions.userspace._len.userdata);
+	memcpy(req->actions.userspace.userdata, userdata, req->actions.userspace._len.userdata);
 }
 static inline void
 ovs_flow_new_req_set_actions_userspace_egress_tun_port(struct ovs_flow_new_req *req,
@@ -2302,9 +2327,9 @@ ovs_flow_new_req_set_actions_push_vlan(struct ovs_flow_new_req *req,
 {
 	req->_present.actions = 1;
 	free(req->actions.push_vlan);
-	req->actions._present.push_vlan_len = len;
-	req->actions.push_vlan = malloc(req->actions._present.push_vlan_len);
-	memcpy(req->actions.push_vlan, push_vlan, req->actions._present.push_vlan_len);
+	req->actions._len.push_vlan = len;
+	req->actions.push_vlan = malloc(req->actions._len.push_vlan);
+	memcpy(req->actions.push_vlan, push_vlan, req->actions._len.push_vlan);
 }
 static inline void
 ovs_flow_new_req_set_actions_pop_vlan(struct ovs_flow_new_req *req)
@@ -2334,9 +2359,9 @@ ovs_flow_new_req_set_actions_hash(struct ovs_flow_new_req *req,
 {
 	req->_present.actions = 1;
 	free(req->actions.hash);
-	req->actions._present.hash_len = len;
-	req->actions.hash = malloc(req->actions._present.hash_len);
-	memcpy(req->actions.hash, hash, req->actions._present.hash_len);
+	req->actions._len.hash = len;
+	req->actions.hash = malloc(req->actions._len.hash);
+	memcpy(req->actions.hash, hash, req->actions._len.hash);
 }
 static inline void
 ovs_flow_new_req_set_actions_push_mpls(struct ovs_flow_new_req *req,
@@ -2344,9 +2369,9 @@ ovs_flow_new_req_set_actions_push_mpls(struct ovs_flow_new_req *req,
 {
 	req->_present.actions = 1;
 	free(req->actions.push_mpls);
-	req->actions._present.push_mpls_len = len;
-	req->actions.push_mpls = malloc(req->actions._present.push_mpls_len);
-	memcpy(req->actions.push_mpls, push_mpls, req->actions._present.push_mpls_len);
+	req->actions._len.push_mpls = len;
+	req->actions.push_mpls = malloc(req->actions._len.push_mpls);
+	memcpy(req->actions.push_mpls, push_mpls, req->actions._len.push_mpls);
 }
 static inline void
 ovs_flow_new_req_set_actions_pop_mpls(struct ovs_flow_new_req *req,
@@ -2378,9 +2403,9 @@ ovs_flow_new_req_set_actions_ct_mark(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.ct = 1;
 	free(req->actions.ct.mark);
-	req->actions.ct._present.mark_len = len;
-	req->actions.ct.mark = malloc(req->actions.ct._present.mark_len);
-	memcpy(req->actions.ct.mark, mark, req->actions.ct._present.mark_len);
+	req->actions.ct._len.mark = len;
+	req->actions.ct.mark = malloc(req->actions.ct._len.mark);
+	memcpy(req->actions.ct.mark, mark, req->actions.ct._len.mark);
 }
 static inline void
 ovs_flow_new_req_set_actions_ct_labels(struct ovs_flow_new_req *req,
@@ -2389,9 +2414,9 @@ ovs_flow_new_req_set_actions_ct_labels(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.ct = 1;
 	free(req->actions.ct.labels);
-	req->actions.ct._present.labels_len = len;
-	req->actions.ct.labels = malloc(req->actions.ct._present.labels_len);
-	memcpy(req->actions.ct.labels, labels, req->actions.ct._present.labels_len);
+	req->actions.ct._len.labels = len;
+	req->actions.ct.labels = malloc(req->actions.ct._len.labels);
+	memcpy(req->actions.ct.labels, labels, req->actions.ct._len.labels);
 }
 static inline void
 ovs_flow_new_req_set_actions_ct_helper(struct ovs_flow_new_req *req,
@@ -2400,10 +2425,10 @@ ovs_flow_new_req_set_actions_ct_helper(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.ct = 1;
 	free(req->actions.ct.helper);
-	req->actions.ct._present.helper_len = strlen(helper);
-	req->actions.ct.helper = malloc(req->actions.ct._present.helper_len + 1);
-	memcpy(req->actions.ct.helper, helper, req->actions.ct._present.helper_len);
-	req->actions.ct.helper[req->actions.ct._present.helper_len] = 0;
+	req->actions.ct._len.helper = strlen(helper);
+	req->actions.ct.helper = malloc(req->actions.ct._len.helper + 1);
+	memcpy(req->actions.ct.helper, helper, req->actions.ct._len.helper);
+	req->actions.ct.helper[req->actions.ct._len.helper] = 0;
 }
 static inline void
 ovs_flow_new_req_set_actions_ct_nat_src(struct ovs_flow_new_req *req)
@@ -2429,9 +2454,9 @@ ovs_flow_new_req_set_actions_ct_nat_ip_min(struct ovs_flow_new_req *req,
 	req->actions._present.ct = 1;
 	req->actions.ct._present.nat = 1;
 	free(req->actions.ct.nat.ip_min);
-	req->actions.ct.nat._present.ip_min_len = len;
-	req->actions.ct.nat.ip_min = malloc(req->actions.ct.nat._present.ip_min_len);
-	memcpy(req->actions.ct.nat.ip_min, ip_min, req->actions.ct.nat._present.ip_min_len);
+	req->actions.ct.nat._len.ip_min = len;
+	req->actions.ct.nat.ip_min = malloc(req->actions.ct.nat._len.ip_min);
+	memcpy(req->actions.ct.nat.ip_min, ip_min, req->actions.ct.nat._len.ip_min);
 }
 static inline void
 ovs_flow_new_req_set_actions_ct_nat_ip_max(struct ovs_flow_new_req *req,
@@ -2441,9 +2466,9 @@ ovs_flow_new_req_set_actions_ct_nat_ip_max(struct ovs_flow_new_req *req,
 	req->actions._present.ct = 1;
 	req->actions.ct._present.nat = 1;
 	free(req->actions.ct.nat.ip_max);
-	req->actions.ct.nat._present.ip_max_len = len;
-	req->actions.ct.nat.ip_max = malloc(req->actions.ct.nat._present.ip_max_len);
-	memcpy(req->actions.ct.nat.ip_max, ip_max, req->actions.ct.nat._present.ip_max_len);
+	req->actions.ct.nat._len.ip_max = len;
+	req->actions.ct.nat.ip_max = malloc(req->actions.ct.nat._len.ip_max);
+	memcpy(req->actions.ct.nat.ip_max, ip_max, req->actions.ct.nat._len.ip_max);
 }
 static inline void
 ovs_flow_new_req_set_actions_ct_nat_proto_min(struct ovs_flow_new_req *req,
@@ -2512,10 +2537,10 @@ ovs_flow_new_req_set_actions_ct_timeout(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.ct = 1;
 	free(req->actions.ct.timeout);
-	req->actions.ct._present.timeout_len = strlen(timeout);
-	req->actions.ct.timeout = malloc(req->actions.ct._present.timeout_len + 1);
-	memcpy(req->actions.ct.timeout, timeout, req->actions.ct._present.timeout_len);
-	req->actions.ct.timeout[req->actions.ct._present.timeout_len] = 0;
+	req->actions.ct._len.timeout = strlen(timeout);
+	req->actions.ct.timeout = malloc(req->actions.ct._len.timeout + 1);
+	memcpy(req->actions.ct.timeout, timeout, req->actions.ct._len.timeout);
+	req->actions.ct.timeout[req->actions.ct._len.timeout] = 0;
 }
 static inline void
 ovs_flow_new_req_set_actions_trunc(struct ovs_flow_new_req *req, __u32 trunc)
@@ -2530,9 +2555,9 @@ ovs_flow_new_req_set_actions_push_eth(struct ovs_flow_new_req *req,
 {
 	req->_present.actions = 1;
 	free(req->actions.push_eth);
-	req->actions._present.push_eth_len = len;
-	req->actions.push_eth = malloc(req->actions._present.push_eth_len);
-	memcpy(req->actions.push_eth, push_eth, req->actions._present.push_eth_len);
+	req->actions._len.push_eth = len;
+	req->actions.push_eth = malloc(req->actions._len.push_eth);
+	memcpy(req->actions.push_eth, push_eth, req->actions._len.push_eth);
 }
 static inline void
 ovs_flow_new_req_set_actions_pop_eth(struct ovs_flow_new_req *req)
@@ -2553,9 +2578,9 @@ ovs_flow_new_req_set_actions_push_nsh_base(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.push_nsh = 1;
 	free(req->actions.push_nsh.base);
-	req->actions.push_nsh._present.base_len = len;
-	req->actions.push_nsh.base = malloc(req->actions.push_nsh._present.base_len);
-	memcpy(req->actions.push_nsh.base, base, req->actions.push_nsh._present.base_len);
+	req->actions.push_nsh._len.base = len;
+	req->actions.push_nsh.base = malloc(req->actions.push_nsh._len.base);
+	memcpy(req->actions.push_nsh.base, base, req->actions.push_nsh._len.base);
 }
 static inline void
 ovs_flow_new_req_set_actions_push_nsh_md1(struct ovs_flow_new_req *req,
@@ -2564,9 +2589,9 @@ ovs_flow_new_req_set_actions_push_nsh_md1(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.push_nsh = 1;
 	free(req->actions.push_nsh.md1);
-	req->actions.push_nsh._present.md1_len = len;
-	req->actions.push_nsh.md1 = malloc(req->actions.push_nsh._present.md1_len);
-	memcpy(req->actions.push_nsh.md1, md1, req->actions.push_nsh._present.md1_len);
+	req->actions.push_nsh._len.md1 = len;
+	req->actions.push_nsh.md1 = malloc(req->actions.push_nsh._len.md1);
+	memcpy(req->actions.push_nsh.md1, md1, req->actions.push_nsh._len.md1);
 }
 static inline void
 ovs_flow_new_req_set_actions_push_nsh_md2(struct ovs_flow_new_req *req,
@@ -2575,9 +2600,9 @@ ovs_flow_new_req_set_actions_push_nsh_md2(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.push_nsh = 1;
 	free(req->actions.push_nsh.md2);
-	req->actions.push_nsh._present.md2_len = len;
-	req->actions.push_nsh.md2 = malloc(req->actions.push_nsh._present.md2_len);
-	memcpy(req->actions.push_nsh.md2, md2, req->actions.push_nsh._present.md2_len);
+	req->actions.push_nsh._len.md2 = len;
+	req->actions.push_nsh.md2 = malloc(req->actions.push_nsh._len.md2);
+	memcpy(req->actions.push_nsh.md2, md2, req->actions.push_nsh._len.md2);
 }
 static inline void
 ovs_flow_new_req_set_actions_pop_nsh(struct ovs_flow_new_req *req)
@@ -2607,9 +2632,9 @@ ovs_flow_new_req_set_actions_add_mpls(struct ovs_flow_new_req *req,
 {
 	req->_present.actions = 1;
 	free(req->actions.add_mpls);
-	req->actions._present.add_mpls_len = len;
-	req->actions.add_mpls = malloc(req->actions._present.add_mpls_len);
-	memcpy(req->actions.add_mpls, add_mpls, req->actions._present.add_mpls_len);
+	req->actions._len.add_mpls = len;
+	req->actions.add_mpls = malloc(req->actions._len.add_mpls);
+	memcpy(req->actions.add_mpls, add_mpls, req->actions._len.add_mpls);
 }
 static inline void
 ovs_flow_new_req_set_actions_psample_group(struct ovs_flow_new_req *req,
@@ -2627,9 +2652,9 @@ ovs_flow_new_req_set_actions_psample_cookie(struct ovs_flow_new_req *req,
 	req->_present.actions = 1;
 	req->actions._present.psample = 1;
 	free(req->actions.psample.cookie);
-	req->actions.psample._present.cookie_len = len;
-	req->actions.psample.cookie = malloc(req->actions.psample._present.cookie_len);
-	memcpy(req->actions.psample.cookie, cookie, req->actions.psample._present.cookie_len);
+	req->actions.psample._len.cookie = len;
+	req->actions.psample.cookie = malloc(req->actions.psample._len.cookie);
+	memcpy(req->actions.psample.cookie, cookie, req->actions.psample._len.cookie);
 }
 
 /*

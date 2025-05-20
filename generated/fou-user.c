@@ -77,6 +77,7 @@ int fou_add(struct ynl_sock *ys, struct fou_add_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, FOU_CMD_ADD, 1);
 	ys->req_policy = &fou_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.port)
 		ynl_attr_put_u16(nlh, FOU_ATTR_PORT, req->port);
@@ -90,10 +91,10 @@ int fou_add(struct ynl_sock *ys, struct fou_add_req *req)
 		ynl_attr_put_u32(nlh, FOU_ATTR_LOCAL_V4, req->local_v4);
 	if (req->_present.peer_v4)
 		ynl_attr_put_u32(nlh, FOU_ATTR_PEER_V4, req->peer_v4);
-	if (req->_present.local_v6_len)
-		ynl_attr_put(nlh, FOU_ATTR_LOCAL_V6, req->local_v6, req->_present.local_v6_len);
-	if (req->_present.peer_v6_len)
-		ynl_attr_put(nlh, FOU_ATTR_PEER_V6, req->peer_v6, req->_present.peer_v6_len);
+	if (req->_len.local_v6)
+		ynl_attr_put(nlh, FOU_ATTR_LOCAL_V6, req->local_v6, req->_len.local_v6);
+	if (req->_len.peer_v6)
+		ynl_attr_put(nlh, FOU_ATTR_PEER_V6, req->peer_v6, req->_len.peer_v6);
 	if (req->_present.peer_port)
 		ynl_attr_put_u16(nlh, FOU_ATTR_PEER_PORT, req->peer_port);
 	if (req->_present.ifindex)
@@ -123,6 +124,7 @@ int fou_del(struct ynl_sock *ys, struct fou_del_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, FOU_CMD_DEL, 1);
 	ys->req_policy = &fou_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.af)
 		ynl_attr_put_u8(nlh, FOU_ATTR_AF, req->af);
@@ -136,10 +138,10 @@ int fou_del(struct ynl_sock *ys, struct fou_del_req *req)
 		ynl_attr_put_u32(nlh, FOU_ATTR_LOCAL_V4, req->local_v4);
 	if (req->_present.peer_v4)
 		ynl_attr_put_u32(nlh, FOU_ATTR_PEER_V4, req->peer_v4);
-	if (req->_present.local_v6_len)
-		ynl_attr_put(nlh, FOU_ATTR_LOCAL_V6, req->local_v6, req->_present.local_v6_len);
-	if (req->_present.peer_v6_len)
-		ynl_attr_put(nlh, FOU_ATTR_PEER_V6, req->peer_v6, req->_present.peer_v6_len);
+	if (req->_len.local_v6)
+		ynl_attr_put(nlh, FOU_ATTR_LOCAL_V6, req->local_v6, req->_len.local_v6);
+	if (req->_len.peer_v6)
+		ynl_attr_put(nlh, FOU_ATTR_PEER_V6, req->peer_v6, req->_len.peer_v6);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -210,7 +212,7 @@ int fou_get_rsp_parse(const struct nlmsghdr *nlh, struct ynl_parse_arg *yarg)
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.local_v6_len = len;
+			dst->_len.local_v6 = len;
 			dst->local_v6 = malloc(len);
 			memcpy(dst->local_v6, ynl_attr_data(attr), len);
 		} else if (type == FOU_ATTR_PEER_V6) {
@@ -220,7 +222,7 @@ int fou_get_rsp_parse(const struct nlmsghdr *nlh, struct ynl_parse_arg *yarg)
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.peer_v6_len = len;
+			dst->_len.peer_v6 = len;
 			dst->peer_v6 = malloc(len);
 			memcpy(dst->peer_v6, ynl_attr_data(attr), len);
 		} else if (type == FOU_ATTR_PEER_PORT) {
@@ -248,6 +250,7 @@ struct fou_get_rsp *fou_get(struct ynl_sock *ys, struct fou_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, FOU_CMD_GET, 1);
 	ys->req_policy = &fou_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &fou_nest;
 
 	if (req->_present.af)
@@ -262,10 +265,10 @@ struct fou_get_rsp *fou_get(struct ynl_sock *ys, struct fou_get_req *req)
 		ynl_attr_put_u32(nlh, FOU_ATTR_LOCAL_V4, req->local_v4);
 	if (req->_present.peer_v4)
 		ynl_attr_put_u32(nlh, FOU_ATTR_PEER_V4, req->peer_v4);
-	if (req->_present.local_v6_len)
-		ynl_attr_put(nlh, FOU_ATTR_LOCAL_V6, req->local_v6, req->_present.local_v6_len);
-	if (req->_present.peer_v6_len)
-		ynl_attr_put(nlh, FOU_ATTR_PEER_V6, req->peer_v6, req->_present.peer_v6_len);
+	if (req->_len.local_v6)
+		ynl_attr_put(nlh, FOU_ATTR_LOCAL_V6, req->local_v6, req->_len.local_v6);
+	if (req->_len.peer_v6)
+		ynl_attr_put(nlh, FOU_ATTR_PEER_V6, req->peer_v6, req->_len.peer_v6);
 
 	rsp = calloc(1, sizeof(*rsp));
 	yrs.yarg.data = rsp;

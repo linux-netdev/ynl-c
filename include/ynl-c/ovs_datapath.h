@@ -26,8 +26,8 @@ struct ovs_datapath_get_req {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
-	} _present;
+		__u32 name;
+	} _len;
 
 	char *name;
 };
@@ -43,32 +43,36 @@ ovs_datapath_get_req_set_name(struct ovs_datapath_get_req *req,
 			      const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 
 struct ovs_datapath_get_rsp {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
 		__u32 upcall_pid:1;
-		__u32 stats_len;
-		__u32 megaflow_stats_len;
 		__u32 user_features:1;
 		__u32 masks_cache_size:1;
-		__u32 per_cpu_pids_len;
 	} _present;
+	struct {
+		__u32 name;
+		__u32 stats;
+		__u32 megaflow_stats;
+	} _len;
+	struct {
+		__u32 per_cpu_pids;
+	} _count;
 
 	char *name;
 	__u32 upcall_pid;
-	void *stats;
-	void *megaflow_stats;
+	struct ovs_dp_stats *stats;
+	struct ovs_dp_megaflow_stats *megaflow_stats;
 	__u32 user_features;
 	__u32 masks_cache_size;
-	void *per_cpu_pids;
+	__u32 *per_cpu_pids;
 };
 
 void ovs_datapath_get_rsp_free(struct ovs_datapath_get_rsp *rsp);
@@ -84,8 +88,8 @@ struct ovs_datapath_get_req_dump {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
-	} _present;
+		__u32 name;
+	} _len;
 
 	char *name;
 };
@@ -102,10 +106,10 @@ ovs_datapath_get_req_dump_set_name(struct ovs_datapath_get_req_dump *req,
 				   const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 
 struct ovs_datapath_get_list {
@@ -125,10 +129,12 @@ struct ovs_datapath_new_req {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
 		__u32 upcall_pid:1;
 		__u32 user_features:1;
 	} _present;
+	struct {
+		__u32 name;
+	} _len;
 
 	char *name;
 	__u32 upcall_pid;
@@ -146,10 +152,10 @@ ovs_datapath_new_req_set_name(struct ovs_datapath_new_req *req,
 			      const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 static inline void
 ovs_datapath_new_req_set_upcall_pid(struct ovs_datapath_new_req *req,
@@ -177,8 +183,8 @@ struct ovs_datapath_del_req {
 	struct ovs_header _hdr;
 
 	struct {
-		__u32 name_len;
-	} _present;
+		__u32 name;
+	} _len;
 
 	char *name;
 };
@@ -194,10 +200,10 @@ ovs_datapath_del_req_set_name(struct ovs_datapath_del_req *req,
 			      const char *name)
 {
 	free(req->name);
-	req->_present.name_len = strlen(name);
-	req->name = malloc(req->_present.name_len + 1);
-	memcpy(req->name, name, req->_present.name_len);
-	req->name[req->_present.name_len] = 0;
+	req->_len.name = strlen(name);
+	req->name = malloc(req->_len.name + 1);
+	memcpy(req->name, name, req->_len.name);
+	req->name[req->_len.name] = 0;
 }
 
 /*

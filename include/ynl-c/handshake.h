@@ -62,16 +62,20 @@ struct handshake_accept_rsp {
 		__u32 message_type:1;
 		__u32 timeout:1;
 		__u32 auth_mode:1;
-		__u32 peername_len;
 	} _present;
+	struct {
+		__u32 peername;
+	} _len;
+	struct {
+		__u32 peer_identity;
+		__u32 certificate;
+	} _count;
 
 	__s32 sockfd;
 	enum handshake_msg_type message_type;
 	__u32 timeout;
 	enum handshake_auth auth_mode;
-	unsigned int n_peer_identity;
 	__u32 *peer_identity;
-	unsigned int n_certificate;
 	struct handshake_x509 *certificate;
 	char *peername;
 };
@@ -102,10 +106,12 @@ struct handshake_done_req {
 		__u32 status:1;
 		__u32 sockfd:1;
 	} _present;
+	struct {
+		__u32 remote_auth;
+	} _count;
 
 	__u32 status;
 	__s32 sockfd;
-	unsigned int n_remote_auth;
 	__u32 *remote_auth;
 };
 
@@ -134,7 +140,7 @@ __handshake_done_req_set_remote_auth(struct handshake_done_req *req,
 {
 	free(req->remote_auth);
 	req->remote_auth = remote_auth;
-	req->n_remote_auth = n_remote_auth;
+	req->_count.remote_auth = n_remote_auth;
 }
 
 /*

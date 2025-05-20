@@ -145,22 +145,26 @@ int ovs_vport_new(struct ynl_sock *ys, struct ovs_vport_new_req *req)
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
 	size_t hdr_len;
+	unsigned int i;
 	void *hdr;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVS_VPORT_CMD_NEW, 1);
 	ys->req_policy = &ovs_vport_vport_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.name_len)
+	if (req->_len.name)
 		ynl_attr_put_str(nlh, OVS_VPORT_ATTR_NAME, req->name);
 	if (req->_present.type)
 		ynl_attr_put_u32(nlh, OVS_VPORT_ATTR_TYPE, req->type);
-	if (req->_present.upcall_pid_len)
-		ynl_attr_put(nlh, OVS_VPORT_ATTR_UPCALL_PID, req->upcall_pid, req->_present.upcall_pid_len);
+	if (req->_count.upcall_pid) {
+		i = req->_count.upcall_pid * sizeof(__u32);
+		ynl_attr_put(nlh, OVS_VPORT_ATTR_UPCALL_PID, req->upcall_pid, i);
+	}
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVS_VPORT_ATTR_IFINDEX, req->ifindex);
 	if (req->_present.options)
@@ -191,6 +195,7 @@ int ovs_vport_del(struct ynl_sock *ys, struct ovs_vport_del_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVS_VPORT_CMD_DEL, 1);
 	ys->req_policy = &ovs_vport_vport_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
@@ -200,7 +205,7 @@ int ovs_vport_del(struct ynl_sock *ys, struct ovs_vport_del_req *req)
 		ynl_attr_put_u32(nlh, OVS_VPORT_ATTR_PORT_NO, req->port_no);
 	if (req->_present.type)
 		ynl_attr_put_u32(nlh, OVS_VPORT_ATTR_TYPE, req->type);
-	if (req->_present.name_len)
+	if (req->_len.name)
 		ynl_attr_put_str(nlh, OVS_VPORT_ATTR_NAME, req->name);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -261,7 +266,7 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.name_len = len;
+			dst->_len.name = len;
 			dst->name = malloc(len + 1);
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
@@ -272,7 +277,8 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.upcall_pid_len = len;
+			dst->_count.upcall_pid = len / sizeof(__u32);
+			len = dst->_count.upcall_pid * sizeof(__u32);
 			dst->upcall_pid = malloc(len);
 			memcpy(dst->upcall_pid, ynl_attr_data(attr), len);
 		} else if (type == OVS_VPORT_ATTR_STATS) {
@@ -282,8 +288,11 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.stats_len = len;
-			dst->stats = malloc(len);
+			dst->_len.stats = len;
+			if (len < sizeof(struct ovs_vport_stats))
+				dst->stats = calloc(1, sizeof(struct ovs_vport_stats));
+			else
+				dst->stats = malloc(len);
 			memcpy(dst->stats, ynl_attr_data(attr), len);
 		} else if (type == OVS_VPORT_ATTR_IFINDEX) {
 			if (ynl_attr_validate(yarg, attr))
@@ -322,13 +331,14 @@ ovs_vport_get(struct ynl_sock *ys, struct ovs_vport_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVS_VPORT_CMD_GET, 1);
 	ys->req_policy = &ovs_vport_vport_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &ovs_vport_vport_nest;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.name_len)
+	if (req->_len.name)
 		ynl_attr_put_str(nlh, OVS_VPORT_ATTR_NAME, req->name);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -392,8 +402,9 @@ ovs_vport_get_dump(struct ynl_sock *ys, struct ovs_vport_get_req_dump *req)
 	memcpy(hdr, &req->_hdr, hdr_len);
 
 	ys->req_policy = &ovs_vport_vport_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.name_len)
+	if (req->_len.name)
 		ynl_attr_put_str(nlh, OVS_VPORT_ATTR_NAME, req->name);
 
 	err = ynl_exec_dump(ys, nlh, &yds);

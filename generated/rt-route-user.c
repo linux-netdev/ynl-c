@@ -153,7 +153,7 @@ int rt_route_metrics_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put_u32(nlh, RTAX_INITRWND, obj->initrwnd);
 	if (obj->_present.quickack)
 		ynl_attr_put_u32(nlh, RTAX_QUICKACK, obj->quickack);
-	if (obj->_present.cc_algo_len)
+	if (obj->_len.cc_algo)
 		ynl_attr_put_str(nlh, RTAX_CC_ALGO, obj->cc_algo);
 	if (obj->_present.fastopen_no_cookie)
 		ynl_attr_put_u32(nlh, RTAX_FASTOPEN_NO_COOKIE, obj->fastopen_no_cookie);
@@ -253,7 +253,7 @@ int rt_route_metrics_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.cc_algo_len = len;
+			dst->_len.cc_algo = len;
 			dst->cc_algo = malloc(len + 1);
 			memcpy(dst->cc_algo, ynl_attr_get_str(attr), len);
 			dst->cc_algo[len] = 0;
@@ -318,7 +318,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dst_len = len;
+			dst->_len.dst = len;
 			dst->dst = malloc(len);
 			memcpy(dst->dst, ynl_attr_data(attr), len);
 		} else if (type == RTA_SRC) {
@@ -328,7 +328,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.src_len = len;
+			dst->_len.src = len;
 			dst->src = malloc(len);
 			memcpy(dst->src, ynl_attr_data(attr), len);
 		} else if (type == RTA_IIF) {
@@ -348,7 +348,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.gateway_len = len;
+			dst->_len.gateway = len;
 			dst->gateway = malloc(len);
 			memcpy(dst->gateway, ynl_attr_data(attr), len);
 		} else if (type == RTA_PRIORITY) {
@@ -363,7 +363,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.prefsrc_len = len;
+			dst->_len.prefsrc = len;
 			dst->prefsrc = malloc(len);
 			memcpy(dst->prefsrc, ynl_attr_data(attr), len);
 		} else if (type == RTA_METRICS) {
@@ -382,7 +382,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.multipath_len = len;
+			dst->_len.multipath = len;
 			dst->multipath = malloc(len);
 			memcpy(dst->multipath, ynl_attr_data(attr), len);
 		} else if (type == RTA_FLOW) {
@@ -397,8 +397,11 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.cacheinfo_len = len;
-			dst->cacheinfo = malloc(len);
+			dst->_len.cacheinfo = len;
+			if (len < sizeof(struct rta_cacheinfo))
+				dst->cacheinfo = calloc(1, sizeof(struct rta_cacheinfo));
+			else
+				dst->cacheinfo = malloc(len);
 			memcpy(dst->cacheinfo, ynl_attr_data(attr), len);
 		} else if (type == RTA_TABLE) {
 			if (ynl_attr_validate(yarg, attr))
@@ -417,7 +420,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mfc_stats_len = len;
+			dst->_len.mfc_stats = len;
 			dst->mfc_stats = malloc(len);
 			memcpy(dst->mfc_stats, ynl_attr_data(attr), len);
 		} else if (type == RTA_VIA) {
@@ -427,7 +430,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.via_len = len;
+			dst->_len.via = len;
 			dst->via = malloc(len);
 			memcpy(dst->via, ynl_attr_data(attr), len);
 		} else if (type == RTA_NEWDST) {
@@ -437,7 +440,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.newdst_len = len;
+			dst->_len.newdst = len;
 			dst->newdst = malloc(len);
 			memcpy(dst->newdst, ynl_attr_data(attr), len);
 		} else if (type == RTA_PREF) {
@@ -457,7 +460,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.encap_len = len;
+			dst->_len.encap = len;
 			dst->encap = malloc(len);
 			memcpy(dst->encap, ynl_attr_data(attr), len);
 		} else if (type == RTA_EXPIRES) {
@@ -472,7 +475,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.pad_len = len;
+			dst->_len.pad = len;
 			dst->pad = malloc(len);
 			memcpy(dst->pad, ynl_attr_data(attr), len);
 		} else if (type == RTA_UID) {
@@ -526,18 +529,19 @@ rt_route_getroute(struct ynl_sock *ys, struct rt_route_getroute_req *req)
 	void *hdr;
 	int err;
 
-	nlh = ynl_msg_start_req(ys, RTM_GETROUTE);
+	nlh = ynl_msg_start_req(ys, RTM_GETROUTE, req->_nlmsg_flags);
 	ys->req_policy = &rt_route_route_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &rt_route_route_attrs_nest;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.src_len)
-		ynl_attr_put(nlh, RTA_SRC, req->src, req->_present.src_len);
-	if (req->_present.dst_len)
-		ynl_attr_put(nlh, RTA_DST, req->dst, req->_present.dst_len);
+	if (req->_len.src)
+		ynl_attr_put(nlh, RTA_SRC, req->src, req->_len.src);
+	if (req->_len.dst)
+		ynl_attr_put(nlh, RTA_DST, req->dst, req->_len.dst);
 	if (req->_present.iif)
 		ynl_attr_put_u32(nlh, RTA_IIF, req->iif);
 	if (req->_present.oif)
@@ -624,6 +628,7 @@ rt_route_getroute_dump(struct ynl_sock *ys,
 	memcpy(hdr, &req->_hdr, hdr_len);
 
 	ys->req_policy = &rt_route_route_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	err = ynl_exec_dump(ys, nlh, &yds);
 	if (err < 0)
@@ -663,55 +668,56 @@ int rt_route_newroute(struct ynl_sock *ys, struct rt_route_newroute_req *req)
 	void *hdr;
 	int err;
 
-	nlh = ynl_msg_start_req(ys, RTM_NEWROUTE);
+	nlh = ynl_msg_start_req(ys, RTM_NEWROUTE, req->_nlmsg_flags);
 	ys->req_policy = &rt_route_route_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.dst_len)
-		ynl_attr_put(nlh, RTA_DST, req->dst, req->_present.dst_len);
-	if (req->_present.src_len)
-		ynl_attr_put(nlh, RTA_SRC, req->src, req->_present.src_len);
+	if (req->_len.dst)
+		ynl_attr_put(nlh, RTA_DST, req->dst, req->_len.dst);
+	if (req->_len.src)
+		ynl_attr_put(nlh, RTA_SRC, req->src, req->_len.src);
 	if (req->_present.iif)
 		ynl_attr_put_u32(nlh, RTA_IIF, req->iif);
 	if (req->_present.oif)
 		ynl_attr_put_u32(nlh, RTA_OIF, req->oif);
-	if (req->_present.gateway_len)
-		ynl_attr_put(nlh, RTA_GATEWAY, req->gateway, req->_present.gateway_len);
+	if (req->_len.gateway)
+		ynl_attr_put(nlh, RTA_GATEWAY, req->gateway, req->_len.gateway);
 	if (req->_present.priority)
 		ynl_attr_put_u32(nlh, RTA_PRIORITY, req->priority);
-	if (req->_present.prefsrc_len)
-		ynl_attr_put(nlh, RTA_PREFSRC, req->prefsrc, req->_present.prefsrc_len);
+	if (req->_len.prefsrc)
+		ynl_attr_put(nlh, RTA_PREFSRC, req->prefsrc, req->_len.prefsrc);
 	if (req->_present.metrics)
 		rt_route_metrics_put(nlh, RTA_METRICS, &req->metrics);
-	if (req->_present.multipath_len)
-		ynl_attr_put(nlh, RTA_MULTIPATH, req->multipath, req->_present.multipath_len);
+	if (req->_len.multipath)
+		ynl_attr_put(nlh, RTA_MULTIPATH, req->multipath, req->_len.multipath);
 	if (req->_present.flow)
 		ynl_attr_put_u32(nlh, RTA_FLOW, req->flow);
-	if (req->_present.cacheinfo_len)
-		ynl_attr_put(nlh, RTA_CACHEINFO, req->cacheinfo, req->_present.cacheinfo_len);
+	if (req->_len.cacheinfo)
+		ynl_attr_put(nlh, RTA_CACHEINFO, req->cacheinfo, req->_len.cacheinfo);
 	if (req->_present.table)
 		ynl_attr_put_u32(nlh, RTA_TABLE, req->table);
 	if (req->_present.mark)
 		ynl_attr_put_u32(nlh, RTA_MARK, req->mark);
-	if (req->_present.mfc_stats_len)
-		ynl_attr_put(nlh, RTA_MFC_STATS, req->mfc_stats, req->_present.mfc_stats_len);
-	if (req->_present.via_len)
-		ynl_attr_put(nlh, RTA_VIA, req->via, req->_present.via_len);
-	if (req->_present.newdst_len)
-		ynl_attr_put(nlh, RTA_NEWDST, req->newdst, req->_present.newdst_len);
+	if (req->_len.mfc_stats)
+		ynl_attr_put(nlh, RTA_MFC_STATS, req->mfc_stats, req->_len.mfc_stats);
+	if (req->_len.via)
+		ynl_attr_put(nlh, RTA_VIA, req->via, req->_len.via);
+	if (req->_len.newdst)
+		ynl_attr_put(nlh, RTA_NEWDST, req->newdst, req->_len.newdst);
 	if (req->_present.pref)
 		ynl_attr_put_u8(nlh, RTA_PREF, req->pref);
 	if (req->_present.encap_type)
 		ynl_attr_put_u16(nlh, RTA_ENCAP_TYPE, req->encap_type);
-	if (req->_present.encap_len)
-		ynl_attr_put(nlh, RTA_ENCAP, req->encap, req->_present.encap_len);
+	if (req->_len.encap)
+		ynl_attr_put(nlh, RTA_ENCAP, req->encap, req->_len.encap);
 	if (req->_present.expires)
 		ynl_attr_put_u32(nlh, RTA_EXPIRES, req->expires);
-	if (req->_present.pad_len)
-		ynl_attr_put(nlh, RTA_PAD, req->pad, req->_present.pad_len);
+	if (req->_len.pad)
+		ynl_attr_put(nlh, RTA_PAD, req->pad, req->_len.pad);
 	if (req->_present.uid)
 		ynl_attr_put_u32(nlh, RTA_UID, req->uid);
 	if (req->_present.ttl_propagate)
@@ -761,55 +767,56 @@ int rt_route_delroute(struct ynl_sock *ys, struct rt_route_delroute_req *req)
 	void *hdr;
 	int err;
 
-	nlh = ynl_msg_start_req(ys, RTM_DELROUTE);
+	nlh = ynl_msg_start_req(ys, RTM_DELROUTE, req->_nlmsg_flags);
 	ys->req_policy = &rt_route_route_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	hdr_len = sizeof(req->_hdr);
 	hdr = ynl_nlmsg_put_extra_header(nlh, hdr_len);
 	memcpy(hdr, &req->_hdr, hdr_len);
 
-	if (req->_present.dst_len)
-		ynl_attr_put(nlh, RTA_DST, req->dst, req->_present.dst_len);
-	if (req->_present.src_len)
-		ynl_attr_put(nlh, RTA_SRC, req->src, req->_present.src_len);
+	if (req->_len.dst)
+		ynl_attr_put(nlh, RTA_DST, req->dst, req->_len.dst);
+	if (req->_len.src)
+		ynl_attr_put(nlh, RTA_SRC, req->src, req->_len.src);
 	if (req->_present.iif)
 		ynl_attr_put_u32(nlh, RTA_IIF, req->iif);
 	if (req->_present.oif)
 		ynl_attr_put_u32(nlh, RTA_OIF, req->oif);
-	if (req->_present.gateway_len)
-		ynl_attr_put(nlh, RTA_GATEWAY, req->gateway, req->_present.gateway_len);
+	if (req->_len.gateway)
+		ynl_attr_put(nlh, RTA_GATEWAY, req->gateway, req->_len.gateway);
 	if (req->_present.priority)
 		ynl_attr_put_u32(nlh, RTA_PRIORITY, req->priority);
-	if (req->_present.prefsrc_len)
-		ynl_attr_put(nlh, RTA_PREFSRC, req->prefsrc, req->_present.prefsrc_len);
+	if (req->_len.prefsrc)
+		ynl_attr_put(nlh, RTA_PREFSRC, req->prefsrc, req->_len.prefsrc);
 	if (req->_present.metrics)
 		rt_route_metrics_put(nlh, RTA_METRICS, &req->metrics);
-	if (req->_present.multipath_len)
-		ynl_attr_put(nlh, RTA_MULTIPATH, req->multipath, req->_present.multipath_len);
+	if (req->_len.multipath)
+		ynl_attr_put(nlh, RTA_MULTIPATH, req->multipath, req->_len.multipath);
 	if (req->_present.flow)
 		ynl_attr_put_u32(nlh, RTA_FLOW, req->flow);
-	if (req->_present.cacheinfo_len)
-		ynl_attr_put(nlh, RTA_CACHEINFO, req->cacheinfo, req->_present.cacheinfo_len);
+	if (req->_len.cacheinfo)
+		ynl_attr_put(nlh, RTA_CACHEINFO, req->cacheinfo, req->_len.cacheinfo);
 	if (req->_present.table)
 		ynl_attr_put_u32(nlh, RTA_TABLE, req->table);
 	if (req->_present.mark)
 		ynl_attr_put_u32(nlh, RTA_MARK, req->mark);
-	if (req->_present.mfc_stats_len)
-		ynl_attr_put(nlh, RTA_MFC_STATS, req->mfc_stats, req->_present.mfc_stats_len);
-	if (req->_present.via_len)
-		ynl_attr_put(nlh, RTA_VIA, req->via, req->_present.via_len);
-	if (req->_present.newdst_len)
-		ynl_attr_put(nlh, RTA_NEWDST, req->newdst, req->_present.newdst_len);
+	if (req->_len.mfc_stats)
+		ynl_attr_put(nlh, RTA_MFC_STATS, req->mfc_stats, req->_len.mfc_stats);
+	if (req->_len.via)
+		ynl_attr_put(nlh, RTA_VIA, req->via, req->_len.via);
+	if (req->_len.newdst)
+		ynl_attr_put(nlh, RTA_NEWDST, req->newdst, req->_len.newdst);
 	if (req->_present.pref)
 		ynl_attr_put_u8(nlh, RTA_PREF, req->pref);
 	if (req->_present.encap_type)
 		ynl_attr_put_u16(nlh, RTA_ENCAP_TYPE, req->encap_type);
-	if (req->_present.encap_len)
-		ynl_attr_put(nlh, RTA_ENCAP, req->encap, req->_present.encap_len);
+	if (req->_len.encap)
+		ynl_attr_put(nlh, RTA_ENCAP, req->encap, req->_len.encap);
 	if (req->_present.expires)
 		ynl_attr_put_u32(nlh, RTA_EXPIRES, req->expires);
-	if (req->_present.pad_len)
-		ynl_attr_put(nlh, RTA_PAD, req->pad, req->_present.pad_len);
+	if (req->_len.pad)
+		ynl_attr_put(nlh, RTA_PAD, req->pad, req->_len.pad);
 	if (req->_present.uid)
 		ynl_attr_put_u32(nlh, RTA_UID, req->uid);
 	if (req->_present.ttl_propagate)

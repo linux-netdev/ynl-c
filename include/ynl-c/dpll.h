@@ -72,10 +72,12 @@ void dpll_pin_parent_pin_free(struct dpll_pin_parent_pin *obj);
 /* DPLL_CMD_DEVICE_ID_GET - do */
 struct dpll_device_id_get_req {
 	struct {
-		__u32 module_name_len;
 		__u32 clock_id:1;
 		__u32 type:1;
 	} _present;
+	struct {
+		__u32 module_name;
+	} _len;
 
 	char *module_name;
 	__u64 clock_id;
@@ -93,10 +95,10 @@ dpll_device_id_get_req_set_module_name(struct dpll_device_id_get_req *req,
 				       const char *module_name)
 {
 	free(req->module_name);
-	req->_present.module_name_len = strlen(module_name);
-	req->module_name = malloc(req->_present.module_name_len + 1);
-	memcpy(req->module_name, module_name, req->_present.module_name_len);
-	req->module_name[req->_present.module_name_len] = 0;
+	req->_len.module_name = strlen(module_name);
+	req->module_name = malloc(req->_len.module_name + 1);
+	memcpy(req->module_name, module_name, req->_len.module_name);
+	req->module_name[req->_len.module_name] = 0;
 }
 static inline void
 dpll_device_id_get_req_set_clock_id(struct dpll_device_id_get_req *req,
@@ -156,7 +158,6 @@ dpll_device_get_req_set_id(struct dpll_device_get_req *req, __u32 id)
 struct dpll_device_get_rsp {
 	struct {
 		__u32 id:1;
-		__u32 module_name_len;
 		__u32 mode:1;
 		__u32 lock_status:1;
 		__u32 lock_status_error:1;
@@ -164,11 +165,16 @@ struct dpll_device_get_rsp {
 		__u32 clock_id:1;
 		__u32 type:1;
 	} _present;
+	struct {
+		__u32 module_name;
+	} _len;
+	struct {
+		__u32 mode_supported;
+	} _count;
 
 	__u32 id;
 	char *module_name;
 	enum dpll_mode mode;
-	unsigned int n_mode_supported;
 	__u32 *mode_supported;
 	enum dpll_lock_status lock_status;
 	enum dpll_lock_status_error lock_status_error;
@@ -239,13 +245,15 @@ int dpll_device_set(struct ynl_sock *ys, struct dpll_device_set_req *req);
 /* DPLL_CMD_PIN_ID_GET - do */
 struct dpll_pin_id_get_req {
 	struct {
-		__u32 module_name_len;
 		__u32 clock_id:1;
-		__u32 board_label_len;
-		__u32 panel_label_len;
-		__u32 package_label_len;
 		__u32 type:1;
 	} _present;
+	struct {
+		__u32 module_name;
+		__u32 board_label;
+		__u32 panel_label;
+		__u32 package_label;
+	} _len;
 
 	char *module_name;
 	__u64 clock_id;
@@ -266,10 +274,10 @@ dpll_pin_id_get_req_set_module_name(struct dpll_pin_id_get_req *req,
 				    const char *module_name)
 {
 	free(req->module_name);
-	req->_present.module_name_len = strlen(module_name);
-	req->module_name = malloc(req->_present.module_name_len + 1);
-	memcpy(req->module_name, module_name, req->_present.module_name_len);
-	req->module_name[req->_present.module_name_len] = 0;
+	req->_len.module_name = strlen(module_name);
+	req->module_name = malloc(req->_len.module_name + 1);
+	memcpy(req->module_name, module_name, req->_len.module_name);
+	req->module_name[req->_len.module_name] = 0;
 }
 static inline void
 dpll_pin_id_get_req_set_clock_id(struct dpll_pin_id_get_req *req,
@@ -283,30 +291,30 @@ dpll_pin_id_get_req_set_board_label(struct dpll_pin_id_get_req *req,
 				    const char *board_label)
 {
 	free(req->board_label);
-	req->_present.board_label_len = strlen(board_label);
-	req->board_label = malloc(req->_present.board_label_len + 1);
-	memcpy(req->board_label, board_label, req->_present.board_label_len);
-	req->board_label[req->_present.board_label_len] = 0;
+	req->_len.board_label = strlen(board_label);
+	req->board_label = malloc(req->_len.board_label + 1);
+	memcpy(req->board_label, board_label, req->_len.board_label);
+	req->board_label[req->_len.board_label] = 0;
 }
 static inline void
 dpll_pin_id_get_req_set_panel_label(struct dpll_pin_id_get_req *req,
 				    const char *panel_label)
 {
 	free(req->panel_label);
-	req->_present.panel_label_len = strlen(panel_label);
-	req->panel_label = malloc(req->_present.panel_label_len + 1);
-	memcpy(req->panel_label, panel_label, req->_present.panel_label_len);
-	req->panel_label[req->_present.panel_label_len] = 0;
+	req->_len.panel_label = strlen(panel_label);
+	req->panel_label = malloc(req->_len.panel_label + 1);
+	memcpy(req->panel_label, panel_label, req->_len.panel_label);
+	req->panel_label[req->_len.panel_label] = 0;
 }
 static inline void
 dpll_pin_id_get_req_set_package_label(struct dpll_pin_id_get_req *req,
 				      const char *package_label)
 {
 	free(req->package_label);
-	req->_present.package_label_len = strlen(package_label);
-	req->package_label = malloc(req->_present.package_label_len + 1);
-	memcpy(req->package_label, package_label, req->_present.package_label_len);
-	req->package_label[req->_present.package_label_len] = 0;
+	req->_len.package_label = strlen(package_label);
+	req->package_label = malloc(req->_len.package_label + 1);
+	memcpy(req->package_label, package_label, req->_len.package_label);
+	req->package_label[req->_len.package_label] = 0;
 }
 static inline void
 dpll_pin_id_get_req_set_type(struct dpll_pin_id_get_req *req,
@@ -359,9 +367,6 @@ dpll_pin_get_req_set_id(struct dpll_pin_get_req *req, __u32 id)
 struct dpll_pin_get_rsp {
 	struct {
 		__u32 id:1;
-		__u32 board_label_len;
-		__u32 panel_label_len;
-		__u32 package_label_len;
 		__u32 type:1;
 		__u32 frequency:1;
 		__u32 capabilities:1;
@@ -372,6 +377,17 @@ struct dpll_pin_get_rsp {
 		__u32 esync_frequency:1;
 		__u32 esync_pulse:1;
 	} _present;
+	struct {
+		__u32 board_label;
+		__u32 panel_label;
+		__u32 package_label;
+	} _len;
+	struct {
+		__u32 frequency_supported;
+		__u32 parent_device;
+		__u32 parent_pin;
+		__u32 esync_frequency_supported;
+	} _count;
 
 	__u32 id;
 	char *board_label;
@@ -379,19 +395,15 @@ struct dpll_pin_get_rsp {
 	char *package_label;
 	enum dpll_pin_type type;
 	__u64 frequency;
-	unsigned int n_frequency_supported;
 	struct dpll_frequency_range *frequency_supported;
 	__u32 capabilities;
-	unsigned int n_parent_device;
 	struct dpll_pin_parent_device *parent_device;
-	unsigned int n_parent_pin;
 	struct dpll_pin_parent_pin *parent_pin;
 	__s32 phase_adjust_min;
 	__s32 phase_adjust_max;
 	__s32 phase_adjust;
 	__s64 fractional_frequency_offset;
 	__u64 esync_frequency;
-	unsigned int n_esync_frequency_supported;
 	struct dpll_frequency_range *esync_frequency_supported;
 	__u32 esync_pulse;
 };
@@ -466,15 +478,17 @@ struct dpll_pin_set_req {
 		__u32 phase_adjust:1;
 		__u32 esync_frequency:1;
 	} _present;
+	struct {
+		__u32 parent_device;
+		__u32 parent_pin;
+	} _count;
 
 	__u32 id;
 	__u64 frequency;
 	enum dpll_pin_direction direction;
 	__u32 prio;
 	enum dpll_pin_state state;
-	unsigned int n_parent_device;
 	struct dpll_pin_parent_device *parent_device;
-	unsigned int n_parent_pin;
 	struct dpll_pin_parent_pin *parent_pin;
 	__s32 phase_adjust;
 	__u64 esync_frequency;
@@ -525,11 +539,11 @@ __dpll_pin_set_req_set_parent_device(struct dpll_pin_set_req *req,
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_parent_device; i++)
+	for (i = 0; i < req->_count.parent_device; i++)
 		dpll_pin_parent_device_free(&req->parent_device[i]);
 	free(req->parent_device);
 	req->parent_device = parent_device;
-	req->n_parent_device = n_parent_device;
+	req->_count.parent_device = n_parent_device;
 }
 static inline void
 __dpll_pin_set_req_set_parent_pin(struct dpll_pin_set_req *req,
@@ -538,11 +552,11 @@ __dpll_pin_set_req_set_parent_pin(struct dpll_pin_set_req *req,
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_parent_pin; i++)
+	for (i = 0; i < req->_count.parent_pin; i++)
 		dpll_pin_parent_pin_free(&req->parent_pin[i]);
 	free(req->parent_pin);
 	req->parent_pin = parent_pin;
-	req->n_parent_pin = n_parent_pin;
+	req->_count.parent_pin = n_parent_pin;
 }
 static inline void
 dpll_pin_set_req_set_phase_adjust(struct dpll_pin_set_req *req,

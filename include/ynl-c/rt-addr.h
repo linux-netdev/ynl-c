@@ -23,19 +23,21 @@ const char *rt_addr_ifa_flags_str(int value);
 /* ============== RTM_NEWADDR ============== */
 /* RTM_NEWADDR - do */
 struct rt_addr_newaddr_req {
+	__u16 _nlmsg_flags;
+
 	struct ifaddrmsg _hdr;
 
 	struct {
-		__u32 address_len;
-		__u32 label_len;
-		__u32 local_len;
-		__u32 cacheinfo_len;
-	} _present;
+		__u32 address;
+		__u32 label;
+		__u32 local;
+		__u32 cacheinfo;
+	} _len;
 
 	void *address;
 	char *label;
 	void *local;
-	void *cacheinfo;
+	struct ifa_cacheinfo *cacheinfo;
 };
 
 static inline struct rt_addr_newaddr_req *rt_addr_newaddr_req_alloc(void)
@@ -45,41 +47,48 @@ static inline struct rt_addr_newaddr_req *rt_addr_newaddr_req_alloc(void)
 void rt_addr_newaddr_req_free(struct rt_addr_newaddr_req *req);
 
 static inline void
+rt_addr_newaddr_req_set_nlflags(struct rt_addr_newaddr_req *req,
+				__u16 nl_flags)
+{
+	req->_nlmsg_flags = nl_flags;
+}
+
+static inline void
 rt_addr_newaddr_req_set_address(struct rt_addr_newaddr_req *req,
 				const void *address, size_t len)
 {
 	free(req->address);
-	req->_present.address_len = len;
-	req->address = malloc(req->_present.address_len);
-	memcpy(req->address, address, req->_present.address_len);
+	req->_len.address = len;
+	req->address = malloc(req->_len.address);
+	memcpy(req->address, address, req->_len.address);
 }
 static inline void
 rt_addr_newaddr_req_set_label(struct rt_addr_newaddr_req *req,
 			      const char *label)
 {
 	free(req->label);
-	req->_present.label_len = strlen(label);
-	req->label = malloc(req->_present.label_len + 1);
-	memcpy(req->label, label, req->_present.label_len);
-	req->label[req->_present.label_len] = 0;
+	req->_len.label = strlen(label);
+	req->label = malloc(req->_len.label + 1);
+	memcpy(req->label, label, req->_len.label);
+	req->label[req->_len.label] = 0;
 }
 static inline void
 rt_addr_newaddr_req_set_local(struct rt_addr_newaddr_req *req,
 			      const void *local, size_t len)
 {
 	free(req->local);
-	req->_present.local_len = len;
-	req->local = malloc(req->_present.local_len);
-	memcpy(req->local, local, req->_present.local_len);
+	req->_len.local = len;
+	req->local = malloc(req->_len.local);
+	memcpy(req->local, local, req->_len.local);
 }
 static inline void
 rt_addr_newaddr_req_set_cacheinfo(struct rt_addr_newaddr_req *req,
 				  const void *cacheinfo, size_t len)
 {
 	free(req->cacheinfo);
-	req->_present.cacheinfo_len = len;
-	req->cacheinfo = malloc(req->_present.cacheinfo_len);
-	memcpy(req->cacheinfo, cacheinfo, req->_present.cacheinfo_len);
+	req->_len.cacheinfo = len;
+	req->cacheinfo = malloc(req->_len.cacheinfo);
+	memcpy(req->cacheinfo, cacheinfo, req->_len.cacheinfo);
 }
 
 /*
@@ -90,12 +99,14 @@ int rt_addr_newaddr(struct ynl_sock *ys, struct rt_addr_newaddr_req *req);
 /* ============== RTM_DELADDR ============== */
 /* RTM_DELADDR - do */
 struct rt_addr_deladdr_req {
+	__u16 _nlmsg_flags;
+
 	struct ifaddrmsg _hdr;
 
 	struct {
-		__u32 address_len;
-		__u32 local_len;
-	} _present;
+		__u32 address;
+		__u32 local;
+	} _len;
 
 	void *address;
 	void *local;
@@ -108,22 +119,29 @@ static inline struct rt_addr_deladdr_req *rt_addr_deladdr_req_alloc(void)
 void rt_addr_deladdr_req_free(struct rt_addr_deladdr_req *req);
 
 static inline void
+rt_addr_deladdr_req_set_nlflags(struct rt_addr_deladdr_req *req,
+				__u16 nl_flags)
+{
+	req->_nlmsg_flags = nl_flags;
+}
+
+static inline void
 rt_addr_deladdr_req_set_address(struct rt_addr_deladdr_req *req,
 				const void *address, size_t len)
 {
 	free(req->address);
-	req->_present.address_len = len;
-	req->address = malloc(req->_present.address_len);
-	memcpy(req->address, address, req->_present.address_len);
+	req->_len.address = len;
+	req->address = malloc(req->_len.address);
+	memcpy(req->address, address, req->_len.address);
 }
 static inline void
 rt_addr_deladdr_req_set_local(struct rt_addr_deladdr_req *req,
 			      const void *local, size_t len)
 {
 	free(req->local);
-	req->_present.local_len = len;
-	req->local = malloc(req->_present.local_len);
-	memcpy(req->local, local, req->_present.local_len);
+	req->_len.local = len;
+	req->local = malloc(req->_len.local);
+	memcpy(req->local, local, req->_len.local);
 }
 
 /*
@@ -147,16 +165,16 @@ struct rt_addr_getaddr_rsp {
 	struct ifaddrmsg _hdr;
 
 	struct {
-		__u32 address_len;
-		__u32 label_len;
-		__u32 local_len;
-		__u32 cacheinfo_len;
-	} _present;
+		__u32 address;
+		__u32 label;
+		__u32 local;
+		__u32 cacheinfo;
+	} _len;
 
 	void *address;
 	char *label;
 	void *local;
-	void *cacheinfo;
+	struct ifa_cacheinfo *cacheinfo;
 };
 
 struct rt_addr_getaddr_list {
@@ -172,6 +190,8 @@ rt_addr_getaddr_dump(struct ynl_sock *ys, struct rt_addr_getaddr_req *req);
 /* ============== RTM_GETMULTICAST ============== */
 /* RTM_GETMULTICAST - do */
 struct rt_addr_getmulticast_req {
+	__u16 _nlmsg_flags;
+
 	struct ifaddrmsg _hdr;
 };
 
@@ -182,16 +202,23 @@ rt_addr_getmulticast_req_alloc(void)
 }
 void rt_addr_getmulticast_req_free(struct rt_addr_getmulticast_req *req);
 
+static inline void
+rt_addr_getmulticast_req_set_nlflags(struct rt_addr_getmulticast_req *req,
+				     __u16 nl_flags)
+{
+	req->_nlmsg_flags = nl_flags;
+}
+
 struct rt_addr_getmulticast_rsp {
 	struct ifaddrmsg _hdr;
 
 	struct {
-		__u32 multicast_len;
-		__u32 cacheinfo_len;
-	} _present;
+		__u32 multicast;
+		__u32 cacheinfo;
+	} _len;
 
 	void *multicast;
-	void *cacheinfo;
+	struct ifa_cacheinfo *cacheinfo;
 };
 
 void rt_addr_getmulticast_rsp_free(struct rt_addr_getmulticast_rsp *rsp);

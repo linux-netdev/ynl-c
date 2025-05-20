@@ -30,11 +30,13 @@ struct fou_add_req {
 		__u32 remcsum_nopartial:1;
 		__u32 local_v4:1;
 		__u32 peer_v4:1;
-		__u32 local_v6_len;
-		__u32 peer_v6_len;
 		__u32 peer_port:1;
 		__u32 ifindex:1;
 	} _present;
+	struct {
+		__u32 local_v6;
+		__u32 peer_v6;
+	} _len;
 
 	__u16 port /* big-endian */;
 	__u8 ipproto;
@@ -91,18 +93,18 @@ fou_add_req_set_local_v6(struct fou_add_req *req, const void *local_v6,
 			 size_t len)
 {
 	free(req->local_v6);
-	req->_present.local_v6_len = len;
-	req->local_v6 = malloc(req->_present.local_v6_len);
-	memcpy(req->local_v6, local_v6, req->_present.local_v6_len);
+	req->_len.local_v6 = len;
+	req->local_v6 = malloc(req->_len.local_v6);
+	memcpy(req->local_v6, local_v6, req->_len.local_v6);
 }
 static inline void
 fou_add_req_set_peer_v6(struct fou_add_req *req, const void *peer_v6,
 			size_t len)
 {
 	free(req->peer_v6);
-	req->_present.peer_v6_len = len;
-	req->peer_v6 = malloc(req->_present.peer_v6_len);
-	memcpy(req->peer_v6, peer_v6, req->_present.peer_v6_len);
+	req->_len.peer_v6 = len;
+	req->peer_v6 = malloc(req->_len.peer_v6);
+	memcpy(req->peer_v6, peer_v6, req->_len.peer_v6);
 }
 static inline void
 fou_add_req_set_peer_port(struct fou_add_req *req,
@@ -133,9 +135,11 @@ struct fou_del_req {
 		__u32 peer_port:1;
 		__u32 local_v4:1;
 		__u32 peer_v4:1;
-		__u32 local_v6_len;
-		__u32 peer_v6_len;
 	} _present;
+	struct {
+		__u32 local_v6;
+		__u32 peer_v6;
+	} _len;
 
 	__u8 af;
 	__s32 ifindex;
@@ -194,18 +198,18 @@ fou_del_req_set_local_v6(struct fou_del_req *req, const void *local_v6,
 			 size_t len)
 {
 	free(req->local_v6);
-	req->_present.local_v6_len = len;
-	req->local_v6 = malloc(req->_present.local_v6_len);
-	memcpy(req->local_v6, local_v6, req->_present.local_v6_len);
+	req->_len.local_v6 = len;
+	req->local_v6 = malloc(req->_len.local_v6);
+	memcpy(req->local_v6, local_v6, req->_len.local_v6);
 }
 static inline void
 fou_del_req_set_peer_v6(struct fou_del_req *req, const void *peer_v6,
 			size_t len)
 {
 	free(req->peer_v6);
-	req->_present.peer_v6_len = len;
-	req->peer_v6 = malloc(req->_present.peer_v6_len);
-	memcpy(req->peer_v6, peer_v6, req->_present.peer_v6_len);
+	req->_len.peer_v6 = len;
+	req->peer_v6 = malloc(req->_len.peer_v6);
+	memcpy(req->peer_v6, peer_v6, req->_len.peer_v6);
 }
 
 /*
@@ -223,9 +227,11 @@ struct fou_get_req {
 		__u32 peer_port:1;
 		__u32 local_v4:1;
 		__u32 peer_v4:1;
-		__u32 local_v6_len;
-		__u32 peer_v6_len;
 	} _present;
+	struct {
+		__u32 local_v6;
+		__u32 peer_v6;
+	} _len;
 
 	__u8 af;
 	__s32 ifindex;
@@ -284,18 +290,18 @@ fou_get_req_set_local_v6(struct fou_get_req *req, const void *local_v6,
 			 size_t len)
 {
 	free(req->local_v6);
-	req->_present.local_v6_len = len;
-	req->local_v6 = malloc(req->_present.local_v6_len);
-	memcpy(req->local_v6, local_v6, req->_present.local_v6_len);
+	req->_len.local_v6 = len;
+	req->local_v6 = malloc(req->_len.local_v6);
+	memcpy(req->local_v6, local_v6, req->_len.local_v6);
 }
 static inline void
 fou_get_req_set_peer_v6(struct fou_get_req *req, const void *peer_v6,
 			size_t len)
 {
 	free(req->peer_v6);
-	req->_present.peer_v6_len = len;
-	req->peer_v6 = malloc(req->_present.peer_v6_len);
-	memcpy(req->peer_v6, peer_v6, req->_present.peer_v6_len);
+	req->_len.peer_v6 = len;
+	req->peer_v6 = malloc(req->_len.peer_v6);
+	memcpy(req->peer_v6, peer_v6, req->_len.peer_v6);
 }
 
 struct fou_get_rsp {
@@ -306,11 +312,13 @@ struct fou_get_rsp {
 		__u32 remcsum_nopartial:1;
 		__u32 local_v4:1;
 		__u32 peer_v4:1;
-		__u32 local_v6_len;
-		__u32 peer_v6_len;
 		__u32 peer_port:1;
 		__u32 ifindex:1;
 	} _present;
+	struct {
+		__u32 local_v6;
+		__u32 peer_v6;
+	} _len;
 
 	__u16 port /* big-endian */;
 	__u8 ipproto;

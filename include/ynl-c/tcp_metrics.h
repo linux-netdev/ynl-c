@@ -44,10 +44,12 @@ struct tcp_metrics_metrics {
 struct tcp_metrics_get_req {
 	struct {
 		__u32 addr_ipv4:1;
-		__u32 addr_ipv6_len;
 		__u32 saddr_ipv4:1;
-		__u32 saddr_ipv6_len;
 	} _present;
+	struct {
+		__u32 addr_ipv6;
+		__u32 saddr_ipv6;
+	} _len;
 
 	__u32 addr_ipv4 /* big-endian */;
 	void *addr_ipv6;
@@ -73,9 +75,9 @@ tcp_metrics_get_req_set_addr_ipv6(struct tcp_metrics_get_req *req,
 				  const void *addr_ipv6, size_t len)
 {
 	free(req->addr_ipv6);
-	req->_present.addr_ipv6_len = len;
-	req->addr_ipv6 = malloc(req->_present.addr_ipv6_len);
-	memcpy(req->addr_ipv6, addr_ipv6, req->_present.addr_ipv6_len);
+	req->_len.addr_ipv6 = len;
+	req->addr_ipv6 = malloc(req->_len.addr_ipv6);
+	memcpy(req->addr_ipv6, addr_ipv6, req->_len.addr_ipv6);
 }
 static inline void
 tcp_metrics_get_req_set_saddr_ipv4(struct tcp_metrics_get_req *req,
@@ -89,24 +91,26 @@ tcp_metrics_get_req_set_saddr_ipv6(struct tcp_metrics_get_req *req,
 				   const void *saddr_ipv6, size_t len)
 {
 	free(req->saddr_ipv6);
-	req->_present.saddr_ipv6_len = len;
-	req->saddr_ipv6 = malloc(req->_present.saddr_ipv6_len);
-	memcpy(req->saddr_ipv6, saddr_ipv6, req->_present.saddr_ipv6_len);
+	req->_len.saddr_ipv6 = len;
+	req->saddr_ipv6 = malloc(req->_len.saddr_ipv6);
+	memcpy(req->saddr_ipv6, saddr_ipv6, req->_len.saddr_ipv6);
 }
 
 struct tcp_metrics_get_rsp {
 	struct {
 		__u32 addr_ipv4:1;
-		__u32 addr_ipv6_len;
 		__u32 saddr_ipv4:1;
-		__u32 saddr_ipv6_len;
 		__u32 age:1;
 		__u32 vals:1;
 		__u32 fopen_mss:1;
 		__u32 fopen_syn_drops:1;
 		__u32 fopen_syn_drop_ts:1;
-		__u32 fopen_cookie_len;
 	} _present;
+	struct {
+		__u32 addr_ipv6;
+		__u32 saddr_ipv6;
+		__u32 fopen_cookie;
+	} _len;
 
 	__u32 addr_ipv4 /* big-endian */;
 	void *addr_ipv6;
@@ -143,10 +147,12 @@ struct tcp_metrics_get_list *tcp_metrics_get_dump(struct ynl_sock *ys);
 struct tcp_metrics_del_req {
 	struct {
 		__u32 addr_ipv4:1;
-		__u32 addr_ipv6_len;
 		__u32 saddr_ipv4:1;
-		__u32 saddr_ipv6_len;
 	} _present;
+	struct {
+		__u32 addr_ipv6;
+		__u32 saddr_ipv6;
+	} _len;
 
 	__u32 addr_ipv4 /* big-endian */;
 	void *addr_ipv6;
@@ -172,9 +178,9 @@ tcp_metrics_del_req_set_addr_ipv6(struct tcp_metrics_del_req *req,
 				  const void *addr_ipv6, size_t len)
 {
 	free(req->addr_ipv6);
-	req->_present.addr_ipv6_len = len;
-	req->addr_ipv6 = malloc(req->_present.addr_ipv6_len);
-	memcpy(req->addr_ipv6, addr_ipv6, req->_present.addr_ipv6_len);
+	req->_len.addr_ipv6 = len;
+	req->addr_ipv6 = malloc(req->_len.addr_ipv6);
+	memcpy(req->addr_ipv6, addr_ipv6, req->_len.addr_ipv6);
 }
 static inline void
 tcp_metrics_del_req_set_saddr_ipv4(struct tcp_metrics_del_req *req,
@@ -188,9 +194,9 @@ tcp_metrics_del_req_set_saddr_ipv6(struct tcp_metrics_del_req *req,
 				   const void *saddr_ipv6, size_t len)
 {
 	free(req->saddr_ipv6);
-	req->_present.saddr_ipv6_len = len;
-	req->saddr_ipv6 = malloc(req->_present.saddr_ipv6_len);
-	memcpy(req->saddr_ipv6, saddr_ipv6, req->_present.saddr_ipv6_len);
+	req->_len.saddr_ipv6 = len;
+	req->saddr_ipv6 = malloc(req->_len.saddr_ipv6);
+	memcpy(req->saddr_ipv6, saddr_ipv6, req->_len.saddr_ipv6);
 }
 
 /*

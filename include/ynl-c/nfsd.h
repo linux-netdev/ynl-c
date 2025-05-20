@@ -34,9 +34,9 @@ void nfsd_version_free(struct nfsd_version *obj);
 
 struct nfsd_sock {
 	struct {
-		__u32 addr_len;
-		__u32 transport_name_len;
-	} _present;
+		__u32 addr;
+		__u32 transport_name;
+	} _len;
 
 	void *addr;
 	char *transport_name;
@@ -56,11 +56,16 @@ struct nfsd_rpc_status_get_rsp {
 		__u32 service_time:1;
 		__u32 saddr4:1;
 		__u32 daddr4:1;
-		__u32 saddr6_len;
-		__u32 daddr6_len;
 		__u32 sport:1;
 		__u32 dport:1;
 	} _present;
+	struct {
+		__u32 saddr6;
+		__u32 daddr6;
+	} _len;
+	struct {
+		__u32 compound_ops;
+	} _count;
 
 	__u32 xid /* big-endian */;
 	__u32 flags;
@@ -74,7 +79,6 @@ struct nfsd_rpc_status_get_rsp {
 	void *daddr6;
 	__u16 sport /* big-endian */;
 	__u16 dport /* big-endian */;
-	unsigned int n_compound_ops;
 	__u32 *compound_ops;
 };
 
@@ -93,10 +97,14 @@ struct nfsd_threads_set_req {
 	struct {
 		__u32 gracetime:1;
 		__u32 leasetime:1;
-		__u32 scope_len;
 	} _present;
+	struct {
+		__u32 scope;
+	} _len;
+	struct {
+		__u32 threads;
+	} _count;
 
-	unsigned int n_threads;
 	__u32 *threads;
 	__u32 gracetime;
 	__u32 leasetime;
@@ -115,7 +123,7 @@ __nfsd_threads_set_req_set_threads(struct nfsd_threads_set_req *req,
 {
 	free(req->threads);
 	req->threads = threads;
-	req->n_threads = n_threads;
+	req->_count.threads = n_threads;
 }
 static inline void
 nfsd_threads_set_req_set_gracetime(struct nfsd_threads_set_req *req,
@@ -136,10 +144,10 @@ nfsd_threads_set_req_set_scope(struct nfsd_threads_set_req *req,
 			       const char *scope)
 {
 	free(req->scope);
-	req->_present.scope_len = strlen(scope);
-	req->scope = malloc(req->_present.scope_len + 1);
-	memcpy(req->scope, scope, req->_present.scope_len);
-	req->scope[req->_present.scope_len] = 0;
+	req->_len.scope = strlen(scope);
+	req->scope = malloc(req->_len.scope + 1);
+	memcpy(req->scope, scope, req->_len.scope);
+	req->scope[req->_len.scope] = 0;
 }
 
 /*
@@ -154,10 +162,14 @@ struct nfsd_threads_get_rsp {
 	struct {
 		__u32 gracetime:1;
 		__u32 leasetime:1;
-		__u32 scope_len;
 	} _present;
+	struct {
+		__u32 scope;
+	} _len;
+	struct {
+		__u32 threads;
+	} _count;
 
-	unsigned int n_threads;
 	__u32 *threads;
 	__u32 gracetime;
 	__u32 leasetime;
@@ -174,7 +186,10 @@ struct nfsd_threads_get_rsp *nfsd_threads_get(struct ynl_sock *ys);
 /* ============== NFSD_CMD_VERSION_SET ============== */
 /* NFSD_CMD_VERSION_SET - do */
 struct nfsd_version_set_req {
-	unsigned int n_version;
+	struct {
+		__u32 version;
+	} _count;
+
 	struct nfsd_version *version;
 };
 
@@ -191,11 +206,11 @@ __nfsd_version_set_req_set_version(struct nfsd_version_set_req *req,
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_version; i++)
+	for (i = 0; i < req->_count.version; i++)
 		nfsd_version_free(&req->version[i]);
 	free(req->version);
 	req->version = version;
-	req->n_version = n_version;
+	req->_count.version = n_version;
 }
 
 /*
@@ -207,7 +222,10 @@ int nfsd_version_set(struct ynl_sock *ys, struct nfsd_version_set_req *req);
 /* NFSD_CMD_VERSION_GET - do */
 
 struct nfsd_version_get_rsp {
-	unsigned int n_version;
+	struct {
+		__u32 version;
+	} _count;
+
 	struct nfsd_version *version;
 };
 
@@ -221,7 +239,10 @@ struct nfsd_version_get_rsp *nfsd_version_get(struct ynl_sock *ys);
 /* ============== NFSD_CMD_LISTENER_SET ============== */
 /* NFSD_CMD_LISTENER_SET - do */
 struct nfsd_listener_set_req {
-	unsigned int n_addr;
+	struct {
+		__u32 addr;
+	} _count;
+
 	struct nfsd_sock *addr;
 };
 
@@ -237,11 +258,11 @@ __nfsd_listener_set_req_set_addr(struct nfsd_listener_set_req *req,
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_addr; i++)
+	for (i = 0; i < req->_count.addr; i++)
 		nfsd_sock_free(&req->addr[i]);
 	free(req->addr);
 	req->addr = addr;
-	req->n_addr = n_addr;
+	req->_count.addr = n_addr;
 }
 
 /*
@@ -253,7 +274,10 @@ int nfsd_listener_set(struct ynl_sock *ys, struct nfsd_listener_set_req *req);
 /* NFSD_CMD_LISTENER_GET - do */
 
 struct nfsd_listener_get_rsp {
-	unsigned int n_addr;
+	struct {
+		__u32 addr;
+	} _count;
+
 	struct nfsd_sock *addr;
 };
 
@@ -268,8 +292,8 @@ struct nfsd_listener_get_rsp *nfsd_listener_get(struct ynl_sock *ys);
 /* NFSD_CMD_POOL_MODE_SET - do */
 struct nfsd_pool_mode_set_req {
 	struct {
-		__u32 mode_len;
-	} _present;
+		__u32 mode;
+	} _len;
 
 	char *mode;
 };
@@ -285,10 +309,10 @@ nfsd_pool_mode_set_req_set_mode(struct nfsd_pool_mode_set_req *req,
 				const char *mode)
 {
 	free(req->mode);
-	req->_present.mode_len = strlen(mode);
-	req->mode = malloc(req->_present.mode_len + 1);
-	memcpy(req->mode, mode, req->_present.mode_len);
-	req->mode[req->_present.mode_len] = 0;
+	req->_len.mode = strlen(mode);
+	req->mode = malloc(req->_len.mode + 1);
+	memcpy(req->mode, mode, req->_len.mode);
+	req->mode[req->_len.mode] = 0;
 }
 
 /*
@@ -301,9 +325,11 @@ int nfsd_pool_mode_set(struct ynl_sock *ys, struct nfsd_pool_mode_set_req *req);
 
 struct nfsd_pool_mode_get_rsp {
 	struct {
-		__u32 mode_len;
 		__u32 npools:1;
 	} _present;
+	struct {
+		__u32 mode;
+	} _len;
 
 	char *mode;
 	__u32 npools;

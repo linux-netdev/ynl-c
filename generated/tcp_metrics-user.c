@@ -159,7 +159,7 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.addr_ipv6_len = len;
+			dst->_len.addr_ipv6 = len;
 			dst->addr_ipv6 = malloc(len);
 			memcpy(dst->addr_ipv6, ynl_attr_data(attr), len);
 		} else if (type == TCP_METRICS_ATTR_SADDR_IPV4) {
@@ -174,7 +174,7 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.saddr_ipv6_len = len;
+			dst->_len.saddr_ipv6 = len;
 			dst->saddr_ipv6 = malloc(len);
 			memcpy(dst->saddr_ipv6, ynl_attr_data(attr), len);
 		} else if (type == TCP_METRICS_ATTR_AGE) {
@@ -213,7 +213,7 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.fopen_cookie_len = len;
+			dst->_len.fopen_cookie = len;
 			dst->fopen_cookie = malloc(len);
 			memcpy(dst->fopen_cookie, ynl_attr_data(attr), len);
 		}
@@ -232,16 +232,17 @@ tcp_metrics_get(struct ynl_sock *ys, struct tcp_metrics_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, TCP_METRICS_CMD_GET, 1);
 	ys->req_policy = &tcp_metrics_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &tcp_metrics_nest;
 
 	if (req->_present.addr_ipv4)
 		ynl_attr_put_u32(nlh, TCP_METRICS_ATTR_ADDR_IPV4, req->addr_ipv4);
-	if (req->_present.addr_ipv6_len)
-		ynl_attr_put(nlh, TCP_METRICS_ATTR_ADDR_IPV6, req->addr_ipv6, req->_present.addr_ipv6_len);
+	if (req->_len.addr_ipv6)
+		ynl_attr_put(nlh, TCP_METRICS_ATTR_ADDR_IPV6, req->addr_ipv6, req->_len.addr_ipv6);
 	if (req->_present.saddr_ipv4)
 		ynl_attr_put_u32(nlh, TCP_METRICS_ATTR_SADDR_IPV4, req->saddr_ipv4);
-	if (req->_present.saddr_ipv6_len)
-		ynl_attr_put(nlh, TCP_METRICS_ATTR_SADDR_IPV6, req->saddr_ipv6, req->_present.saddr_ipv6_len);
+	if (req->_len.saddr_ipv6)
+		ynl_attr_put(nlh, TCP_METRICS_ATTR_SADDR_IPV6, req->saddr_ipv6, req->_len.saddr_ipv6);
 
 	rsp = calloc(1, sizeof(*rsp));
 	yrs.yarg.data = rsp;
@@ -319,15 +320,16 @@ int tcp_metrics_del(struct ynl_sock *ys, struct tcp_metrics_del_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, TCP_METRICS_CMD_DEL, 1);
 	ys->req_policy = &tcp_metrics_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.addr_ipv4)
 		ynl_attr_put_u32(nlh, TCP_METRICS_ATTR_ADDR_IPV4, req->addr_ipv4);
-	if (req->_present.addr_ipv6_len)
-		ynl_attr_put(nlh, TCP_METRICS_ATTR_ADDR_IPV6, req->addr_ipv6, req->_present.addr_ipv6_len);
+	if (req->_len.addr_ipv6)
+		ynl_attr_put(nlh, TCP_METRICS_ATTR_ADDR_IPV6, req->addr_ipv6, req->_len.addr_ipv6);
 	if (req->_present.saddr_ipv4)
 		ynl_attr_put_u32(nlh, TCP_METRICS_ATTR_SADDR_IPV4, req->saddr_ipv4);
-	if (req->_present.saddr_ipv6_len)
-		ynl_attr_put(nlh, TCP_METRICS_ATTR_SADDR_IPV6, req->saddr_ipv6, req->_present.saddr_ipv6_len);
+	if (req->_len.saddr_ipv6)
+		ynl_attr_put(nlh, TCP_METRICS_ATTR_SADDR_IPV6, req->saddr_ipv6, req->_len.saddr_ipv6);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

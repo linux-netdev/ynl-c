@@ -177,9 +177,9 @@ int nfsd_sock_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	struct nlattr *nest;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.addr_len)
-		ynl_attr_put(nlh, NFSD_A_SOCK_ADDR, obj->addr, obj->_present.addr_len);
-	if (obj->_present.transport_name_len)
+	if (obj->_len.addr)
+		ynl_attr_put(nlh, NFSD_A_SOCK_ADDR, obj->addr, obj->_len.addr);
+	if (obj->_len.transport_name)
 		ynl_attr_put_str(nlh, NFSD_A_SOCK_TRANSPORT_NAME, obj->transport_name);
 	ynl_attr_nest_end(nlh, nest);
 
@@ -201,7 +201,7 @@ int nfsd_sock_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.addr_len = len;
+			dst->_len.addr = len;
 			dst->addr = malloc(len);
 			memcpy(dst->addr, ynl_attr_data(attr), len);
 		} else if (type == NFSD_A_SOCK_TRANSPORT_NAME) {
@@ -211,7 +211,7 @@ int nfsd_sock_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.transport_name_len = len;
+			dst->_len.transport_name = len;
 			dst->transport_name = malloc(len + 1);
 			memcpy(dst->transport_name, ynl_attr_get_str(attr), len);
 			dst->transport_name[len] = 0;
@@ -286,7 +286,7 @@ int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.saddr6_len = len;
+			dst->_len.saddr6 = len;
 			dst->saddr6 = malloc(len);
 			memcpy(dst->saddr6, ynl_attr_data(attr), len);
 		} else if (type == NFSD_A_RPC_STATUS_DADDR6) {
@@ -296,7 +296,7 @@ int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.daddr6_len = len;
+			dst->_len.daddr6 = len;
 			dst->daddr6 = malloc(len);
 			memcpy(dst->daddr6, ynl_attr_data(attr), len);
 		} else if (type == NFSD_A_RPC_STATUS_SPORT) {
@@ -316,7 +316,7 @@ int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_compound_ops) {
 		dst->compound_ops = calloc(n_compound_ops, sizeof(*dst->compound_ops));
-		dst->n_compound_ops = n_compound_ops;
+		dst->_count.compound_ops = n_compound_ops;
 		i = 0;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 			if (ynl_attr_type(attr) == NFSD_A_RPC_STATUS_COMPOUND_OPS) {
@@ -388,14 +388,15 @@ int nfsd_threads_set(struct ynl_sock *ys, struct nfsd_threads_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_THREADS_SET, 1);
 	ys->req_policy = &nfsd_server_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	for (i = 0; i < req->n_threads; i++)
+	for (i = 0; i < req->_count.threads; i++)
 		ynl_attr_put_u32(nlh, NFSD_A_SERVER_THREADS, req->threads[i]);
 	if (req->_present.gracetime)
 		ynl_attr_put_u32(nlh, NFSD_A_SERVER_GRACETIME, req->gracetime);
 	if (req->_present.leasetime)
 		ynl_attr_put_u32(nlh, NFSD_A_SERVER_LEASETIME, req->leasetime);
-	if (req->_present.scope_len)
+	if (req->_len.scope)
 		ynl_attr_put_str(nlh, NFSD_A_SERVER_SCOPE, req->scope);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -449,7 +450,7 @@ int nfsd_threads_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.scope_len = len;
+			dst->_len.scope = len;
 			dst->scope = malloc(len + 1);
 			memcpy(dst->scope, ynl_attr_get_str(attr), len);
 			dst->scope[len] = 0;
@@ -458,7 +459,7 @@ int nfsd_threads_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_threads) {
 		dst->threads = calloc(n_threads, sizeof(*dst->threads));
-		dst->n_threads = n_threads;
+		dst->_count.threads = n_threads;
 		i = 0;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 			if (ynl_attr_type(attr) == NFSD_A_SERVER_THREADS) {
@@ -480,6 +481,7 @@ struct nfsd_threads_get_rsp *nfsd_threads_get(struct ynl_sock *ys)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_THREADS_GET, 1);
 	ys->req_policy = &nfsd_server_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nfsd_server_nest;
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -504,7 +506,7 @@ void nfsd_version_set_req_free(struct nfsd_version_set_req *req)
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_version; i++)
+	for (i = 0; i < req->_count.version; i++)
 		nfsd_version_free(&req->version[i]);
 	free(req->version);
 	free(req);
@@ -519,8 +521,9 @@ int nfsd_version_set(struct ynl_sock *ys, struct nfsd_version_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_VERSION_SET, 1);
 	ys->req_policy = &nfsd_server_proto_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	for (i = 0; i < req->n_version; i++)
+	for (i = 0; i < req->_count.version; i++)
 		nfsd_version_put(nlh, NFSD_A_SERVER_PROTO_VERSION, &req->version[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -536,7 +539,7 @@ void nfsd_version_get_rsp_free(struct nfsd_version_get_rsp *rsp)
 {
 	unsigned int i;
 
-	for (i = 0; i < rsp->n_version; i++)
+	for (i = 0; i < rsp->_count.version; i++)
 		nfsd_version_free(&rsp->version[i]);
 	free(rsp->version);
 	free(rsp);
@@ -567,7 +570,7 @@ int nfsd_version_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_version) {
 		dst->version = calloc(n_version, sizeof(*dst->version));
-		dst->n_version = n_version;
+		dst->_count.version = n_version;
 		i = 0;
 		parg.rsp_policy = &nfsd_version_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -592,6 +595,7 @@ struct nfsd_version_get_rsp *nfsd_version_get(struct ynl_sock *ys)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_VERSION_GET, 1);
 	ys->req_policy = &nfsd_server_proto_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nfsd_server_proto_nest;
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -616,7 +620,7 @@ void nfsd_listener_set_req_free(struct nfsd_listener_set_req *req)
 {
 	unsigned int i;
 
-	for (i = 0; i < req->n_addr; i++)
+	for (i = 0; i < req->_count.addr; i++)
 		nfsd_sock_free(&req->addr[i]);
 	free(req->addr);
 	free(req);
@@ -631,8 +635,9 @@ int nfsd_listener_set(struct ynl_sock *ys, struct nfsd_listener_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_LISTENER_SET, 1);
 	ys->req_policy = &nfsd_server_sock_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	for (i = 0; i < req->n_addr; i++)
+	for (i = 0; i < req->_count.addr; i++)
 		nfsd_sock_put(nlh, NFSD_A_SERVER_SOCK_ADDR, &req->addr[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -648,7 +653,7 @@ void nfsd_listener_get_rsp_free(struct nfsd_listener_get_rsp *rsp)
 {
 	unsigned int i;
 
-	for (i = 0; i < rsp->n_addr; i++)
+	for (i = 0; i < rsp->_count.addr; i++)
 		nfsd_sock_free(&rsp->addr[i]);
 	free(rsp->addr);
 	free(rsp);
@@ -679,7 +684,7 @@ int nfsd_listener_get_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_addr) {
 		dst->addr = calloc(n_addr, sizeof(*dst->addr));
-		dst->n_addr = n_addr;
+		dst->_count.addr = n_addr;
 		i = 0;
 		parg.rsp_policy = &nfsd_sock_nest;
 		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
@@ -704,6 +709,7 @@ struct nfsd_listener_get_rsp *nfsd_listener_get(struct ynl_sock *ys)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_LISTENER_GET, 1);
 	ys->req_policy = &nfsd_server_sock_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nfsd_server_sock_nest;
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -738,8 +744,9 @@ int nfsd_pool_mode_set(struct ynl_sock *ys, struct nfsd_pool_mode_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_POOL_MODE_SET, 1);
 	ys->req_policy = &nfsd_pool_mode_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.mode_len)
+	if (req->_len.mode)
 		ynl_attr_put_str(nlh, NFSD_A_POOL_MODE_MODE, req->mode);
 
 	err = ynl_exec(ys, nlh, &yrs);
@@ -775,7 +782,7 @@ int nfsd_pool_mode_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.mode_len = len;
+			dst->_len.mode = len;
 			dst->mode = malloc(len + 1);
 			memcpy(dst->mode, ynl_attr_get_str(attr), len);
 			dst->mode[len] = 0;
@@ -799,6 +806,7 @@ struct nfsd_pool_mode_get_rsp *nfsd_pool_mode_get(struct ynl_sock *ys)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NFSD_CMD_POOL_MODE_GET, 1);
 	ys->req_policy = &nfsd_pool_mode_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nfsd_pool_mode_nest;
 
 	rsp = calloc(1, sizeof(*rsp));

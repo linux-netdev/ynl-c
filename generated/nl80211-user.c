@@ -1274,7 +1274,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.iftypes_len = len;
+			dst->_len.iftypes = len;
 			dst->iftypes = malloc(len);
 			memcpy(dst->iftypes, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_HE_CAP_MAC) {
@@ -1284,7 +1284,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.he_cap_mac_len = len;
+			dst->_len.he_cap_mac = len;
 			dst->he_cap_mac = malloc(len);
 			memcpy(dst->he_cap_mac, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_HE_CAP_PHY) {
@@ -1294,7 +1294,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.he_cap_phy_len = len;
+			dst->_len.he_cap_phy = len;
 			dst->he_cap_phy = malloc(len);
 			memcpy(dst->he_cap_phy, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_HE_CAP_MCS_SET) {
@@ -1304,7 +1304,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.he_cap_mcs_set_len = len;
+			dst->_len.he_cap_mcs_set = len;
 			dst->he_cap_mcs_set = malloc(len);
 			memcpy(dst->he_cap_mcs_set, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_HE_CAP_PPE) {
@@ -1314,7 +1314,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.he_cap_ppe_len = len;
+			dst->_len.he_cap_ppe = len;
 			dst->he_cap_ppe = malloc(len);
 			memcpy(dst->he_cap_ppe, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_HE_6GHZ_CAPA) {
@@ -1324,7 +1324,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.he_6ghz_capa_len = len;
+			dst->_len.he_6ghz_capa = len;
 			dst->he_6ghz_capa = malloc(len);
 			memcpy(dst->he_6ghz_capa, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_VENDOR_ELEMS) {
@@ -1334,7 +1334,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.vendor_elems_len = len;
+			dst->_len.vendor_elems = len;
 			dst->vendor_elems = malloc(len);
 			memcpy(dst->vendor_elems, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_EHT_CAP_MAC) {
@@ -1344,7 +1344,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.eht_cap_mac_len = len;
+			dst->_len.eht_cap_mac = len;
 			dst->eht_cap_mac = malloc(len);
 			memcpy(dst->eht_cap_mac, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_EHT_CAP_PHY) {
@@ -1354,7 +1354,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.eht_cap_phy_len = len;
+			dst->_len.eht_cap_phy = len;
 			dst->eht_cap_phy = malloc(len);
 			memcpy(dst->eht_cap_phy, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_EHT_CAP_MCS_SET) {
@@ -1364,7 +1364,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.eht_cap_mcs_set_len = len;
+			dst->_len.eht_cap_mcs_set = len;
 			dst->eht_cap_mcs_set = malloc(len);
 			memcpy(dst->eht_cap_mcs_set, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_IFTYPE_ATTR_EHT_CAP_PPE) {
@@ -1374,7 +1374,7 @@ int nl80211_iftype_data_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.eht_cap_ppe_len = len;
+			dst->_len.eht_cap_ppe = len;
 			dst->eht_cap_ppe = malloc(len);
 			memcpy(dst->eht_cap_ppe, ynl_attr_data(attr), len);
 		}
@@ -1609,7 +1609,7 @@ int nl80211_if_combination_attributes_parse(struct ynl_parse_arg *yarg,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_limits++;
+				dst->_count.limits++;
 			}
 		} else if (type == NL80211_IFACE_COMB_MAXNUM) {
 			if (ynl_attr_validate(yarg, attr))
@@ -1645,7 +1645,7 @@ int nl80211_if_combination_attributes_parse(struct ynl_parse_arg *yarg,
 
 	if (n_limits) {
 		dst->limits = calloc(n_limits, sizeof(*dst->limits));
-		dst->n_limits = n_limits;
+		dst->_count.limits = n_limits;
 		i = 0;
 		parg.rsp_policy = &nl80211_iface_limit_attributes_nest;
 		ynl_attr_for_each_nested(attr, attr_limits) {
@@ -1694,14 +1694,14 @@ int nl80211_sar_attributes_parse(struct ynl_parse_arg *yarg,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_specs++;
+				dst->_count.specs++;
 			}
 		}
 	}
 
 	if (n_specs) {
 		dst->specs = calloc(n_specs, sizeof(*dst->specs));
-		dst->n_specs = n_specs;
+		dst->_count.specs = n_specs;
 		i = 0;
 		parg.rsp_policy = &nl80211_sar_specs_nest;
 		ynl_attr_for_each_nested(attr, attr_specs) {
@@ -1801,7 +1801,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dfs_time_len = len;
+			dst->_len.dfs_time = len;
 			dst->dfs_time = malloc(len);
 			memcpy(dst->dfs_time, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_HT40_MINUS) {
@@ -1811,7 +1811,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_ht40_minus_len = len;
+			dst->_len.no_ht40_minus = len;
 			dst->no_ht40_minus = malloc(len);
 			memcpy(dst->no_ht40_minus, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_HT40_PLUS) {
@@ -1821,7 +1821,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_ht40_plus_len = len;
+			dst->_len.no_ht40_plus = len;
 			dst->no_ht40_plus = malloc(len);
 			memcpy(dst->no_ht40_plus, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_80MHZ) {
@@ -1831,7 +1831,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_80mhz_len = len;
+			dst->_len.no_80mhz = len;
 			dst->no_80mhz = malloc(len);
 			memcpy(dst->no_80mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_160MHZ) {
@@ -1841,7 +1841,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_160mhz_len = len;
+			dst->_len.no_160mhz = len;
 			dst->no_160mhz = malloc(len);
 			memcpy(dst->no_160mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_DFS_CAC_TIME) {
@@ -1851,7 +1851,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dfs_cac_time_len = len;
+			dst->_len.dfs_cac_time = len;
 			dst->dfs_cac_time = malloc(len);
 			memcpy(dst->dfs_cac_time, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_INDOOR_ONLY) {
@@ -1861,7 +1861,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.indoor_only_len = len;
+			dst->_len.indoor_only = len;
 			dst->indoor_only = malloc(len);
 			memcpy(dst->indoor_only, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_IR_CONCURRENT) {
@@ -1871,7 +1871,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ir_concurrent_len = len;
+			dst->_len.ir_concurrent = len;
 			dst->ir_concurrent = malloc(len);
 			memcpy(dst->ir_concurrent, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_20MHZ) {
@@ -1881,7 +1881,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_20mhz_len = len;
+			dst->_len.no_20mhz = len;
 			dst->no_20mhz = malloc(len);
 			memcpy(dst->no_20mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_10MHZ) {
@@ -1891,7 +1891,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_10mhz_len = len;
+			dst->_len.no_10mhz = len;
 			dst->no_10mhz = malloc(len);
 			memcpy(dst->no_10mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_WMM) {
@@ -1901,7 +1901,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_wmm++;
+				dst->_count.wmm++;
 			}
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_HE) {
 			unsigned int len;
@@ -1910,7 +1910,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_he_len = len;
+			dst->_len.no_he = len;
 			dst->no_he = malloc(len);
 			memcpy(dst->no_he, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_OFFSET) {
@@ -1925,7 +1925,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present._1mhz_len = len;
+			dst->_len._1mhz = len;
 			dst->_1mhz = malloc(len);
 			memcpy(dst->_1mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_2MHZ) {
@@ -1935,7 +1935,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present._2mhz_len = len;
+			dst->_len._2mhz = len;
 			dst->_2mhz = malloc(len);
 			memcpy(dst->_2mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_4MHZ) {
@@ -1945,7 +1945,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present._4mhz_len = len;
+			dst->_len._4mhz = len;
 			dst->_4mhz = malloc(len);
 			memcpy(dst->_4mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_8MHZ) {
@@ -1955,7 +1955,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present._8mhz_len = len;
+			dst->_len._8mhz = len;
 			dst->_8mhz = malloc(len);
 			memcpy(dst->_8mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_16MHZ) {
@@ -1965,7 +1965,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present._16mhz_len = len;
+			dst->_len._16mhz = len;
 			dst->_16mhz = malloc(len);
 			memcpy(dst->_16mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_320MHZ) {
@@ -1975,7 +1975,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_320mhz_len = len;
+			dst->_len.no_320mhz = len;
 			dst->no_320mhz = malloc(len);
 			memcpy(dst->no_320mhz, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_EHT) {
@@ -1985,7 +1985,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_eht_len = len;
+			dst->_len.no_eht = len;
 			dst->no_eht = malloc(len);
 			memcpy(dst->no_eht, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_PSD) {
@@ -1995,7 +1995,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.psd_len = len;
+			dst->_len.psd = len;
 			dst->psd = malloc(len);
 			memcpy(dst->psd, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_DFS_CONCURRENT) {
@@ -2005,7 +2005,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.dfs_concurrent_len = len;
+			dst->_len.dfs_concurrent = len;
 			dst->dfs_concurrent = malloc(len);
 			memcpy(dst->dfs_concurrent, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_6GHZ_VLP_CLIENT) {
@@ -2015,7 +2015,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_6ghz_vlp_client_len = len;
+			dst->_len.no_6ghz_vlp_client = len;
 			dst->no_6ghz_vlp_client = malloc(len);
 			memcpy(dst->no_6ghz_vlp_client, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_NO_6GHZ_AFC_CLIENT) {
@@ -2025,7 +2025,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.no_6ghz_afc_client_len = len;
+			dst->_len.no_6ghz_afc_client = len;
 			dst->no_6ghz_afc_client = malloc(len);
 			memcpy(dst->no_6ghz_afc_client, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_CAN_MONITOR) {
@@ -2035,7 +2035,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.can_monitor_len = len;
+			dst->_len.can_monitor = len;
 			dst->can_monitor = malloc(len);
 			memcpy(dst->can_monitor, ynl_attr_data(attr), len);
 		} else if (type == NL80211_FREQUENCY_ATTR_ALLOW_6GHZ_VLP_AP) {
@@ -2045,7 +2045,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.allow_6ghz_vlp_ap_len = len;
+			dst->_len.allow_6ghz_vlp_ap = len;
 			dst->allow_6ghz_vlp_ap = malloc(len);
 			memcpy(dst->allow_6ghz_vlp_ap, ynl_attr_data(attr), len);
 		}
@@ -2053,7 +2053,7 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 
 	if (n_wmm) {
 		dst->wmm = calloc(n_wmm, sizeof(*dst->wmm));
-		dst->n_wmm = n_wmm;
+		dst->_count.wmm = n_wmm;
 		i = 0;
 		parg.rsp_policy = &nl80211_wmm_attrs_nest;
 		ynl_attr_for_each_nested(attr, attr_wmm) {
@@ -2113,7 +2113,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_freqs++;
+				dst->_count.freqs++;
 			}
 		} else if (type == NL80211_BAND_ATTR_RATES) {
 			const struct nlattr *attr2;
@@ -2122,7 +2122,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_rates++;
+				dst->_count.rates++;
 			}
 		} else if (type == NL80211_BAND_ATTR_HT_MCS_SET) {
 			unsigned int len;
@@ -2131,7 +2131,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ht_mcs_set_len = len;
+			dst->_len.ht_mcs_set = len;
 			dst->ht_mcs_set = malloc(len);
 			memcpy(dst->ht_mcs_set, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_ATTR_HT_CAPA) {
@@ -2156,7 +2156,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.vht_mcs_set_len = len;
+			dst->_len.vht_mcs_set = len;
 			dst->vht_mcs_set = malloc(len);
 			memcpy(dst->vht_mcs_set, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_ATTR_VHT_CAPA) {
@@ -2171,7 +2171,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_iftype_data++;
+				dst->_count.iftype_data++;
 			}
 		} else if (type == NL80211_BAND_ATTR_EDMG_CHANNELS) {
 			unsigned int len;
@@ -2180,7 +2180,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.edmg_channels_len = len;
+			dst->_len.edmg_channels = len;
 			dst->edmg_channels = malloc(len);
 			memcpy(dst->edmg_channels, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_ATTR_EDMG_BW_CONFIG) {
@@ -2190,7 +2190,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.edmg_bw_config_len = len;
+			dst->_len.edmg_bw_config = len;
 			dst->edmg_bw_config = malloc(len);
 			memcpy(dst->edmg_bw_config, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_ATTR_S1G_MCS_NSS_SET) {
@@ -2200,7 +2200,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.s1g_mcs_nss_set_len = len;
+			dst->_len.s1g_mcs_nss_set = len;
 			dst->s1g_mcs_nss_set = malloc(len);
 			memcpy(dst->s1g_mcs_nss_set, ynl_attr_data(attr), len);
 		} else if (type == NL80211_BAND_ATTR_S1G_CAPA) {
@@ -2210,7 +2210,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.s1g_capa_len = len;
+			dst->_len.s1g_capa = len;
 			dst->s1g_capa = malloc(len);
 			memcpy(dst->s1g_capa, ynl_attr_data(attr), len);
 		}
@@ -2218,7 +2218,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 
 	if (n_freqs) {
 		dst->freqs = calloc(n_freqs, sizeof(*dst->freqs));
-		dst->n_freqs = n_freqs;
+		dst->_count.freqs = n_freqs;
 		i = 0;
 		parg.rsp_policy = &nl80211_frequency_attrs_nest;
 		ynl_attr_for_each_nested(attr, attr_freqs) {
@@ -2230,7 +2230,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 	}
 	if (n_iftype_data) {
 		dst->iftype_data = calloc(n_iftype_data, sizeof(*dst->iftype_data));
-		dst->n_iftype_data = n_iftype_data;
+		dst->_count.iftype_data = n_iftype_data;
 		i = 0;
 		parg.rsp_policy = &nl80211_iftype_data_attrs_nest;
 		ynl_attr_for_each_nested(attr, attr_iftype_data) {
@@ -2242,7 +2242,7 @@ int nl80211_band_attrs_parse(struct ynl_parse_arg *yarg,
 	}
 	if (n_rates) {
 		dst->rates = calloc(n_rates, sizeof(*dst->rates));
-		dst->n_rates = n_rates;
+		dst->_count.rates = n_rates;
 		i = 0;
 		parg.rsp_policy = &nl80211_bitrate_attrs_nest;
 		ynl_attr_for_each_nested(attr, attr_rates) {
@@ -2404,7 +2404,8 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.cipher_suites_len = len;
+			dst->_count.cipher_suites = len / sizeof(__u32);
+			len = dst->_count.cipher_suites * sizeof(__u32);
 			dst->cipher_suites = malloc(len);
 			memcpy(dst->cipher_suites, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_CONTROL_PORT_ETHERTYPE) {
@@ -2418,7 +2419,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ext_capa_len = len;
+			dst->_len.ext_capa = len;
 			dst->ext_capa = malloc(len);
 			memcpy(dst->ext_capa, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_EXT_CAPA_MASK) {
@@ -2428,7 +2429,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ext_capa_mask_len = len;
+			dst->_len.ext_capa_mask = len;
 			dst->ext_capa_mask = malloc(len);
 			memcpy(dst->ext_capa_mask, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_EXT_FEATURES) {
@@ -2438,7 +2439,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ext_features_len = len;
+			dst->_len.ext_features = len;
 			dst->ext_features = malloc(len);
 			memcpy(dst->ext_features, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_FEATURE_FLAGS) {
@@ -2458,7 +2459,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ht_capability_mask_len = len;
+			dst->_len.ht_capability_mask = len;
 			dst->ht_capability_mask = malloc(len);
 			memcpy(dst->ht_capability_mask, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_INTERFACE_COMBINATIONS) {
@@ -2468,7 +2469,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_interface_combinations++;
+				dst->_count.interface_combinations++;
 			}
 		} else if (type == NL80211_ATTR_MAC) {
 			unsigned int len;
@@ -2477,7 +2478,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mac_len = len;
+			dst->_len.mac = len;
 			dst->mac = malloc(len);
 			memcpy(dst->mac, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_MAX_CSA_COUNTERS) {
@@ -2497,7 +2498,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.max_num_akm_suites_len = len;
+			dst->_len.max_num_akm_suites = len;
 			dst->max_num_akm_suites = malloc(len);
 			memcpy(dst->max_num_akm_suites, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_MAX_NUM_PMKIDS) {
@@ -2592,7 +2593,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_supported_commands++;
+				dst->_count.supported_commands++;
 			}
 		} else if (type == NL80211_ATTR_SUPPORTED_IFTYPES) {
 			if (ynl_attr_validate(yarg, attr))
@@ -2651,7 +2652,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.vht_capability_mask_len = len;
+			dst->_len.vht_capability_mask = len;
 			dst->vht_capability_mask = malloc(len);
 			memcpy(dst->vht_capability_mask, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_WIPHY) {
@@ -2705,7 +2706,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.wiphy_name_len = len;
+			dst->_len.wiphy_name = len;
 			dst->wiphy_name = malloc(len + 1);
 			memcpy(dst->wiphy_name, ynl_attr_get_str(attr), len);
 			dst->wiphy_name[len] = 0;
@@ -2738,7 +2739,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 
 	if (n_interface_combinations) {
 		dst->interface_combinations = calloc(n_interface_combinations, sizeof(*dst->interface_combinations));
-		dst->n_interface_combinations = n_interface_combinations;
+		dst->_count.interface_combinations = n_interface_combinations;
 		i = 0;
 		parg.rsp_policy = &nl80211_if_combination_attributes_nest;
 		ynl_attr_for_each_nested(attr, attr_interface_combinations) {
@@ -2750,7 +2751,7 @@ int nl80211_get_wiphy_rsp_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_supported_commands) {
 		dst->supported_commands = calloc(n_supported_commands, sizeof(*dst->supported_commands));
-		dst->n_supported_commands = n_supported_commands;
+		dst->_count.supported_commands = n_supported_commands;
 		i = 0;
 		ynl_attr_for_each_nested(attr, attr_supported_commands) {
 			dst->supported_commands[i] = ynl_attr_get_u32(attr);
@@ -2771,6 +2772,7 @@ nl80211_get_wiphy(struct ynl_sock *ys, struct nl80211_get_wiphy_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NL80211_CMD_GET_WIPHY, 1);
 	ys->req_policy = &nl80211_nl80211_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nl80211_nl80211_attrs_nest;
 
 	if (req->_present.wiphy)
@@ -2832,7 +2834,8 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.cipher_suites_len = len;
+			dst->_count.cipher_suites = len / sizeof(__u32);
+			len = dst->_count.cipher_suites * sizeof(__u32);
 			dst->cipher_suites = malloc(len);
 			memcpy(dst->cipher_suites, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_CONTROL_PORT_ETHERTYPE) {
@@ -2846,7 +2849,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ext_capa_len = len;
+			dst->_len.ext_capa = len;
 			dst->ext_capa = malloc(len);
 			memcpy(dst->ext_capa, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_EXT_CAPA_MASK) {
@@ -2856,7 +2859,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ext_capa_mask_len = len;
+			dst->_len.ext_capa_mask = len;
 			dst->ext_capa_mask = malloc(len);
 			memcpy(dst->ext_capa_mask, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_EXT_FEATURES) {
@@ -2866,7 +2869,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ext_features_len = len;
+			dst->_len.ext_features = len;
 			dst->ext_features = malloc(len);
 			memcpy(dst->ext_features, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_FEATURE_FLAGS) {
@@ -2886,7 +2889,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.ht_capability_mask_len = len;
+			dst->_len.ht_capability_mask = len;
 			dst->ht_capability_mask = malloc(len);
 			memcpy(dst->ht_capability_mask, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_INTERFACE_COMBINATIONS) {
@@ -2896,7 +2899,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_interface_combinations++;
+				dst->_count.interface_combinations++;
 			}
 		} else if (type == NL80211_ATTR_MAC) {
 			unsigned int len;
@@ -2905,7 +2908,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mac_len = len;
+			dst->_len.mac = len;
 			dst->mac = malloc(len);
 			memcpy(dst->mac, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_MAX_CSA_COUNTERS) {
@@ -2925,7 +2928,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.max_num_akm_suites_len = len;
+			dst->_len.max_num_akm_suites = len;
 			dst->max_num_akm_suites = malloc(len);
 			memcpy(dst->max_num_akm_suites, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_MAX_NUM_PMKIDS) {
@@ -3020,7 +3023,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 			ynl_attr_for_each_nested(attr2, attr) {
 				if (ynl_attr_validate(yarg, attr2))
 					return YNL_PARSE_CB_ERROR;
-				dst->n_supported_commands++;
+				dst->_count.supported_commands++;
 			}
 		} else if (type == NL80211_ATTR_SUPPORTED_IFTYPES) {
 			if (ynl_attr_validate(yarg, attr))
@@ -3079,7 +3082,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.vht_capability_mask_len = len;
+			dst->_len.vht_capability_mask = len;
 			dst->vht_capability_mask = malloc(len);
 			memcpy(dst->vht_capability_mask, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_WIPHY) {
@@ -3133,7 +3136,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.wiphy_name_len = len;
+			dst->_len.wiphy_name = len;
 			dst->wiphy_name = malloc(len + 1);
 			memcpy(dst->wiphy_name, ynl_attr_get_str(attr), len);
 			dst->wiphy_name[len] = 0;
@@ -3166,7 +3169,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 
 	if (n_interface_combinations) {
 		dst->interface_combinations = calloc(n_interface_combinations, sizeof(*dst->interface_combinations));
-		dst->n_interface_combinations = n_interface_combinations;
+		dst->_count.interface_combinations = n_interface_combinations;
 		i = 0;
 		parg.rsp_policy = &nl80211_if_combination_attributes_nest;
 		ynl_attr_for_each_nested(attr, attr_interface_combinations) {
@@ -3178,7 +3181,7 @@ int nl80211_get_wiphy_rsp_dump_parse(const struct nlmsghdr *nlh,
 	}
 	if (n_supported_commands) {
 		dst->supported_commands = calloc(n_supported_commands, sizeof(*dst->supported_commands));
-		dst->n_supported_commands = n_supported_commands;
+		dst->_count.supported_commands = n_supported_commands;
 		i = 0;
 		ynl_attr_for_each_nested(attr, attr_supported_commands) {
 			dst->supported_commands[i] = ynl_attr_get_u32(attr);
@@ -3242,6 +3245,7 @@ nl80211_get_wiphy_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NL80211_CMD_GET_WIPHY, 1);
 	ys->req_policy = &nl80211_nl80211_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.wiphy)
 		ynl_attr_put_u32(nlh, NL80211_ATTR_WIPHY, req->wiphy);
@@ -3299,7 +3303,7 @@ int nl80211_get_interface_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.ifname_len = len;
+			dst->_len.ifname = len;
 			dst->ifname = malloc(len + 1);
 			memcpy(dst->ifname, ynl_attr_get_str(attr), len);
 			dst->ifname[len] = 0;
@@ -3330,7 +3334,7 @@ int nl80211_get_interface_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mac_len = len;
+			dst->_len.mac = len;
 			dst->mac = malloc(len);
 			memcpy(dst->mac, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_GENERATION) {
@@ -3369,9 +3373,10 @@ nl80211_get_interface(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NL80211_CMD_GET_INTERFACE, 1);
 	ys->req_policy = &nl80211_nl80211_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nl80211_nl80211_attrs_nest;
 
-	if (req->_present.ifname_len)
+	if (req->_len.ifname)
 		ynl_attr_put_str(nlh, NL80211_ATTR_IFNAME, req->ifname);
 
 	rsp = calloc(1, sizeof(*rsp));
@@ -3411,7 +3416,7 @@ int nl80211_get_interface_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
-			dst->_present.ifname_len = len;
+			dst->_len.ifname = len;
 			dst->ifname = malloc(len + 1);
 			memcpy(dst->ifname, ynl_attr_get_str(attr), len);
 			dst->ifname[len] = 0;
@@ -3442,7 +3447,7 @@ int nl80211_get_interface_rsp_dump_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.mac_len = len;
+			dst->_len.mac = len;
 			dst->mac = malloc(len);
 			memcpy(dst->mac, ynl_attr_data(attr), len);
 		} else if (type == NL80211_ATTR_GENERATION) {
@@ -3510,8 +3515,9 @@ nl80211_get_interface_dump(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_dump(ys, ys->family_id, NL80211_CMD_GET_INTERFACE, 1);
 	ys->req_policy = &nl80211_nl80211_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 
-	if (req->_present.ifname_len)
+	if (req->_len.ifname)
 		ynl_attr_put_str(nlh, NL80211_ATTR_IFNAME, req->ifname);
 
 	err = ynl_exec_dump(ys, nlh, &yds);
@@ -3572,6 +3578,7 @@ nl80211_get_protocol_features(struct ynl_sock *ys,
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, NL80211_CMD_GET_PROTOCOL_FEATURES, 1);
 	ys->req_policy = &nl80211_nl80211_attrs_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &nl80211_nl80211_attrs_nest;
 
 	if (req->_present.protocol_features)
