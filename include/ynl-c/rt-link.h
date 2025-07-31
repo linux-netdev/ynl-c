@@ -272,23 +272,72 @@ struct rt_link_linkinfo_gre_attrs {
 	} _len;
 
 	__u32 link;
-	__u16 iflags;
-	__u16 oflags;
-	__u32 ikey;
-	__u32 okey;
+	__u16 iflags /* big-endian */;
+	__u16 oflags /* big-endian */;
+	__u32 ikey /* big-endian */;
+	__u32 okey /* big-endian */;
 	void *local;
 	void *remote;
 	__u8 ttl;
 	__u8 tos;
 	__u8 pmtudisc;
-	__u32 encap_limit;
-	__u32 flowinfo;
+	__u8 encap_limit;
+	__u32 flowinfo /* big-endian */;
 	__u32 flags;
 	__u16 encap_type;
 	__u16 encap_flags;
-	__u16 encap_sport;
-	__u16 encap_dport;
+	__u16 encap_sport /* big-endian */;
+	__u16 encap_dport /* big-endian */;
 	__u8 ignore_df;
+	__u32 fwmark;
+	__u32 erspan_index;
+	__u8 erspan_ver;
+	__u8 erspan_dir;
+	__u16 erspan_hwid;
+};
+
+struct rt_link_linkinfo_gre6_attrs {
+	struct {
+		__u32 link:1;
+		__u32 iflags:1;
+		__u32 oflags:1;
+		__u32 ikey:1;
+		__u32 okey:1;
+		__u32 ttl:1;
+		__u32 encap_limit:1;
+		__u32 flowinfo:1;
+		__u32 flags:1;
+		__u32 encap_type:1;
+		__u32 encap_flags:1;
+		__u32 encap_sport:1;
+		__u32 encap_dport:1;
+		__u32 collect_metadata:1;
+		__u32 fwmark:1;
+		__u32 erspan_index:1;
+		__u32 erspan_ver:1;
+		__u32 erspan_dir:1;
+		__u32 erspan_hwid:1;
+	} _present;
+	struct {
+		__u32 local;
+		__u32 remote;
+	} _len;
+
+	__u32 link;
+	__u16 iflags /* big-endian */;
+	__u16 oflags /* big-endian */;
+	__u32 ikey /* big-endian */;
+	__u32 okey /* big-endian */;
+	void *local;
+	void *remote;
+	__u8 ttl;
+	__u8 encap_limit;
+	__u32 flowinfo /* big-endian */;
+	__u32 flags;
+	__u16 encap_type;
+	__u16 encap_flags;
+	__u16 encap_sport /* big-endian */;
+	__u16 encap_dport /* big-endian */;
 	__u32 fwmark;
 	__u32 erspan_index;
 	__u8 erspan_ver;
@@ -321,12 +370,12 @@ struct rt_link_linkinfo_geneve_attrs {
 	void *remote;
 	__u8 ttl;
 	__u8 tos;
-	__u16 port;
+	__u16 port /* big-endian */;
 	void *remote6;
 	__u8 udp_csum;
 	__u8 udp_zero_csum6_tx;
 	__u8 udp_zero_csum6_rx;
-	__u32 label;
+	__u32 label /* big-endian */;
 	__u8 ttl_inherit;
 	__u8 df;
 	struct ifla_geneve_port_range *port_range;
@@ -364,8 +413,8 @@ struct rt_link_linkinfo_iptun_attrs {
 	__u8 ttl;
 	__u8 tos;
 	__u8 encap_limit;
-	__u32 flowinfo;
-	__u16 flags;
+	__u32 flowinfo /* big-endian */;
+	__u16 flags /* big-endian */;
 	__u8 proto;
 	__u8 pmtudisc;
 	void *_6rd_prefix;
@@ -374,8 +423,8 @@ struct rt_link_linkinfo_iptun_attrs {
 	__u16 _6rd_relay_prefixlen;
 	__u16 encap_type;
 	__u16 encap_flags;
-	__u16 encap_sport;
-	__u16 encap_dport;
+	__u16 encap_sport /* big-endian */;
+	__u16 encap_dport /* big-endian */;
 	__u32 fwmark;
 };
 
@@ -404,13 +453,13 @@ struct rt_link_linkinfo_ip6tnl_attrs {
 	void *remote;
 	__u8 ttl;
 	__u8 encap_limit;
-	__u32 flowinfo;
-	__u32 flags;
+	__u32 flowinfo /* big-endian */;
+	__u32 flags /* big-endian */;
 	__u8 proto;
 	__u16 encap_type;
 	__u16 encap_flags;
-	__u16 encap_sport;
-	__u16 encap_dport;
+	__u16 encap_sport /* big-endian */;
+	__u16 encap_dport /* big-endian */;
 	__u32 fwmark;
 };
 
@@ -459,8 +508,8 @@ struct rt_link_linkinfo_vti_attrs {
 	} _len;
 
 	__u32 link;
-	__u32 ikey;
-	__u32 okey;
+	__u32 ikey /* big-endian */;
+	__u32 okey /* big-endian */;
 	void *local;
 	void *remote;
 	__u32 fwmark;
@@ -479,8 +528,8 @@ struct rt_link_linkinfo_vti6_attrs {
 	} _len;
 
 	__u32 link;
-	__u32 ikey;
-	__u32 okey;
+	__u32 ikey /* big-endian */;
+	__u32 okey /* big-endian */;
 	void *local;
 	void *remote;
 	__u32 fwmark;
@@ -747,7 +796,187 @@ struct rt_link_vfinfo_attrs {
 	void *broadcast;
 };
 
+static inline struct rt_link_vfinfo_attrs *
+rt_link_vfinfo_attrs_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct rt_link_vfinfo_attrs));
+}
+
 void rt_link_vfinfo_attrs_free(struct rt_link_vfinfo_attrs *obj);
+
+static inline void
+rt_link_vfinfo_attrs_set_mac(struct rt_link_vfinfo_attrs *obj, const void *mac,
+			     size_t len)
+{
+	free(obj->mac);
+	obj->_len.mac = len;
+	obj->mac = malloc(obj->_len.mac);
+	memcpy(obj->mac, mac, obj->_len.mac);
+}
+static inline void
+rt_link_vfinfo_attrs_set_vlan(struct rt_link_vfinfo_attrs *obj,
+			      const void *vlan, size_t len)
+{
+	free(obj->vlan);
+	obj->_len.vlan = len;
+	obj->vlan = malloc(obj->_len.vlan);
+	memcpy(obj->vlan, vlan, obj->_len.vlan);
+}
+static inline void
+rt_link_vfinfo_attrs_set_tx_rate(struct rt_link_vfinfo_attrs *obj,
+				 const void *tx_rate, size_t len)
+{
+	free(obj->tx_rate);
+	obj->_len.tx_rate = len;
+	obj->tx_rate = malloc(obj->_len.tx_rate);
+	memcpy(obj->tx_rate, tx_rate, obj->_len.tx_rate);
+}
+static inline void
+rt_link_vfinfo_attrs_set_spoofchk(struct rt_link_vfinfo_attrs *obj,
+				  const void *spoofchk, size_t len)
+{
+	free(obj->spoofchk);
+	obj->_len.spoofchk = len;
+	obj->spoofchk = malloc(obj->_len.spoofchk);
+	memcpy(obj->spoofchk, spoofchk, obj->_len.spoofchk);
+}
+static inline void
+rt_link_vfinfo_attrs_set_link_state(struct rt_link_vfinfo_attrs *obj,
+				    const void *link_state, size_t len)
+{
+	free(obj->link_state);
+	obj->_len.link_state = len;
+	obj->link_state = malloc(obj->_len.link_state);
+	memcpy(obj->link_state, link_state, obj->_len.link_state);
+}
+static inline void
+rt_link_vfinfo_attrs_set_rate(struct rt_link_vfinfo_attrs *obj,
+			      const void *rate, size_t len)
+{
+	free(obj->rate);
+	obj->_len.rate = len;
+	obj->rate = malloc(obj->_len.rate);
+	memcpy(obj->rate, rate, obj->_len.rate);
+}
+static inline void
+rt_link_vfinfo_attrs_set_rss_query_en(struct rt_link_vfinfo_attrs *obj,
+				      const void *rss_query_en, size_t len)
+{
+	free(obj->rss_query_en);
+	obj->_len.rss_query_en = len;
+	obj->rss_query_en = malloc(obj->_len.rss_query_en);
+	memcpy(obj->rss_query_en, rss_query_en, obj->_len.rss_query_en);
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_rx_packets(struct rt_link_vfinfo_attrs *obj,
+					  __u64 rx_packets)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.rx_packets = 1;
+	obj->stats.rx_packets = rx_packets;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_tx_packets(struct rt_link_vfinfo_attrs *obj,
+					  __u64 tx_packets)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.tx_packets = 1;
+	obj->stats.tx_packets = tx_packets;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_rx_bytes(struct rt_link_vfinfo_attrs *obj,
+					__u64 rx_bytes)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.rx_bytes = 1;
+	obj->stats.rx_bytes = rx_bytes;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_tx_bytes(struct rt_link_vfinfo_attrs *obj,
+					__u64 tx_bytes)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.tx_bytes = 1;
+	obj->stats.tx_bytes = tx_bytes;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_broadcast(struct rt_link_vfinfo_attrs *obj,
+					 __u64 broadcast)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.broadcast = 1;
+	obj->stats.broadcast = broadcast;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_multicast(struct rt_link_vfinfo_attrs *obj,
+					 __u64 multicast)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.multicast = 1;
+	obj->stats.multicast = multicast;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_rx_dropped(struct rt_link_vfinfo_attrs *obj,
+					  __u64 rx_dropped)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.rx_dropped = 1;
+	obj->stats.rx_dropped = rx_dropped;
+}
+static inline void
+rt_link_vfinfo_attrs_set_stats_tx_dropped(struct rt_link_vfinfo_attrs *obj,
+					  __u64 tx_dropped)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.tx_dropped = 1;
+	obj->stats.tx_dropped = tx_dropped;
+}
+static inline void
+rt_link_vfinfo_attrs_set_trust(struct rt_link_vfinfo_attrs *obj,
+			       const void *trust, size_t len)
+{
+	free(obj->trust);
+	obj->_len.trust = len;
+	obj->trust = malloc(obj->_len.trust);
+	memcpy(obj->trust, trust, obj->_len.trust);
+}
+static inline void
+rt_link_vfinfo_attrs_set_ib_node_guid(struct rt_link_vfinfo_attrs *obj,
+				      const void *ib_node_guid, size_t len)
+{
+	free(obj->ib_node_guid);
+	obj->_len.ib_node_guid = len;
+	obj->ib_node_guid = malloc(obj->_len.ib_node_guid);
+	memcpy(obj->ib_node_guid, ib_node_guid, obj->_len.ib_node_guid);
+}
+static inline void
+rt_link_vfinfo_attrs_set_ib_port_guid(struct rt_link_vfinfo_attrs *obj,
+				      const void *ib_port_guid, size_t len)
+{
+	free(obj->ib_port_guid);
+	obj->_len.ib_port_guid = len;
+	obj->ib_port_guid = malloc(obj->_len.ib_port_guid);
+	memcpy(obj->ib_port_guid, ib_port_guid, obj->_len.ib_port_guid);
+}
+static inline void
+__rt_link_vfinfo_attrs_set_vlan_list_info(struct rt_link_vfinfo_attrs *obj,
+					  struct ifla_vf_vlan_info *info,
+					  unsigned int n_info)
+{
+	obj->_present.vlan_list = 1;
+	free(obj->vlan_list.info);
+	obj->vlan_list.info = info;
+	obj->vlan_list._count.info = n_info;
+}
+static inline void
+rt_link_vfinfo_attrs_set_broadcast(struct rt_link_vfinfo_attrs *obj,
+				   const void *broadcast, size_t len)
+{
+	free(obj->broadcast);
+	obj->_len.broadcast = len;
+	obj->broadcast = malloc(obj->_len.broadcast);
+	memcpy(obj->broadcast, broadcast, obj->_len.broadcast);
+}
 
 struct rt_link_linkinfo_bond_attrs {
 	struct {
@@ -857,6 +1086,7 @@ struct rt_link_linkinfo_data_msg {
 		__u32 erspan:1;
 		__u32 gre:1;
 		__u32 gretap:1;
+		__u32 ip6gre:1;
 		__u32 geneve:1;
 		__u32 ipip:1;
 		__u32 ip6tnl:1;
@@ -875,6 +1105,7 @@ struct rt_link_linkinfo_data_msg {
 	struct rt_link_linkinfo_gre_attrs erspan;
 	struct rt_link_linkinfo_gre_attrs gre;
 	struct rt_link_linkinfo_gre_attrs gretap;
+	struct rt_link_linkinfo_gre6_attrs ip6gre;
 	struct rt_link_linkinfo_geneve_attrs geneve;
 	struct rt_link_linkinfo_iptun_attrs ipip;
 	struct rt_link_linkinfo_ip6tnl_attrs ip6tnl;
@@ -1909,7 +2140,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_link(struct rt_link_newlink_req *re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_iflags(struct rt_link_newlink_req *req,
-						    __u16 iflags)
+						    __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -1919,7 +2150,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_iflags(struct rt_link_newlink_req *
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_oflags(struct rt_link_newlink_req *req,
-						    __u16 oflags)
+						    __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -1929,7 +2160,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_oflags(struct rt_link_newlink_req *
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_ikey(struct rt_link_newlink_req *req,
-						  __u32 ikey)
+						  __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -1939,7 +2170,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_ikey(struct rt_link_newlink_req *re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_okey(struct rt_link_newlink_req *req,
-						  __u32 okey)
+						  __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2005,7 +2236,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_pmtudisc(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_encap_limit(struct rt_link_newlink_req *req,
-							 __u32 encap_limit)
+							 __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2015,7 +2246,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_encap_limit(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_flowinfo(struct rt_link_newlink_req *req,
-						      __u32 flowinfo)
+						      __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2055,7 +2286,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_encap_flags(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_encap_sport(struct rt_link_newlink_req *req,
-							 __u16 encap_sport)
+							 __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2065,7 +2296,7 @@ rt_link_newlink_req_set_linkinfo_data_erspan_encap_sport(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_erspan_encap_dport(struct rt_link_newlink_req *req,
-							 __u16 encap_dport)
+							 __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2153,7 +2384,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_link(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_iflags(struct rt_link_newlink_req *req,
-						 __u16 iflags)
+						 __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2163,7 +2394,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_iflags(struct rt_link_newlink_req *req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_oflags(struct rt_link_newlink_req *req,
-						 __u16 oflags)
+						 __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2173,7 +2404,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_oflags(struct rt_link_newlink_req *req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_ikey(struct rt_link_newlink_req *req,
-					       __u32 ikey)
+					       __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2183,7 +2414,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_ikey(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_okey(struct rt_link_newlink_req *req,
-					       __u32 okey)
+					       __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2248,7 +2479,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_pmtudisc(struct rt_link_newlink_req *r
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_encap_limit(struct rt_link_newlink_req *req,
-						      __u32 encap_limit)
+						      __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2258,7 +2489,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_encap_limit(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_flowinfo(struct rt_link_newlink_req *req,
-						   __u32 flowinfo)
+						   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2298,7 +2529,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_encap_flags(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_encap_sport(struct rt_link_newlink_req *req,
-						      __u16 encap_sport)
+						      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2308,7 +2539,7 @@ rt_link_newlink_req_set_linkinfo_data_gre_encap_sport(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gre_encap_dport(struct rt_link_newlink_req *req,
-						      __u16 encap_dport)
+						      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2396,7 +2627,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_link(struct rt_link_newlink_req *re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_iflags(struct rt_link_newlink_req *req,
-						    __u16 iflags)
+						    __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2406,7 +2637,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_iflags(struct rt_link_newlink_req *
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_oflags(struct rt_link_newlink_req *req,
-						    __u16 oflags)
+						    __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2416,7 +2647,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_oflags(struct rt_link_newlink_req *
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_ikey(struct rt_link_newlink_req *req,
-						  __u32 ikey)
+						  __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2426,7 +2657,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_ikey(struct rt_link_newlink_req *re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_okey(struct rt_link_newlink_req *req,
-						  __u32 okey)
+						  __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2492,7 +2723,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_pmtudisc(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_encap_limit(struct rt_link_newlink_req *req,
-							 __u32 encap_limit)
+							 __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2502,7 +2733,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_encap_limit(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_flowinfo(struct rt_link_newlink_req *req,
-						      __u32 flowinfo)
+						      __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2542,7 +2773,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_encap_flags(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_encap_sport(struct rt_link_newlink_req *req,
-							 __u16 encap_sport)
+							 __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2552,7 +2783,7 @@ rt_link_newlink_req_set_linkinfo_data_gretap_encap_sport(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_gretap_encap_dport(struct rt_link_newlink_req *req,
-							 __u16 encap_dport)
+							 __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2629,6 +2860,220 @@ rt_link_newlink_req_set_linkinfo_data_gretap_erspan_hwid(struct rt_link_newlink_
 	req->linkinfo.data.gretap.erspan_hwid = erspan_hwid;
 }
 static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_link(struct rt_link_newlink_req *req,
+						  __u32 link)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.link = 1;
+	req->linkinfo.data.ip6gre.link = link;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_iflags(struct rt_link_newlink_req *req,
+						    __u16 iflags /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.iflags = 1;
+	req->linkinfo.data.ip6gre.iflags = iflags;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_oflags(struct rt_link_newlink_req *req,
+						    __u16 oflags /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.oflags = 1;
+	req->linkinfo.data.ip6gre.oflags = oflags;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_ikey(struct rt_link_newlink_req *req,
+						  __u32 ikey /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.ikey = 1;
+	req->linkinfo.data.ip6gre.ikey = ikey;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_okey(struct rt_link_newlink_req *req,
+						  __u32 okey /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.okey = 1;
+	req->linkinfo.data.ip6gre.okey = okey;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_local(struct rt_link_newlink_req *req,
+						   const void *local,
+						   size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	free(req->linkinfo.data.ip6gre.local);
+	req->linkinfo.data.ip6gre._len.local = len;
+	req->linkinfo.data.ip6gre.local = malloc(req->linkinfo.data.ip6gre._len.local);
+	memcpy(req->linkinfo.data.ip6gre.local, local, req->linkinfo.data.ip6gre._len.local);
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_remote(struct rt_link_newlink_req *req,
+						    const void *remote,
+						    size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	free(req->linkinfo.data.ip6gre.remote);
+	req->linkinfo.data.ip6gre._len.remote = len;
+	req->linkinfo.data.ip6gre.remote = malloc(req->linkinfo.data.ip6gre._len.remote);
+	memcpy(req->linkinfo.data.ip6gre.remote, remote, req->linkinfo.data.ip6gre._len.remote);
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_ttl(struct rt_link_newlink_req *req,
+						 __u8 ttl)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.ttl = 1;
+	req->linkinfo.data.ip6gre.ttl = ttl;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_encap_limit(struct rt_link_newlink_req *req,
+							 __u8 encap_limit)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_limit = 1;
+	req->linkinfo.data.ip6gre.encap_limit = encap_limit;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_flowinfo(struct rt_link_newlink_req *req,
+						      __u32 flowinfo /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.flowinfo = 1;
+	req->linkinfo.data.ip6gre.flowinfo = flowinfo;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_flags(struct rt_link_newlink_req *req,
+						   __u32 flags)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.flags = 1;
+	req->linkinfo.data.ip6gre.flags = flags;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_encap_type(struct rt_link_newlink_req *req,
+							__u16 encap_type)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_type = 1;
+	req->linkinfo.data.ip6gre.encap_type = encap_type;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_encap_flags(struct rt_link_newlink_req *req,
+							 __u16 encap_flags)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_flags = 1;
+	req->linkinfo.data.ip6gre.encap_flags = encap_flags;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_encap_sport(struct rt_link_newlink_req *req,
+							 __u16 encap_sport /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_sport = 1;
+	req->linkinfo.data.ip6gre.encap_sport = encap_sport;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_encap_dport(struct rt_link_newlink_req *req,
+							 __u16 encap_dport /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_dport = 1;
+	req->linkinfo.data.ip6gre.encap_dport = encap_dport;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_collect_metadata(struct rt_link_newlink_req *req)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.collect_metadata = 1;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_fwmark(struct rt_link_newlink_req *req,
+						    __u32 fwmark)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.fwmark = 1;
+	req->linkinfo.data.ip6gre.fwmark = fwmark;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_erspan_index(struct rt_link_newlink_req *req,
+							  __u32 erspan_index)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_index = 1;
+	req->linkinfo.data.ip6gre.erspan_index = erspan_index;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_erspan_ver(struct rt_link_newlink_req *req,
+							__u8 erspan_ver)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_ver = 1;
+	req->linkinfo.data.ip6gre.erspan_ver = erspan_ver;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_erspan_dir(struct rt_link_newlink_req *req,
+							__u8 erspan_dir)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_dir = 1;
+	req->linkinfo.data.ip6gre.erspan_dir = erspan_dir;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_ip6gre_erspan_hwid(struct rt_link_newlink_req *req,
+							 __u16 erspan_hwid)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_hwid = 1;
+	req->linkinfo.data.ip6gre.erspan_hwid = erspan_hwid;
+}
+static inline void
 rt_link_newlink_req_set_linkinfo_data_geneve_id(struct rt_link_newlink_req *req,
 						__u32 id)
 {
@@ -2673,7 +3118,7 @@ rt_link_newlink_req_set_linkinfo_data_geneve_tos(struct rt_link_newlink_req *req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_geneve_port(struct rt_link_newlink_req *req,
-						  __u16 port)
+						  __u16 port /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2734,7 +3179,7 @@ rt_link_newlink_req_set_linkinfo_data_geneve_udp_zero_csum6_rx(struct rt_link_ne
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_geneve_label(struct rt_link_newlink_req *req,
-						   __u32 label)
+						   __u32 label /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2850,7 +3295,7 @@ rt_link_newlink_req_set_linkinfo_data_ipip_encap_limit(struct rt_link_newlink_re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip_flowinfo(struct rt_link_newlink_req *req,
-						    __u32 flowinfo)
+						    __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2860,7 +3305,7 @@ rt_link_newlink_req_set_linkinfo_data_ipip_flowinfo(struct rt_link_newlink_req *
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip_flags(struct rt_link_newlink_req *req,
-						 __u16 flags)
+						 __u16 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2956,7 +3401,7 @@ rt_link_newlink_req_set_linkinfo_data_ipip_encap_flags(struct rt_link_newlink_re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip_encap_sport(struct rt_link_newlink_req *req,
-						       __u16 encap_sport)
+						       __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -2966,7 +3411,7 @@ rt_link_newlink_req_set_linkinfo_data_ipip_encap_sport(struct rt_link_newlink_re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip_encap_dport(struct rt_link_newlink_req *req,
-						       __u16 encap_dport)
+						       __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3050,7 +3495,7 @@ rt_link_newlink_req_set_linkinfo_data_ip6tnl_encap_limit(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ip6tnl_flowinfo(struct rt_link_newlink_req *req,
-						      __u32 flowinfo)
+						      __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3060,7 +3505,7 @@ rt_link_newlink_req_set_linkinfo_data_ip6tnl_flowinfo(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ip6tnl_flags(struct rt_link_newlink_req *req,
-						   __u32 flags)
+						   __u32 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3100,7 +3545,7 @@ rt_link_newlink_req_set_linkinfo_data_ip6tnl_encap_flags(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ip6tnl_encap_sport(struct rt_link_newlink_req *req,
-							 __u16 encap_sport)
+							 __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3110,7 +3555,7 @@ rt_link_newlink_req_set_linkinfo_data_ip6tnl_encap_sport(struct rt_link_newlink_
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ip6tnl_encap_dport(struct rt_link_newlink_req *req,
-							 __u16 encap_dport)
+							 __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3203,7 +3648,7 @@ rt_link_newlink_req_set_linkinfo_data_sit_encap_limit(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_sit_flowinfo(struct rt_link_newlink_req *req,
-						   __u32 flowinfo)
+						   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3213,7 +3658,7 @@ rt_link_newlink_req_set_linkinfo_data_sit_flowinfo(struct rt_link_newlink_req *r
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_sit_flags(struct rt_link_newlink_req *req,
-						__u16 flags)
+						__u16 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3309,7 +3754,7 @@ rt_link_newlink_req_set_linkinfo_data_sit_encap_flags(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_sit_encap_sport(struct rt_link_newlink_req *req,
-						      __u16 encap_sport)
+						      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3319,7 +3764,7 @@ rt_link_newlink_req_set_linkinfo_data_sit_encap_sport(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_sit_encap_dport(struct rt_link_newlink_req *req,
-						      __u16 encap_dport)
+						      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3515,7 +3960,7 @@ rt_link_newlink_req_set_linkinfo_data_vti_link(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_vti_ikey(struct rt_link_newlink_req *req,
-					       __u32 ikey)
+					       __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3525,7 +3970,7 @@ rt_link_newlink_req_set_linkinfo_data_vti_ikey(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_vti_okey(struct rt_link_newlink_req *req,
-					       __u32 okey)
+					       __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3580,7 +4025,7 @@ rt_link_newlink_req_set_linkinfo_data_vti6_link(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_vti6_ikey(struct rt_link_newlink_req *req,
-						__u32 ikey)
+						__u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -3590,7 +4035,7 @@ rt_link_newlink_req_set_linkinfo_data_vti6_ikey(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_vti6_okey(struct rt_link_newlink_req *req,
-						__u32 okey)
+						__u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5673,7 +6118,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_link(struct rt_link_getlink_re
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_iflags(struct rt_link_getlink_req_dump *req,
-							 __u16 iflags)
+							 __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5683,7 +6128,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_iflags(struct rt_link_getlink_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_oflags(struct rt_link_getlink_req_dump *req,
-							 __u16 oflags)
+							 __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5693,7 +6138,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_oflags(struct rt_link_getlink_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_ikey(struct rt_link_getlink_req_dump *req,
-						       __u32 ikey)
+						       __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5703,7 +6148,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_ikey(struct rt_link_getlink_re
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_okey(struct rt_link_getlink_req_dump *req,
-						       __u32 okey)
+						       __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5769,7 +6214,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_pmtudisc(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_encap_limit(struct rt_link_getlink_req_dump *req,
-							      __u32 encap_limit)
+							      __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5779,7 +6224,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_encap_limit(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_flowinfo(struct rt_link_getlink_req_dump *req,
-							   __u32 flowinfo)
+							   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5819,7 +6264,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_encap_flags(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_encap_sport(struct rt_link_getlink_req_dump *req,
-							      __u16 encap_sport)
+							      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5829,7 +6274,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_erspan_encap_sport(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_erspan_encap_dport(struct rt_link_getlink_req_dump *req,
-							      __u16 encap_dport)
+							      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5917,7 +6362,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_link(struct rt_link_getlink_req_d
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_iflags(struct rt_link_getlink_req_dump *req,
-						      __u16 iflags)
+						      __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5927,7 +6372,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_iflags(struct rt_link_getlink_req
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_oflags(struct rt_link_getlink_req_dump *req,
-						      __u16 oflags)
+						      __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5937,7 +6382,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_oflags(struct rt_link_getlink_req
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_ikey(struct rt_link_getlink_req_dump *req,
-						    __u32 ikey)
+						    __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -5947,7 +6392,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_ikey(struct rt_link_getlink_req_d
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_okey(struct rt_link_getlink_req_dump *req,
-						    __u32 okey)
+						    __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6013,7 +6458,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_pmtudisc(struct rt_link_getlink_r
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_encap_limit(struct rt_link_getlink_req_dump *req,
-							   __u32 encap_limit)
+							   __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6023,7 +6468,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_encap_limit(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_flowinfo(struct rt_link_getlink_req_dump *req,
-							__u32 flowinfo)
+							__u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6063,7 +6508,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_encap_flags(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_encap_sport(struct rt_link_getlink_req_dump *req,
-							   __u16 encap_sport)
+							   __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6073,7 +6518,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gre_encap_sport(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gre_encap_dport(struct rt_link_getlink_req_dump *req,
-							   __u16 encap_dport)
+							   __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6161,7 +6606,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_link(struct rt_link_getlink_re
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_iflags(struct rt_link_getlink_req_dump *req,
-							 __u16 iflags)
+							 __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6171,7 +6616,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_iflags(struct rt_link_getlink_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_oflags(struct rt_link_getlink_req_dump *req,
-							 __u16 oflags)
+							 __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6181,7 +6626,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_oflags(struct rt_link_getlink_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_ikey(struct rt_link_getlink_req_dump *req,
-						       __u32 ikey)
+						       __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6191,7 +6636,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_ikey(struct rt_link_getlink_re
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_okey(struct rt_link_getlink_req_dump *req,
-						       __u32 okey)
+						       __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6257,7 +6702,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_pmtudisc(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_encap_limit(struct rt_link_getlink_req_dump *req,
-							      __u32 encap_limit)
+							      __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6267,7 +6712,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_encap_limit(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_flowinfo(struct rt_link_getlink_req_dump *req,
-							   __u32 flowinfo)
+							   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6307,7 +6752,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_encap_flags(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_encap_sport(struct rt_link_getlink_req_dump *req,
-							      __u16 encap_sport)
+							      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6317,7 +6762,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_encap_sport(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_gretap_encap_dport(struct rt_link_getlink_req_dump *req,
-							      __u16 encap_dport)
+							      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6394,6 +6839,220 @@ rt_link_getlink_req_dump_set_linkinfo_data_gretap_erspan_hwid(struct rt_link_get
 	req->linkinfo.data.gretap.erspan_hwid = erspan_hwid;
 }
 static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_link(struct rt_link_getlink_req_dump *req,
+						       __u32 link)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.link = 1;
+	req->linkinfo.data.ip6gre.link = link;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_iflags(struct rt_link_getlink_req_dump *req,
+							 __u16 iflags /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.iflags = 1;
+	req->linkinfo.data.ip6gre.iflags = iflags;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_oflags(struct rt_link_getlink_req_dump *req,
+							 __u16 oflags /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.oflags = 1;
+	req->linkinfo.data.ip6gre.oflags = oflags;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_ikey(struct rt_link_getlink_req_dump *req,
+						       __u32 ikey /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.ikey = 1;
+	req->linkinfo.data.ip6gre.ikey = ikey;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_okey(struct rt_link_getlink_req_dump *req,
+						       __u32 okey /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.okey = 1;
+	req->linkinfo.data.ip6gre.okey = okey;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_local(struct rt_link_getlink_req_dump *req,
+							const void *local,
+							size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	free(req->linkinfo.data.ip6gre.local);
+	req->linkinfo.data.ip6gre._len.local = len;
+	req->linkinfo.data.ip6gre.local = malloc(req->linkinfo.data.ip6gre._len.local);
+	memcpy(req->linkinfo.data.ip6gre.local, local, req->linkinfo.data.ip6gre._len.local);
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_remote(struct rt_link_getlink_req_dump *req,
+							 const void *remote,
+							 size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	free(req->linkinfo.data.ip6gre.remote);
+	req->linkinfo.data.ip6gre._len.remote = len;
+	req->linkinfo.data.ip6gre.remote = malloc(req->linkinfo.data.ip6gre._len.remote);
+	memcpy(req->linkinfo.data.ip6gre.remote, remote, req->linkinfo.data.ip6gre._len.remote);
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_ttl(struct rt_link_getlink_req_dump *req,
+						      __u8 ttl)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.ttl = 1;
+	req->linkinfo.data.ip6gre.ttl = ttl;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_encap_limit(struct rt_link_getlink_req_dump *req,
+							      __u8 encap_limit)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_limit = 1;
+	req->linkinfo.data.ip6gre.encap_limit = encap_limit;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_flowinfo(struct rt_link_getlink_req_dump *req,
+							   __u32 flowinfo /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.flowinfo = 1;
+	req->linkinfo.data.ip6gre.flowinfo = flowinfo;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_flags(struct rt_link_getlink_req_dump *req,
+							__u32 flags)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.flags = 1;
+	req->linkinfo.data.ip6gre.flags = flags;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_encap_type(struct rt_link_getlink_req_dump *req,
+							     __u16 encap_type)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_type = 1;
+	req->linkinfo.data.ip6gre.encap_type = encap_type;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_encap_flags(struct rt_link_getlink_req_dump *req,
+							      __u16 encap_flags)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_flags = 1;
+	req->linkinfo.data.ip6gre.encap_flags = encap_flags;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_encap_sport(struct rt_link_getlink_req_dump *req,
+							      __u16 encap_sport /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_sport = 1;
+	req->linkinfo.data.ip6gre.encap_sport = encap_sport;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_encap_dport(struct rt_link_getlink_req_dump *req,
+							      __u16 encap_dport /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_dport = 1;
+	req->linkinfo.data.ip6gre.encap_dport = encap_dport;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_collect_metadata(struct rt_link_getlink_req_dump *req)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.collect_metadata = 1;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_fwmark(struct rt_link_getlink_req_dump *req,
+							 __u32 fwmark)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.fwmark = 1;
+	req->linkinfo.data.ip6gre.fwmark = fwmark;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_erspan_index(struct rt_link_getlink_req_dump *req,
+							       __u32 erspan_index)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_index = 1;
+	req->linkinfo.data.ip6gre.erspan_index = erspan_index;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_erspan_ver(struct rt_link_getlink_req_dump *req,
+							     __u8 erspan_ver)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_ver = 1;
+	req->linkinfo.data.ip6gre.erspan_ver = erspan_ver;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_erspan_dir(struct rt_link_getlink_req_dump *req,
+							     __u8 erspan_dir)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_dir = 1;
+	req->linkinfo.data.ip6gre.erspan_dir = erspan_dir;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_ip6gre_erspan_hwid(struct rt_link_getlink_req_dump *req,
+							      __u16 erspan_hwid)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_hwid = 1;
+	req->linkinfo.data.ip6gre.erspan_hwid = erspan_hwid;
+}
+static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_geneve_id(struct rt_link_getlink_req_dump *req,
 						     __u32 id)
 {
@@ -6438,7 +7097,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_geneve_tos(struct rt_link_getlink_req
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_geneve_port(struct rt_link_getlink_req_dump *req,
-						       __u16 port)
+						       __u16 port /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6499,7 +7158,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_geneve_udp_zero_csum6_rx(struct rt_li
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_geneve_label(struct rt_link_getlink_req_dump *req,
-							__u32 label)
+							__u32 label /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6616,7 +7275,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ipip_encap_limit(struct rt_link_getli
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip_flowinfo(struct rt_link_getlink_req_dump *req,
-							 __u32 flowinfo)
+							 __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6626,7 +7285,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ipip_flowinfo(struct rt_link_getlink_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip_flags(struct rt_link_getlink_req_dump *req,
-						      __u16 flags)
+						      __u16 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6722,7 +7381,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ipip_encap_flags(struct rt_link_getli
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip_encap_sport(struct rt_link_getlink_req_dump *req,
-							    __u16 encap_sport)
+							    __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6732,7 +7391,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ipip_encap_sport(struct rt_link_getli
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip_encap_dport(struct rt_link_getlink_req_dump *req,
-							    __u16 encap_dport)
+							    __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6816,7 +7475,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_encap_limit(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_flowinfo(struct rt_link_getlink_req_dump *req,
-							   __u32 flowinfo)
+							   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6826,7 +7485,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_flowinfo(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_flags(struct rt_link_getlink_req_dump *req,
-							__u32 flags)
+							__u32 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6866,7 +7525,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_encap_flags(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_encap_sport(struct rt_link_getlink_req_dump *req,
-							      __u16 encap_sport)
+							      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6876,7 +7535,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_encap_sport(struct rt_link_get
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ip6tnl_encap_dport(struct rt_link_getlink_req_dump *req,
-							      __u16 encap_dport)
+							      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6970,7 +7629,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_sit_encap_limit(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_sit_flowinfo(struct rt_link_getlink_req_dump *req,
-							__u32 flowinfo)
+							__u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -6980,7 +7639,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_sit_flowinfo(struct rt_link_getlink_r
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_sit_flags(struct rt_link_getlink_req_dump *req,
-						     __u16 flags)
+						     __u16 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -7076,7 +7735,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_sit_encap_flags(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_sit_encap_sport(struct rt_link_getlink_req_dump *req,
-							   __u16 encap_sport)
+							   __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -7086,7 +7745,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_sit_encap_sport(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_sit_encap_dport(struct rt_link_getlink_req_dump *req,
-							   __u16 encap_dport)
+							   __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -7283,7 +7942,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_vti_link(struct rt_link_getlink_req_d
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_vti_ikey(struct rt_link_getlink_req_dump *req,
-						    __u32 ikey)
+						    __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -7293,7 +7952,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_vti_ikey(struct rt_link_getlink_req_d
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_vti_okey(struct rt_link_getlink_req_dump *req,
-						    __u32 okey)
+						    __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -7349,7 +8008,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_vti6_link(struct rt_link_getlink_req_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_vti6_ikey(struct rt_link_getlink_req_dump *req,
-						     __u32 ikey)
+						     __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -7359,7 +8018,7 @@ rt_link_getlink_req_dump_set_linkinfo_data_vti6_ikey(struct rt_link_getlink_req_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_vti6_okey(struct rt_link_getlink_req_dump *req,
-						     __u32 okey)
+						     __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9222,7 +9881,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_link(struct rt_link_setlink_req *re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_iflags(struct rt_link_setlink_req *req,
-						    __u16 iflags)
+						    __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9232,7 +9891,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_iflags(struct rt_link_setlink_req *
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_oflags(struct rt_link_setlink_req *req,
-						    __u16 oflags)
+						    __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9242,7 +9901,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_oflags(struct rt_link_setlink_req *
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_ikey(struct rt_link_setlink_req *req,
-						  __u32 ikey)
+						  __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9252,7 +9911,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_ikey(struct rt_link_setlink_req *re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_okey(struct rt_link_setlink_req *req,
-						  __u32 okey)
+						  __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9318,7 +9977,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_pmtudisc(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_encap_limit(struct rt_link_setlink_req *req,
-							 __u32 encap_limit)
+							 __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9328,7 +9987,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_encap_limit(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_flowinfo(struct rt_link_setlink_req *req,
-						      __u32 flowinfo)
+						      __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9368,7 +10027,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_encap_flags(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_encap_sport(struct rt_link_setlink_req *req,
-							 __u16 encap_sport)
+							 __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9378,7 +10037,7 @@ rt_link_setlink_req_set_linkinfo_data_erspan_encap_sport(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_erspan_encap_dport(struct rt_link_setlink_req *req,
-							 __u16 encap_dport)
+							 __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9466,7 +10125,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_link(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_iflags(struct rt_link_setlink_req *req,
-						 __u16 iflags)
+						 __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9476,7 +10135,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_iflags(struct rt_link_setlink_req *req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_oflags(struct rt_link_setlink_req *req,
-						 __u16 oflags)
+						 __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9486,7 +10145,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_oflags(struct rt_link_setlink_req *req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_ikey(struct rt_link_setlink_req *req,
-					       __u32 ikey)
+					       __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9496,7 +10155,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_ikey(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_okey(struct rt_link_setlink_req *req,
-					       __u32 okey)
+					       __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9561,7 +10220,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_pmtudisc(struct rt_link_setlink_req *r
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_encap_limit(struct rt_link_setlink_req *req,
-						      __u32 encap_limit)
+						      __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9571,7 +10230,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_encap_limit(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_flowinfo(struct rt_link_setlink_req *req,
-						   __u32 flowinfo)
+						   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9611,7 +10270,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_encap_flags(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_encap_sport(struct rt_link_setlink_req *req,
-						      __u16 encap_sport)
+						      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9621,7 +10280,7 @@ rt_link_setlink_req_set_linkinfo_data_gre_encap_sport(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gre_encap_dport(struct rt_link_setlink_req *req,
-						      __u16 encap_dport)
+						      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9709,7 +10368,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_link(struct rt_link_setlink_req *re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_iflags(struct rt_link_setlink_req *req,
-						    __u16 iflags)
+						    __u16 iflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9719,7 +10378,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_iflags(struct rt_link_setlink_req *
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_oflags(struct rt_link_setlink_req *req,
-						    __u16 oflags)
+						    __u16 oflags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9729,7 +10388,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_oflags(struct rt_link_setlink_req *
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_ikey(struct rt_link_setlink_req *req,
-						  __u32 ikey)
+						  __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9739,7 +10398,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_ikey(struct rt_link_setlink_req *re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_okey(struct rt_link_setlink_req *req,
-						  __u32 okey)
+						  __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9805,7 +10464,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_pmtudisc(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_encap_limit(struct rt_link_setlink_req *req,
-							 __u32 encap_limit)
+							 __u8 encap_limit)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9815,7 +10474,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_encap_limit(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_flowinfo(struct rt_link_setlink_req *req,
-						      __u32 flowinfo)
+						      __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9855,7 +10514,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_encap_flags(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_encap_sport(struct rt_link_setlink_req *req,
-							 __u16 encap_sport)
+							 __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9865,7 +10524,7 @@ rt_link_setlink_req_set_linkinfo_data_gretap_encap_sport(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_gretap_encap_dport(struct rt_link_setlink_req *req,
-							 __u16 encap_dport)
+							 __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -9942,6 +10601,220 @@ rt_link_setlink_req_set_linkinfo_data_gretap_erspan_hwid(struct rt_link_setlink_
 	req->linkinfo.data.gretap.erspan_hwid = erspan_hwid;
 }
 static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_link(struct rt_link_setlink_req *req,
+						  __u32 link)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.link = 1;
+	req->linkinfo.data.ip6gre.link = link;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_iflags(struct rt_link_setlink_req *req,
+						    __u16 iflags /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.iflags = 1;
+	req->linkinfo.data.ip6gre.iflags = iflags;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_oflags(struct rt_link_setlink_req *req,
+						    __u16 oflags /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.oflags = 1;
+	req->linkinfo.data.ip6gre.oflags = oflags;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_ikey(struct rt_link_setlink_req *req,
+						  __u32 ikey /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.ikey = 1;
+	req->linkinfo.data.ip6gre.ikey = ikey;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_okey(struct rt_link_setlink_req *req,
+						  __u32 okey /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.okey = 1;
+	req->linkinfo.data.ip6gre.okey = okey;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_local(struct rt_link_setlink_req *req,
+						   const void *local,
+						   size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	free(req->linkinfo.data.ip6gre.local);
+	req->linkinfo.data.ip6gre._len.local = len;
+	req->linkinfo.data.ip6gre.local = malloc(req->linkinfo.data.ip6gre._len.local);
+	memcpy(req->linkinfo.data.ip6gre.local, local, req->linkinfo.data.ip6gre._len.local);
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_remote(struct rt_link_setlink_req *req,
+						    const void *remote,
+						    size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	free(req->linkinfo.data.ip6gre.remote);
+	req->linkinfo.data.ip6gre._len.remote = len;
+	req->linkinfo.data.ip6gre.remote = malloc(req->linkinfo.data.ip6gre._len.remote);
+	memcpy(req->linkinfo.data.ip6gre.remote, remote, req->linkinfo.data.ip6gre._len.remote);
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_ttl(struct rt_link_setlink_req *req,
+						 __u8 ttl)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.ttl = 1;
+	req->linkinfo.data.ip6gre.ttl = ttl;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_encap_limit(struct rt_link_setlink_req *req,
+							 __u8 encap_limit)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_limit = 1;
+	req->linkinfo.data.ip6gre.encap_limit = encap_limit;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_flowinfo(struct rt_link_setlink_req *req,
+						      __u32 flowinfo /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.flowinfo = 1;
+	req->linkinfo.data.ip6gre.flowinfo = flowinfo;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_flags(struct rt_link_setlink_req *req,
+						   __u32 flags)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.flags = 1;
+	req->linkinfo.data.ip6gre.flags = flags;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_encap_type(struct rt_link_setlink_req *req,
+							__u16 encap_type)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_type = 1;
+	req->linkinfo.data.ip6gre.encap_type = encap_type;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_encap_flags(struct rt_link_setlink_req *req,
+							 __u16 encap_flags)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_flags = 1;
+	req->linkinfo.data.ip6gre.encap_flags = encap_flags;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_encap_sport(struct rt_link_setlink_req *req,
+							 __u16 encap_sport /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_sport = 1;
+	req->linkinfo.data.ip6gre.encap_sport = encap_sport;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_encap_dport(struct rt_link_setlink_req *req,
+							 __u16 encap_dport /* big-endian */)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.encap_dport = 1;
+	req->linkinfo.data.ip6gre.encap_dport = encap_dport;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_collect_metadata(struct rt_link_setlink_req *req)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.collect_metadata = 1;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_fwmark(struct rt_link_setlink_req *req,
+						    __u32 fwmark)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.fwmark = 1;
+	req->linkinfo.data.ip6gre.fwmark = fwmark;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_erspan_index(struct rt_link_setlink_req *req,
+							  __u32 erspan_index)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_index = 1;
+	req->linkinfo.data.ip6gre.erspan_index = erspan_index;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_erspan_ver(struct rt_link_setlink_req *req,
+							__u8 erspan_ver)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_ver = 1;
+	req->linkinfo.data.ip6gre.erspan_ver = erspan_ver;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_erspan_dir(struct rt_link_setlink_req *req,
+							__u8 erspan_dir)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_dir = 1;
+	req->linkinfo.data.ip6gre.erspan_dir = erspan_dir;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_ip6gre_erspan_hwid(struct rt_link_setlink_req *req,
+							 __u16 erspan_hwid)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.ip6gre = 1;
+	req->linkinfo.data.ip6gre._present.erspan_hwid = 1;
+	req->linkinfo.data.ip6gre.erspan_hwid = erspan_hwid;
+}
+static inline void
 rt_link_setlink_req_set_linkinfo_data_geneve_id(struct rt_link_setlink_req *req,
 						__u32 id)
 {
@@ -9986,7 +10859,7 @@ rt_link_setlink_req_set_linkinfo_data_geneve_tos(struct rt_link_setlink_req *req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_geneve_port(struct rt_link_setlink_req *req,
-						  __u16 port)
+						  __u16 port /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10047,7 +10920,7 @@ rt_link_setlink_req_set_linkinfo_data_geneve_udp_zero_csum6_rx(struct rt_link_se
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_geneve_label(struct rt_link_setlink_req *req,
-						   __u32 label)
+						   __u32 label /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10163,7 +11036,7 @@ rt_link_setlink_req_set_linkinfo_data_ipip_encap_limit(struct rt_link_setlink_re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip_flowinfo(struct rt_link_setlink_req *req,
-						    __u32 flowinfo)
+						    __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10173,7 +11046,7 @@ rt_link_setlink_req_set_linkinfo_data_ipip_flowinfo(struct rt_link_setlink_req *
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip_flags(struct rt_link_setlink_req *req,
-						 __u16 flags)
+						 __u16 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10269,7 +11142,7 @@ rt_link_setlink_req_set_linkinfo_data_ipip_encap_flags(struct rt_link_setlink_re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip_encap_sport(struct rt_link_setlink_req *req,
-						       __u16 encap_sport)
+						       __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10279,7 +11152,7 @@ rt_link_setlink_req_set_linkinfo_data_ipip_encap_sport(struct rt_link_setlink_re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip_encap_dport(struct rt_link_setlink_req *req,
-						       __u16 encap_dport)
+						       __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10363,7 +11236,7 @@ rt_link_setlink_req_set_linkinfo_data_ip6tnl_encap_limit(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ip6tnl_flowinfo(struct rt_link_setlink_req *req,
-						      __u32 flowinfo)
+						      __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10373,7 +11246,7 @@ rt_link_setlink_req_set_linkinfo_data_ip6tnl_flowinfo(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ip6tnl_flags(struct rt_link_setlink_req *req,
-						   __u32 flags)
+						   __u32 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10413,7 +11286,7 @@ rt_link_setlink_req_set_linkinfo_data_ip6tnl_encap_flags(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ip6tnl_encap_sport(struct rt_link_setlink_req *req,
-							 __u16 encap_sport)
+							 __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10423,7 +11296,7 @@ rt_link_setlink_req_set_linkinfo_data_ip6tnl_encap_sport(struct rt_link_setlink_
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ip6tnl_encap_dport(struct rt_link_setlink_req *req,
-							 __u16 encap_dport)
+							 __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10516,7 +11389,7 @@ rt_link_setlink_req_set_linkinfo_data_sit_encap_limit(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_sit_flowinfo(struct rt_link_setlink_req *req,
-						   __u32 flowinfo)
+						   __u32 flowinfo /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10526,7 +11399,7 @@ rt_link_setlink_req_set_linkinfo_data_sit_flowinfo(struct rt_link_setlink_req *r
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_sit_flags(struct rt_link_setlink_req *req,
-						__u16 flags)
+						__u16 flags /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10622,7 +11495,7 @@ rt_link_setlink_req_set_linkinfo_data_sit_encap_flags(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_sit_encap_sport(struct rt_link_setlink_req *req,
-						      __u16 encap_sport)
+						      __u16 encap_sport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10632,7 +11505,7 @@ rt_link_setlink_req_set_linkinfo_data_sit_encap_sport(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_sit_encap_dport(struct rt_link_setlink_req *req,
-						      __u16 encap_dport)
+						      __u16 encap_dport /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10828,7 +11701,7 @@ rt_link_setlink_req_set_linkinfo_data_vti_link(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_vti_ikey(struct rt_link_setlink_req *req,
-					       __u32 ikey)
+					       __u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10838,7 +11711,7 @@ rt_link_setlink_req_set_linkinfo_data_vti_ikey(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_vti_okey(struct rt_link_setlink_req *req,
-					       __u32 okey)
+					       __u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10893,7 +11766,7 @@ rt_link_setlink_req_set_linkinfo_data_vti6_link(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_vti6_ikey(struct rt_link_setlink_req *req,
-						__u32 ikey)
+						__u32 ikey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
@@ -10903,7 +11776,7 @@ rt_link_setlink_req_set_linkinfo_data_vti6_ikey(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_vti6_okey(struct rt_link_setlink_req *req,
-						__u32 okey)
+						__u32 okey /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;

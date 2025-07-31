@@ -158,6 +158,18 @@ const char *dpll_pin_capabilities_str(enum dpll_pin_capabilities value)
 	return dpll_pin_capabilities_strmap[value];
 }
 
+static const char * const dpll_feature_state_strmap[] = {
+	[0] = "disable",
+	[1] = "enable",
+};
+
+const char *dpll_feature_state_str(enum dpll_feature_state value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(dpll_feature_state_strmap))
+		return NULL;
+	return dpll_feature_state_strmap[value];
+}
+
 /* Policies */
 const struct ynl_policy_attr dpll_frequency_range_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_FREQUENCY_MIN] = { .name = "frequency-min", .type = YNL_PT_U64, },
@@ -192,6 +204,16 @@ const struct ynl_policy_nest dpll_pin_parent_pin_nest = {
 	.table = dpll_pin_parent_pin_policy,
 };
 
+const struct ynl_policy_attr dpll_reference_sync_policy[DPLL_A_PIN_MAX + 1] = {
+	[DPLL_A_PIN_ID] = { .name = "id", .type = YNL_PT_U32, },
+	[DPLL_A_PIN_STATE] = { .name = "state", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest dpll_reference_sync_nest = {
+	.max_attr = DPLL_A_PIN_MAX,
+	.table = dpll_reference_sync_policy,
+};
+
 const struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
 	[DPLL_A_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[DPLL_A_MODULE_NAME] = { .name = "module-name", .type = YNL_PT_NUL_STR, },
@@ -204,6 +226,7 @@ const struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
 	[DPLL_A_TYPE] = { .name = "type", .type = YNL_PT_U32, },
 	[DPLL_A_LOCK_STATUS_ERROR] = { .name = "lock-status-error", .type = YNL_PT_U32, },
 	[DPLL_A_CLOCK_QUALITY_LEVEL] = { .name = "clock-quality-level", .type = YNL_PT_U32, },
+	[DPLL_A_PHASE_OFFSET_MONITOR] = { .name = "phase-offset-monitor", .type = YNL_PT_U32, },
 };
 
 const struct ynl_policy_nest dpll_nest = {
@@ -239,6 +262,7 @@ const struct ynl_policy_attr dpll_pin_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_ESYNC_FREQUENCY] = { .name = "esync-frequency", .type = YNL_PT_U64, },
 	[DPLL_A_PIN_ESYNC_FREQUENCY_SUPPORTED] = { .name = "esync-frequency-supported", .type = YNL_PT_NEST, .nest = &dpll_frequency_range_nest, },
 	[DPLL_A_PIN_ESYNC_PULSE] = { .name = "esync-pulse", .type = YNL_PT_U32, },
+	[DPLL_A_PIN_REFERENCE_SYNC] = { .name = "reference-sync", .type = YNL_PT_NEST, .nest = &dpll_reference_sync_nest, },
 };
 
 const struct ynl_policy_nest dpll_pin_nest = {
@@ -374,6 +398,50 @@ int dpll_pin_parent_pin_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.parent_id = 1;
 			dst->parent_id = ynl_attr_get_u32(attr);
+		} else if (type == DPLL_A_PIN_STATE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.state = 1;
+			dst->state = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return 0;
+}
+
+void dpll_reference_sync_free(struct dpll_reference_sync *obj)
+{
+}
+
+int dpll_reference_sync_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			    struct dpll_reference_sync *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.id)
+		ynl_attr_put_u32(nlh, DPLL_A_PIN_ID, obj->id);
+	if (obj->_present.state)
+		ynl_attr_put_u32(nlh, DPLL_A_PIN_STATE, obj->state);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int dpll_reference_sync_parse(struct ynl_parse_arg *yarg,
+			      const struct nlattr *nested)
+{
+	struct dpll_reference_sync *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == DPLL_A_PIN_ID) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.id = 1;
+			dst->id = ynl_attr_get_u32(attr);
 		} else if (type == DPLL_A_PIN_STATE) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -534,6 +602,11 @@ int dpll_device_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.type = 1;
 			dst->type = ynl_attr_get_u32(attr);
+		} else if (type == DPLL_A_PHASE_OFFSET_MONITOR) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.phase_offset_monitor = 1;
+			dst->phase_offset_monitor = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -652,6 +725,8 @@ int dpll_device_set(struct ynl_sock *ys, struct dpll_device_set_req *req)
 
 	if (req->_present.id)
 		ynl_attr_put_u32(nlh, DPLL_A_ID, req->id);
+	if (req->_present.phase_offset_monitor)
+		ynl_attr_put_u32(nlh, DPLL_A_PHASE_OFFSET_MONITOR, req->phase_offset_monitor);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -766,6 +841,9 @@ void dpll_pin_get_rsp_free(struct dpll_pin_get_rsp *rsp)
 	for (i = 0; i < rsp->_count.esync_frequency_supported; i++)
 		dpll_frequency_range_free(&rsp->esync_frequency_supported[i]);
 	free(rsp->esync_frequency_supported);
+	for (i = 0; i < rsp->_count.reference_sync; i++)
+		dpll_reference_sync_free(&rsp->reference_sync[i]);
+	free(rsp->reference_sync);
 	free(rsp);
 }
 
@@ -774,6 +852,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	unsigned int n_esync_frequency_supported = 0;
 	unsigned int n_frequency_supported = 0;
+	unsigned int n_reference_sync = 0;
 	unsigned int n_parent_device = 0;
 	unsigned int n_parent_pin = 0;
 	struct dpll_pin_get_rsp *dst;
@@ -792,6 +871,8 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 		return ynl_error_parse(yarg, "attribute already present (pin.parent-device)");
 	if (dst->parent_pin)
 		return ynl_error_parse(yarg, "attribute already present (pin.parent-pin)");
+	if (dst->reference_sync)
+		return ynl_error_parse(yarg, "attribute already present (pin.reference-sync)");
 
 	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
 		unsigned int type = ynl_attr_type(attr);
@@ -887,6 +968,8 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.esync_pulse = 1;
 			dst->esync_pulse = ynl_attr_get_u32(attr);
+		} else if (type == DPLL_A_PIN_REFERENCE_SYNC) {
+			n_reference_sync++;
 		}
 	}
 
@@ -941,6 +1024,20 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 			if (ynl_attr_type(attr) == DPLL_A_PIN_PARENT_PIN) {
 				parg.data = &dst->parent_pin[i];
 				if (dpll_pin_parent_pin_parse(&parg, attr))
+					return YNL_PARSE_CB_ERROR;
+				i++;
+			}
+		}
+	}
+	if (n_reference_sync) {
+		dst->reference_sync = calloc(n_reference_sync, sizeof(*dst->reference_sync));
+		dst->_count.reference_sync = n_reference_sync;
+		i = 0;
+		parg.rsp_policy = &dpll_reference_sync_nest;
+		ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
+			if (ynl_attr_type(attr) == DPLL_A_PIN_REFERENCE_SYNC) {
+				parg.data = &dst->reference_sync[i];
+				if (dpll_reference_sync_parse(&parg, attr))
 					return YNL_PARSE_CB_ERROR;
 				i++;
 			}
@@ -1013,6 +1110,9 @@ void dpll_pin_get_list_free(struct dpll_pin_get_list *rsp)
 		for (i = 0; i < rsp->obj._count.esync_frequency_supported; i++)
 			dpll_frequency_range_free(&rsp->obj.esync_frequency_supported[i]);
 		free(rsp->obj.esync_frequency_supported);
+		for (i = 0; i < rsp->obj._count.reference_sync; i++)
+			dpll_reference_sync_free(&rsp->obj.reference_sync[i]);
+		free(rsp->obj.reference_sync);
 		free(rsp);
 	}
 }
@@ -1069,6 +1169,9 @@ void dpll_pin_get_ntf_free(struct dpll_pin_get_ntf *rsp)
 	for (i = 0; i < rsp->obj._count.esync_frequency_supported; i++)
 		dpll_frequency_range_free(&rsp->obj.esync_frequency_supported[i]);
 	free(rsp->obj.esync_frequency_supported);
+	for (i = 0; i < rsp->obj._count.reference_sync; i++)
+		dpll_reference_sync_free(&rsp->obj.reference_sync[i]);
+	free(rsp->obj.reference_sync);
 	free(rsp);
 }
 
@@ -1084,6 +1187,9 @@ void dpll_pin_set_req_free(struct dpll_pin_set_req *req)
 	for (i = 0; i < req->_count.parent_pin; i++)
 		dpll_pin_parent_pin_free(&req->parent_pin[i]);
 	free(req->parent_pin);
+	for (i = 0; i < req->_count.reference_sync; i++)
+		dpll_reference_sync_free(&req->reference_sync[i]);
+	free(req->reference_sync);
 	free(req);
 }
 
@@ -1116,6 +1222,8 @@ int dpll_pin_set(struct ynl_sock *ys, struct dpll_pin_set_req *req)
 		ynl_attr_put_s32(nlh, DPLL_A_PIN_PHASE_ADJUST, req->phase_adjust);
 	if (req->_present.esync_frequency)
 		ynl_attr_put_u64(nlh, DPLL_A_PIN_ESYNC_FREQUENCY, req->esync_frequency);
+	for (i = 0; i < req->_count.reference_sync; i++)
+		dpll_reference_sync_put(nlh, DPLL_A_PIN_REFERENCE_SYNC, &req->reference_sync[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

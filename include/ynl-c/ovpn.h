@@ -22,6 +22,68 @@ const char *ovpn_del_peer_reason_str(enum ovpn_del_peer_reason value);
 const char *ovpn_key_slot_str(enum ovpn_key_slot value);
 
 /* Common nested types */
+struct ovpn_peer_new_input {
+	struct {
+		__u32 id:1;
+		__u32 remote_ipv4:1;
+		__u32 remote_ipv6_scope_id:1;
+		__u32 remote_port:1;
+		__u32 socket:1;
+		__u32 vpn_ipv4:1;
+		__u32 local_ipv4:1;
+		__u32 keepalive_interval:1;
+		__u32 keepalive_timeout:1;
+	} _present;
+	struct {
+		__u32 remote_ipv6;
+		__u32 vpn_ipv6;
+		__u32 local_ipv6;
+	} _len;
+
+	__u32 id;
+	__u32 remote_ipv4 /* big-endian */;
+	void *remote_ipv6;
+	__u32 remote_ipv6_scope_id;
+	__u16 remote_port /* big-endian */;
+	__u32 socket;
+	__u32 vpn_ipv4 /* big-endian */;
+	void *vpn_ipv6;
+	__u32 local_ipv4 /* big-endian */;
+	void *local_ipv6;
+	__u32 keepalive_interval;
+	__u32 keepalive_timeout;
+};
+
+struct ovpn_peer_set_input {
+	struct {
+		__u32 id:1;
+		__u32 remote_ipv4:1;
+		__u32 remote_ipv6_scope_id:1;
+		__u32 remote_port:1;
+		__u32 vpn_ipv4:1;
+		__u32 local_ipv4:1;
+		__u32 keepalive_interval:1;
+		__u32 keepalive_timeout:1;
+	} _present;
+	struct {
+		__u32 remote_ipv6;
+		__u32 vpn_ipv6;
+		__u32 local_ipv6;
+	} _len;
+
+	__u32 id;
+	__u32 remote_ipv4 /* big-endian */;
+	void *remote_ipv6;
+	__u32 remote_ipv6_scope_id;
+	__u16 remote_port /* big-endian */;
+	__u32 vpn_ipv4 /* big-endian */;
+	void *vpn_ipv6;
+	__u32 local_ipv4 /* big-endian */;
+	void *local_ipv6;
+	__u32 keepalive_interval;
+	__u32 keepalive_timeout;
+};
+
 struct ovpn_peer {
 	struct {
 		__u32 id:1;
@@ -76,6 +138,46 @@ struct ovpn_peer {
 	__u64 link_tx_packets;
 };
 
+struct ovpn_peer_del_input {
+	struct {
+		__u32 id:1;
+	} _present;
+
+	__u32 id;
+};
+
+struct ovpn_keyconf_get {
+	struct {
+		__u32 peer_id:1;
+		__u32 slot:1;
+		__u32 key_id:1;
+		__u32 cipher_alg:1;
+	} _present;
+
+	__u32 peer_id;
+	enum ovpn_key_slot slot;
+	__u32 key_id;
+	enum ovpn_cipher_alg cipher_alg;
+};
+
+struct ovpn_keyconf_swap_input {
+	struct {
+		__u32 peer_id:1;
+	} _present;
+
+	__u32 peer_id;
+};
+
+struct ovpn_keyconf_del_input {
+	struct {
+		__u32 peer_id:1;
+		__u32 slot:1;
+	} _present;
+
+	__u32 peer_id;
+	enum ovpn_key_slot slot;
+};
+
 struct ovpn_keydir {
 	struct {
 		__u32 cipher_key;
@@ -113,7 +215,7 @@ struct ovpn_peer_new_req {
 	} _present;
 
 	__u32 ifindex;
-	struct ovpn_peer peer;
+	struct ovpn_peer_new_input peer;
 };
 
 static inline struct ovpn_peer_new_req *ovpn_peer_new_req_alloc(void)
@@ -177,14 +279,6 @@ ovpn_peer_new_req_set_peer_socket(struct ovpn_peer_new_req *req, __u32 socket)
 	req->peer.socket = socket;
 }
 static inline void
-ovpn_peer_new_req_set_peer_socket_netnsid(struct ovpn_peer_new_req *req,
-					  __s32 socket_netnsid)
-{
-	req->_present.peer = 1;
-	req->peer._present.socket_netnsid = 1;
-	req->peer.socket_netnsid = socket_netnsid;
-}
-static inline void
 ovpn_peer_new_req_set_peer_vpn_ipv4(struct ovpn_peer_new_req *req,
 				    __u32 vpn_ipv4 /* big-endian */)
 {
@@ -221,14 +315,6 @@ ovpn_peer_new_req_set_peer_local_ipv6(struct ovpn_peer_new_req *req,
 	memcpy(req->peer.local_ipv6, local_ipv6, req->peer._len.local_ipv6);
 }
 static inline void
-ovpn_peer_new_req_set_peer_local_port(struct ovpn_peer_new_req *req,
-				      __u16 local_port /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.local_port = 1;
-	req->peer.local_port = local_port;
-}
-static inline void
 ovpn_peer_new_req_set_peer_keepalive_interval(struct ovpn_peer_new_req *req,
 					      __u32 keepalive_interval)
 {
@@ -243,78 +329,6 @@ ovpn_peer_new_req_set_peer_keepalive_timeout(struct ovpn_peer_new_req *req,
 	req->_present.peer = 1;
 	req->peer._present.keepalive_timeout = 1;
 	req->peer.keepalive_timeout = keepalive_timeout;
-}
-static inline void
-ovpn_peer_new_req_set_peer_del_reason(struct ovpn_peer_new_req *req,
-				      enum ovpn_del_peer_reason del_reason)
-{
-	req->_present.peer = 1;
-	req->peer._present.del_reason = 1;
-	req->peer.del_reason = del_reason;
-}
-static inline void
-ovpn_peer_new_req_set_peer_vpn_rx_bytes(struct ovpn_peer_new_req *req,
-					__u64 vpn_rx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_rx_bytes = 1;
-	req->peer.vpn_rx_bytes = vpn_rx_bytes;
-}
-static inline void
-ovpn_peer_new_req_set_peer_vpn_tx_bytes(struct ovpn_peer_new_req *req,
-					__u64 vpn_tx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_tx_bytes = 1;
-	req->peer.vpn_tx_bytes = vpn_tx_bytes;
-}
-static inline void
-ovpn_peer_new_req_set_peer_vpn_rx_packets(struct ovpn_peer_new_req *req,
-					  __u64 vpn_rx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_rx_packets = 1;
-	req->peer.vpn_rx_packets = vpn_rx_packets;
-}
-static inline void
-ovpn_peer_new_req_set_peer_vpn_tx_packets(struct ovpn_peer_new_req *req,
-					  __u64 vpn_tx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_tx_packets = 1;
-	req->peer.vpn_tx_packets = vpn_tx_packets;
-}
-static inline void
-ovpn_peer_new_req_set_peer_link_rx_bytes(struct ovpn_peer_new_req *req,
-					 __u64 link_rx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_rx_bytes = 1;
-	req->peer.link_rx_bytes = link_rx_bytes;
-}
-static inline void
-ovpn_peer_new_req_set_peer_link_tx_bytes(struct ovpn_peer_new_req *req,
-					 __u64 link_tx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_tx_bytes = 1;
-	req->peer.link_tx_bytes = link_tx_bytes;
-}
-static inline void
-ovpn_peer_new_req_set_peer_link_rx_packets(struct ovpn_peer_new_req *req,
-					   __u64 link_rx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_rx_packets = 1;
-	req->peer.link_rx_packets = link_rx_packets;
-}
-static inline void
-ovpn_peer_new_req_set_peer_link_tx_packets(struct ovpn_peer_new_req *req,
-					   __u64 link_tx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_tx_packets = 1;
-	req->peer.link_tx_packets = link_tx_packets;
 }
 
 /*
@@ -331,7 +345,7 @@ struct ovpn_peer_set_req {
 	} _present;
 
 	__u32 ifindex;
-	struct ovpn_peer peer;
+	struct ovpn_peer_set_input peer;
 };
 
 static inline struct ovpn_peer_set_req *ovpn_peer_set_req_alloc(void)
@@ -388,21 +402,6 @@ ovpn_peer_set_req_set_peer_remote_port(struct ovpn_peer_set_req *req,
 	req->peer.remote_port = remote_port;
 }
 static inline void
-ovpn_peer_set_req_set_peer_socket(struct ovpn_peer_set_req *req, __u32 socket)
-{
-	req->_present.peer = 1;
-	req->peer._present.socket = 1;
-	req->peer.socket = socket;
-}
-static inline void
-ovpn_peer_set_req_set_peer_socket_netnsid(struct ovpn_peer_set_req *req,
-					  __s32 socket_netnsid)
-{
-	req->_present.peer = 1;
-	req->peer._present.socket_netnsid = 1;
-	req->peer.socket_netnsid = socket_netnsid;
-}
-static inline void
 ovpn_peer_set_req_set_peer_vpn_ipv4(struct ovpn_peer_set_req *req,
 				    __u32 vpn_ipv4 /* big-endian */)
 {
@@ -439,14 +438,6 @@ ovpn_peer_set_req_set_peer_local_ipv6(struct ovpn_peer_set_req *req,
 	memcpy(req->peer.local_ipv6, local_ipv6, req->peer._len.local_ipv6);
 }
 static inline void
-ovpn_peer_set_req_set_peer_local_port(struct ovpn_peer_set_req *req,
-				      __u16 local_port /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.local_port = 1;
-	req->peer.local_port = local_port;
-}
-static inline void
 ovpn_peer_set_req_set_peer_keepalive_interval(struct ovpn_peer_set_req *req,
 					      __u32 keepalive_interval)
 {
@@ -461,78 +452,6 @@ ovpn_peer_set_req_set_peer_keepalive_timeout(struct ovpn_peer_set_req *req,
 	req->_present.peer = 1;
 	req->peer._present.keepalive_timeout = 1;
 	req->peer.keepalive_timeout = keepalive_timeout;
-}
-static inline void
-ovpn_peer_set_req_set_peer_del_reason(struct ovpn_peer_set_req *req,
-				      enum ovpn_del_peer_reason del_reason)
-{
-	req->_present.peer = 1;
-	req->peer._present.del_reason = 1;
-	req->peer.del_reason = del_reason;
-}
-static inline void
-ovpn_peer_set_req_set_peer_vpn_rx_bytes(struct ovpn_peer_set_req *req,
-					__u64 vpn_rx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_rx_bytes = 1;
-	req->peer.vpn_rx_bytes = vpn_rx_bytes;
-}
-static inline void
-ovpn_peer_set_req_set_peer_vpn_tx_bytes(struct ovpn_peer_set_req *req,
-					__u64 vpn_tx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_tx_bytes = 1;
-	req->peer.vpn_tx_bytes = vpn_tx_bytes;
-}
-static inline void
-ovpn_peer_set_req_set_peer_vpn_rx_packets(struct ovpn_peer_set_req *req,
-					  __u64 vpn_rx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_rx_packets = 1;
-	req->peer.vpn_rx_packets = vpn_rx_packets;
-}
-static inline void
-ovpn_peer_set_req_set_peer_vpn_tx_packets(struct ovpn_peer_set_req *req,
-					  __u64 vpn_tx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_tx_packets = 1;
-	req->peer.vpn_tx_packets = vpn_tx_packets;
-}
-static inline void
-ovpn_peer_set_req_set_peer_link_rx_bytes(struct ovpn_peer_set_req *req,
-					 __u64 link_rx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_rx_bytes = 1;
-	req->peer.link_rx_bytes = link_rx_bytes;
-}
-static inline void
-ovpn_peer_set_req_set_peer_link_tx_bytes(struct ovpn_peer_set_req *req,
-					 __u64 link_tx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_tx_bytes = 1;
-	req->peer.link_tx_bytes = link_tx_bytes;
-}
-static inline void
-ovpn_peer_set_req_set_peer_link_rx_packets(struct ovpn_peer_set_req *req,
-					   __u64 link_rx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_rx_packets = 1;
-	req->peer.link_rx_packets = link_rx_packets;
-}
-static inline void
-ovpn_peer_set_req_set_peer_link_tx_packets(struct ovpn_peer_set_req *req,
-					   __u64 link_tx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_tx_packets = 1;
-	req->peer.link_tx_packets = link_tx_packets;
 }
 
 /*
@@ -822,7 +741,7 @@ struct ovpn_peer_del_req {
 	} _present;
 
 	__u32 ifindex;
-	struct ovpn_peer peer;
+	struct ovpn_peer_del_input peer;
 };
 
 static inline struct ovpn_peer_del_req *ovpn_peer_del_req_alloc(void)
@@ -843,187 +762,6 @@ ovpn_peer_del_req_set_peer_id(struct ovpn_peer_del_req *req, __u32 id)
 	req->_present.peer = 1;
 	req->peer._present.id = 1;
 	req->peer.id = id;
-}
-static inline void
-ovpn_peer_del_req_set_peer_remote_ipv4(struct ovpn_peer_del_req *req,
-				       __u32 remote_ipv4 /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.remote_ipv4 = 1;
-	req->peer.remote_ipv4 = remote_ipv4;
-}
-static inline void
-ovpn_peer_del_req_set_peer_remote_ipv6(struct ovpn_peer_del_req *req,
-				       const void *remote_ipv6, size_t len)
-{
-	req->_present.peer = 1;
-	free(req->peer.remote_ipv6);
-	req->peer._len.remote_ipv6 = len;
-	req->peer.remote_ipv6 = malloc(req->peer._len.remote_ipv6);
-	memcpy(req->peer.remote_ipv6, remote_ipv6, req->peer._len.remote_ipv6);
-}
-static inline void
-ovpn_peer_del_req_set_peer_remote_ipv6_scope_id(struct ovpn_peer_del_req *req,
-						__u32 remote_ipv6_scope_id)
-{
-	req->_present.peer = 1;
-	req->peer._present.remote_ipv6_scope_id = 1;
-	req->peer.remote_ipv6_scope_id = remote_ipv6_scope_id;
-}
-static inline void
-ovpn_peer_del_req_set_peer_remote_port(struct ovpn_peer_del_req *req,
-				       __u16 remote_port /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.remote_port = 1;
-	req->peer.remote_port = remote_port;
-}
-static inline void
-ovpn_peer_del_req_set_peer_socket(struct ovpn_peer_del_req *req, __u32 socket)
-{
-	req->_present.peer = 1;
-	req->peer._present.socket = 1;
-	req->peer.socket = socket;
-}
-static inline void
-ovpn_peer_del_req_set_peer_socket_netnsid(struct ovpn_peer_del_req *req,
-					  __s32 socket_netnsid)
-{
-	req->_present.peer = 1;
-	req->peer._present.socket_netnsid = 1;
-	req->peer.socket_netnsid = socket_netnsid;
-}
-static inline void
-ovpn_peer_del_req_set_peer_vpn_ipv4(struct ovpn_peer_del_req *req,
-				    __u32 vpn_ipv4 /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_ipv4 = 1;
-	req->peer.vpn_ipv4 = vpn_ipv4;
-}
-static inline void
-ovpn_peer_del_req_set_peer_vpn_ipv6(struct ovpn_peer_del_req *req,
-				    const void *vpn_ipv6, size_t len)
-{
-	req->_present.peer = 1;
-	free(req->peer.vpn_ipv6);
-	req->peer._len.vpn_ipv6 = len;
-	req->peer.vpn_ipv6 = malloc(req->peer._len.vpn_ipv6);
-	memcpy(req->peer.vpn_ipv6, vpn_ipv6, req->peer._len.vpn_ipv6);
-}
-static inline void
-ovpn_peer_del_req_set_peer_local_ipv4(struct ovpn_peer_del_req *req,
-				      __u32 local_ipv4 /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.local_ipv4 = 1;
-	req->peer.local_ipv4 = local_ipv4;
-}
-static inline void
-ovpn_peer_del_req_set_peer_local_ipv6(struct ovpn_peer_del_req *req,
-				      const void *local_ipv6, size_t len)
-{
-	req->_present.peer = 1;
-	free(req->peer.local_ipv6);
-	req->peer._len.local_ipv6 = len;
-	req->peer.local_ipv6 = malloc(req->peer._len.local_ipv6);
-	memcpy(req->peer.local_ipv6, local_ipv6, req->peer._len.local_ipv6);
-}
-static inline void
-ovpn_peer_del_req_set_peer_local_port(struct ovpn_peer_del_req *req,
-				      __u16 local_port /* big-endian */)
-{
-	req->_present.peer = 1;
-	req->peer._present.local_port = 1;
-	req->peer.local_port = local_port;
-}
-static inline void
-ovpn_peer_del_req_set_peer_keepalive_interval(struct ovpn_peer_del_req *req,
-					      __u32 keepalive_interval)
-{
-	req->_present.peer = 1;
-	req->peer._present.keepalive_interval = 1;
-	req->peer.keepalive_interval = keepalive_interval;
-}
-static inline void
-ovpn_peer_del_req_set_peer_keepalive_timeout(struct ovpn_peer_del_req *req,
-					     __u32 keepalive_timeout)
-{
-	req->_present.peer = 1;
-	req->peer._present.keepalive_timeout = 1;
-	req->peer.keepalive_timeout = keepalive_timeout;
-}
-static inline void
-ovpn_peer_del_req_set_peer_del_reason(struct ovpn_peer_del_req *req,
-				      enum ovpn_del_peer_reason del_reason)
-{
-	req->_present.peer = 1;
-	req->peer._present.del_reason = 1;
-	req->peer.del_reason = del_reason;
-}
-static inline void
-ovpn_peer_del_req_set_peer_vpn_rx_bytes(struct ovpn_peer_del_req *req,
-					__u64 vpn_rx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_rx_bytes = 1;
-	req->peer.vpn_rx_bytes = vpn_rx_bytes;
-}
-static inline void
-ovpn_peer_del_req_set_peer_vpn_tx_bytes(struct ovpn_peer_del_req *req,
-					__u64 vpn_tx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_tx_bytes = 1;
-	req->peer.vpn_tx_bytes = vpn_tx_bytes;
-}
-static inline void
-ovpn_peer_del_req_set_peer_vpn_rx_packets(struct ovpn_peer_del_req *req,
-					  __u64 vpn_rx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_rx_packets = 1;
-	req->peer.vpn_rx_packets = vpn_rx_packets;
-}
-static inline void
-ovpn_peer_del_req_set_peer_vpn_tx_packets(struct ovpn_peer_del_req *req,
-					  __u64 vpn_tx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.vpn_tx_packets = 1;
-	req->peer.vpn_tx_packets = vpn_tx_packets;
-}
-static inline void
-ovpn_peer_del_req_set_peer_link_rx_bytes(struct ovpn_peer_del_req *req,
-					 __u64 link_rx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_rx_bytes = 1;
-	req->peer.link_rx_bytes = link_rx_bytes;
-}
-static inline void
-ovpn_peer_del_req_set_peer_link_tx_bytes(struct ovpn_peer_del_req *req,
-					 __u64 link_tx_bytes)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_tx_bytes = 1;
-	req->peer.link_tx_bytes = link_tx_bytes;
-}
-static inline void
-ovpn_peer_del_req_set_peer_link_rx_packets(struct ovpn_peer_del_req *req,
-					   __u64 link_rx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_rx_packets = 1;
-	req->peer.link_rx_packets = link_rx_packets;
-}
-static inline void
-ovpn_peer_del_req_set_peer_link_tx_packets(struct ovpn_peer_del_req *req,
-					   __u64 link_tx_packets)
-{
-	req->_present.peer = 1;
-	req->peer._present.link_tx_packets = 1;
-	req->peer.link_tx_packets = link_tx_packets;
 }
 
 /*
@@ -1149,7 +887,7 @@ struct ovpn_key_get_req {
 	} _present;
 
 	__u32 ifindex;
-	struct ovpn_keyconf keyconf;
+	struct ovpn_keyconf_get keyconf;
 };
 
 static inline struct ovpn_key_get_req *ovpn_key_get_req_alloc(void)
@@ -1195,61 +933,13 @@ ovpn_key_get_req_set_keyconf_cipher_alg(struct ovpn_key_get_req *req,
 	req->keyconf._present.cipher_alg = 1;
 	req->keyconf.cipher_alg = cipher_alg;
 }
-static inline void
-ovpn_key_get_req_set_keyconf_encrypt_dir_cipher_key(struct ovpn_key_get_req *req,
-						    const void *cipher_key,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.encrypt_dir = 1;
-	free(req->keyconf.encrypt_dir.cipher_key);
-	req->keyconf.encrypt_dir._len.cipher_key = len;
-	req->keyconf.encrypt_dir.cipher_key = malloc(req->keyconf.encrypt_dir._len.cipher_key);
-	memcpy(req->keyconf.encrypt_dir.cipher_key, cipher_key, req->keyconf.encrypt_dir._len.cipher_key);
-}
-static inline void
-ovpn_key_get_req_set_keyconf_encrypt_dir_nonce_tail(struct ovpn_key_get_req *req,
-						    const void *nonce_tail,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.encrypt_dir = 1;
-	free(req->keyconf.encrypt_dir.nonce_tail);
-	req->keyconf.encrypt_dir._len.nonce_tail = len;
-	req->keyconf.encrypt_dir.nonce_tail = malloc(req->keyconf.encrypt_dir._len.nonce_tail);
-	memcpy(req->keyconf.encrypt_dir.nonce_tail, nonce_tail, req->keyconf.encrypt_dir._len.nonce_tail);
-}
-static inline void
-ovpn_key_get_req_set_keyconf_decrypt_dir_cipher_key(struct ovpn_key_get_req *req,
-						    const void *cipher_key,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.decrypt_dir = 1;
-	free(req->keyconf.decrypt_dir.cipher_key);
-	req->keyconf.decrypt_dir._len.cipher_key = len;
-	req->keyconf.decrypt_dir.cipher_key = malloc(req->keyconf.decrypt_dir._len.cipher_key);
-	memcpy(req->keyconf.decrypt_dir.cipher_key, cipher_key, req->keyconf.decrypt_dir._len.cipher_key);
-}
-static inline void
-ovpn_key_get_req_set_keyconf_decrypt_dir_nonce_tail(struct ovpn_key_get_req *req,
-						    const void *nonce_tail,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.decrypt_dir = 1;
-	free(req->keyconf.decrypt_dir.nonce_tail);
-	req->keyconf.decrypt_dir._len.nonce_tail = len;
-	req->keyconf.decrypt_dir.nonce_tail = malloc(req->keyconf.decrypt_dir._len.nonce_tail);
-	memcpy(req->keyconf.decrypt_dir.nonce_tail, nonce_tail, req->keyconf.decrypt_dir._len.nonce_tail);
-}
 
 struct ovpn_key_get_rsp {
 	struct {
 		__u32 keyconf:1;
 	} _present;
 
-	struct ovpn_keyconf keyconf;
+	struct ovpn_keyconf_get keyconf;
 };
 
 void ovpn_key_get_rsp_free(struct ovpn_key_get_rsp *rsp);
@@ -1280,7 +970,7 @@ struct ovpn_key_swap_req {
 	} _present;
 
 	__u32 ifindex;
-	struct ovpn_keyconf keyconf;
+	struct ovpn_keyconf_swap_input keyconf;
 };
 
 static inline struct ovpn_key_swap_req *ovpn_key_swap_req_alloc(void)
@@ -1303,78 +993,6 @@ ovpn_key_swap_req_set_keyconf_peer_id(struct ovpn_key_swap_req *req,
 	req->keyconf._present.peer_id = 1;
 	req->keyconf.peer_id = peer_id;
 }
-static inline void
-ovpn_key_swap_req_set_keyconf_slot(struct ovpn_key_swap_req *req,
-				   enum ovpn_key_slot slot)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.slot = 1;
-	req->keyconf.slot = slot;
-}
-static inline void
-ovpn_key_swap_req_set_keyconf_key_id(struct ovpn_key_swap_req *req,
-				     __u32 key_id)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.key_id = 1;
-	req->keyconf.key_id = key_id;
-}
-static inline void
-ovpn_key_swap_req_set_keyconf_cipher_alg(struct ovpn_key_swap_req *req,
-					 enum ovpn_cipher_alg cipher_alg)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.cipher_alg = 1;
-	req->keyconf.cipher_alg = cipher_alg;
-}
-static inline void
-ovpn_key_swap_req_set_keyconf_encrypt_dir_cipher_key(struct ovpn_key_swap_req *req,
-						     const void *cipher_key,
-						     size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.encrypt_dir = 1;
-	free(req->keyconf.encrypt_dir.cipher_key);
-	req->keyconf.encrypt_dir._len.cipher_key = len;
-	req->keyconf.encrypt_dir.cipher_key = malloc(req->keyconf.encrypt_dir._len.cipher_key);
-	memcpy(req->keyconf.encrypt_dir.cipher_key, cipher_key, req->keyconf.encrypt_dir._len.cipher_key);
-}
-static inline void
-ovpn_key_swap_req_set_keyconf_encrypt_dir_nonce_tail(struct ovpn_key_swap_req *req,
-						     const void *nonce_tail,
-						     size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.encrypt_dir = 1;
-	free(req->keyconf.encrypt_dir.nonce_tail);
-	req->keyconf.encrypt_dir._len.nonce_tail = len;
-	req->keyconf.encrypt_dir.nonce_tail = malloc(req->keyconf.encrypt_dir._len.nonce_tail);
-	memcpy(req->keyconf.encrypt_dir.nonce_tail, nonce_tail, req->keyconf.encrypt_dir._len.nonce_tail);
-}
-static inline void
-ovpn_key_swap_req_set_keyconf_decrypt_dir_cipher_key(struct ovpn_key_swap_req *req,
-						     const void *cipher_key,
-						     size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.decrypt_dir = 1;
-	free(req->keyconf.decrypt_dir.cipher_key);
-	req->keyconf.decrypt_dir._len.cipher_key = len;
-	req->keyconf.decrypt_dir.cipher_key = malloc(req->keyconf.decrypt_dir._len.cipher_key);
-	memcpy(req->keyconf.decrypt_dir.cipher_key, cipher_key, req->keyconf.decrypt_dir._len.cipher_key);
-}
-static inline void
-ovpn_key_swap_req_set_keyconf_decrypt_dir_nonce_tail(struct ovpn_key_swap_req *req,
-						     const void *nonce_tail,
-						     size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.decrypt_dir = 1;
-	free(req->keyconf.decrypt_dir.nonce_tail);
-	req->keyconf.decrypt_dir._len.nonce_tail = len;
-	req->keyconf.decrypt_dir.nonce_tail = malloc(req->keyconf.decrypt_dir._len.nonce_tail);
-	memcpy(req->keyconf.decrypt_dir.nonce_tail, nonce_tail, req->keyconf.decrypt_dir._len.nonce_tail);
-}
 
 /*
  * Swap primary and secondary session keys for a specific peer
@@ -1390,7 +1008,7 @@ struct ovpn_key_del_req {
 	} _present;
 
 	__u32 ifindex;
-	struct ovpn_keyconf keyconf;
+	struct ovpn_keyconf_del_input keyconf;
 };
 
 static inline struct ovpn_key_del_req *ovpn_key_del_req_alloc(void)
@@ -1420,69 +1038,6 @@ ovpn_key_del_req_set_keyconf_slot(struct ovpn_key_del_req *req,
 	req->_present.keyconf = 1;
 	req->keyconf._present.slot = 1;
 	req->keyconf.slot = slot;
-}
-static inline void
-ovpn_key_del_req_set_keyconf_key_id(struct ovpn_key_del_req *req, __u32 key_id)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.key_id = 1;
-	req->keyconf.key_id = key_id;
-}
-static inline void
-ovpn_key_del_req_set_keyconf_cipher_alg(struct ovpn_key_del_req *req,
-					enum ovpn_cipher_alg cipher_alg)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.cipher_alg = 1;
-	req->keyconf.cipher_alg = cipher_alg;
-}
-static inline void
-ovpn_key_del_req_set_keyconf_encrypt_dir_cipher_key(struct ovpn_key_del_req *req,
-						    const void *cipher_key,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.encrypt_dir = 1;
-	free(req->keyconf.encrypt_dir.cipher_key);
-	req->keyconf.encrypt_dir._len.cipher_key = len;
-	req->keyconf.encrypt_dir.cipher_key = malloc(req->keyconf.encrypt_dir._len.cipher_key);
-	memcpy(req->keyconf.encrypt_dir.cipher_key, cipher_key, req->keyconf.encrypt_dir._len.cipher_key);
-}
-static inline void
-ovpn_key_del_req_set_keyconf_encrypt_dir_nonce_tail(struct ovpn_key_del_req *req,
-						    const void *nonce_tail,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.encrypt_dir = 1;
-	free(req->keyconf.encrypt_dir.nonce_tail);
-	req->keyconf.encrypt_dir._len.nonce_tail = len;
-	req->keyconf.encrypt_dir.nonce_tail = malloc(req->keyconf.encrypt_dir._len.nonce_tail);
-	memcpy(req->keyconf.encrypt_dir.nonce_tail, nonce_tail, req->keyconf.encrypt_dir._len.nonce_tail);
-}
-static inline void
-ovpn_key_del_req_set_keyconf_decrypt_dir_cipher_key(struct ovpn_key_del_req *req,
-						    const void *cipher_key,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.decrypt_dir = 1;
-	free(req->keyconf.decrypt_dir.cipher_key);
-	req->keyconf.decrypt_dir._len.cipher_key = len;
-	req->keyconf.decrypt_dir.cipher_key = malloc(req->keyconf.decrypt_dir._len.cipher_key);
-	memcpy(req->keyconf.decrypt_dir.cipher_key, cipher_key, req->keyconf.decrypt_dir._len.cipher_key);
-}
-static inline void
-ovpn_key_del_req_set_keyconf_decrypt_dir_nonce_tail(struct ovpn_key_del_req *req,
-						    const void *nonce_tail,
-						    size_t len)
-{
-	req->_present.keyconf = 1;
-	req->keyconf._present.decrypt_dir = 1;
-	free(req->keyconf.decrypt_dir.nonce_tail);
-	req->keyconf.decrypt_dir._len.nonce_tail = len;
-	req->keyconf.decrypt_dir.nonce_tail = malloc(req->keyconf.decrypt_dir._len.nonce_tail);
-	memcpy(req->keyconf.decrypt_dir.nonce_tail, nonce_tail, req->keyconf.decrypt_dir._len.nonce_tail);
 }
 
 /*

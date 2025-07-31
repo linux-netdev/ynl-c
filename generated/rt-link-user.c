@@ -507,7 +507,7 @@ const struct ynl_policy_attr rt_link_linkinfo_gre_attrs_policy[IFLA_GRE_MAX + 1]
 	[IFLA_GRE_TTL] = { .name = "ttl", .type = YNL_PT_U8, },
 	[IFLA_GRE_TOS] = { .name = "tos", .type = YNL_PT_U8, },
 	[IFLA_GRE_PMTUDISC] = { .name = "pmtudisc", .type = YNL_PT_U8, },
-	[IFLA_GRE_ENCAP_LIMIT] = { .name = "encap-limit", .type = YNL_PT_U32, },
+	[IFLA_GRE_ENCAP_LIMIT] = { .name = "encap-limit", .type = YNL_PT_U8, },
 	[IFLA_GRE_FLOWINFO] = { .name = "flowinfo", .type = YNL_PT_U32, },
 	[IFLA_GRE_FLAGS] = { .name = "flags", .type = YNL_PT_U32, },
 	[IFLA_GRE_ENCAP_TYPE] = { .name = "encap-type", .type = YNL_PT_U16, },
@@ -526,6 +526,35 @@ const struct ynl_policy_attr rt_link_linkinfo_gre_attrs_policy[IFLA_GRE_MAX + 1]
 const struct ynl_policy_nest rt_link_linkinfo_gre_attrs_nest = {
 	.max_attr = IFLA_GRE_MAX,
 	.table = rt_link_linkinfo_gre_attrs_policy,
+};
+
+const struct ynl_policy_attr rt_link_linkinfo_gre6_attrs_policy[IFLA_GRE_MAX + 1] = {
+	[IFLA_GRE_LINK] = { .name = "link", .type = YNL_PT_U32, },
+	[IFLA_GRE_IFLAGS] = { .name = "iflags", .type = YNL_PT_U16, },
+	[IFLA_GRE_OFLAGS] = { .name = "oflags", .type = YNL_PT_U16, },
+	[IFLA_GRE_IKEY] = { .name = "ikey", .type = YNL_PT_U32, },
+	[IFLA_GRE_OKEY] = { .name = "okey", .type = YNL_PT_U32, },
+	[IFLA_GRE_LOCAL] = { .name = "local", .type = YNL_PT_BINARY,},
+	[IFLA_GRE_REMOTE] = { .name = "remote", .type = YNL_PT_BINARY,},
+	[IFLA_GRE_TTL] = { .name = "ttl", .type = YNL_PT_U8, },
+	[IFLA_GRE_ENCAP_LIMIT] = { .name = "encap-limit", .type = YNL_PT_U8, },
+	[IFLA_GRE_FLOWINFO] = { .name = "flowinfo", .type = YNL_PT_U32, },
+	[IFLA_GRE_FLAGS] = { .name = "flags", .type = YNL_PT_U32, },
+	[IFLA_GRE_ENCAP_TYPE] = { .name = "encap-type", .type = YNL_PT_U16, },
+	[IFLA_GRE_ENCAP_FLAGS] = { .name = "encap-flags", .type = YNL_PT_U16, },
+	[IFLA_GRE_ENCAP_SPORT] = { .name = "encap-sport", .type = YNL_PT_U16, },
+	[IFLA_GRE_ENCAP_DPORT] = { .name = "encap-dport", .type = YNL_PT_U16, },
+	[IFLA_GRE_COLLECT_METADATA] = { .name = "collect-metadata", .type = YNL_PT_FLAG, },
+	[IFLA_GRE_FWMARK] = { .name = "fwmark", .type = YNL_PT_U32, },
+	[IFLA_GRE_ERSPAN_INDEX] = { .name = "erspan-index", .type = YNL_PT_U32, },
+	[IFLA_GRE_ERSPAN_VER] = { .name = "erspan-ver", .type = YNL_PT_U8, },
+	[IFLA_GRE_ERSPAN_DIR] = { .name = "erspan-dir", .type = YNL_PT_U8, },
+	[IFLA_GRE_ERSPAN_HWID] = { .name = "erspan-hwid", .type = YNL_PT_U16, },
+};
+
+const struct ynl_policy_nest rt_link_linkinfo_gre6_attrs_nest = {
+	.max_attr = IFLA_GRE_MAX,
+	.table = rt_link_linkinfo_gre6_attrs_policy,
 };
 
 const struct ynl_policy_attr rt_link_linkinfo_geneve_attrs_policy[IFLA_GENEVE_MAX + 1] = {
@@ -919,21 +948,22 @@ const struct ynl_policy_attr rt_link_linkinfo_data_msg_policy[] = {
 	[2] = { .type = YNL_PT_SUBMSG, .name = "erspan", .nest = &rt_link_linkinfo_gre_attrs_nest, },
 	[3] = { .type = YNL_PT_SUBMSG, .name = "gre", .nest = &rt_link_linkinfo_gre_attrs_nest, },
 	[4] = { .type = YNL_PT_SUBMSG, .name = "gretap", .nest = &rt_link_linkinfo_gre_attrs_nest, },
-	[5] = { .type = YNL_PT_SUBMSG, .name = "geneve", .nest = &rt_link_linkinfo_geneve_attrs_nest, },
-	[6] = { .type = YNL_PT_SUBMSG, .name = "ipip", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
-	[7] = { .type = YNL_PT_SUBMSG, .name = "ip6tnl", .nest = &rt_link_linkinfo_ip6tnl_attrs_nest, },
-	[8] = { .type = YNL_PT_SUBMSG, .name = "sit", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
-	[9] = { .type = YNL_PT_SUBMSG, .name = "tun", .nest = &rt_link_linkinfo_tun_attrs_nest, },
-	[10] = { .type = YNL_PT_SUBMSG, .name = "vlan", .nest = &rt_link_linkinfo_vlan_attrs_nest, },
-	[11] = { .type = YNL_PT_SUBMSG, .name = "vrf", .nest = &rt_link_linkinfo_vrf_attrs_nest, },
-	[12] = { .type = YNL_PT_SUBMSG, .name = "vti", .nest = &rt_link_linkinfo_vti_attrs_nest, },
-	[13] = { .type = YNL_PT_SUBMSG, .name = "vti6", .nest = &rt_link_linkinfo_vti6_attrs_nest, },
-	[14] = { .type = YNL_PT_SUBMSG, .name = "netkit", .nest = &rt_link_linkinfo_netkit_attrs_nest, },
-	[15] = { .type = YNL_PT_SUBMSG, .name = "ovpn", .nest = &rt_link_linkinfo_ovpn_attrs_nest, },
+	[5] = { .type = YNL_PT_SUBMSG, .name = "ip6gre", .nest = &rt_link_linkinfo_gre6_attrs_nest, },
+	[6] = { .type = YNL_PT_SUBMSG, .name = "geneve", .nest = &rt_link_linkinfo_geneve_attrs_nest, },
+	[7] = { .type = YNL_PT_SUBMSG, .name = "ipip", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
+	[8] = { .type = YNL_PT_SUBMSG, .name = "ip6tnl", .nest = &rt_link_linkinfo_ip6tnl_attrs_nest, },
+	[9] = { .type = YNL_PT_SUBMSG, .name = "sit", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
+	[10] = { .type = YNL_PT_SUBMSG, .name = "tun", .nest = &rt_link_linkinfo_tun_attrs_nest, },
+	[11] = { .type = YNL_PT_SUBMSG, .name = "vlan", .nest = &rt_link_linkinfo_vlan_attrs_nest, },
+	[12] = { .type = YNL_PT_SUBMSG, .name = "vrf", .nest = &rt_link_linkinfo_vrf_attrs_nest, },
+	[13] = { .type = YNL_PT_SUBMSG, .name = "vti", .nest = &rt_link_linkinfo_vti_attrs_nest, },
+	[14] = { .type = YNL_PT_SUBMSG, .name = "vti6", .nest = &rt_link_linkinfo_vti6_attrs_nest, },
+	[15] = { .type = YNL_PT_SUBMSG, .name = "netkit", .nest = &rt_link_linkinfo_netkit_attrs_nest, },
+	[16] = { .type = YNL_PT_SUBMSG, .name = "ovpn", .nest = &rt_link_linkinfo_ovpn_attrs_nest, },
 };
 
 const struct ynl_policy_nest rt_link_linkinfo_data_msg_nest = {
-	.max_attr = 15,
+	.max_attr = 16,
 	.table = rt_link_linkinfo_data_msg_policy,
 };
 
@@ -1947,7 +1977,7 @@ int rt_link_linkinfo_gre_attrs_put(struct nlmsghdr *nlh,
 	if (obj->_present.pmtudisc)
 		ynl_attr_put_u8(nlh, IFLA_GRE_PMTUDISC, obj->pmtudisc);
 	if (obj->_present.encap_limit)
-		ynl_attr_put_u32(nlh, IFLA_GRE_ENCAP_LIMIT, obj->encap_limit);
+		ynl_attr_put_u8(nlh, IFLA_GRE_ENCAP_LIMIT, obj->encap_limit);
 	if (obj->_present.flowinfo)
 		ynl_attr_put_u32(nlh, IFLA_GRE_FLOWINFO, obj->flowinfo);
 	if (obj->_present.flags)
@@ -2052,7 +2082,7 @@ int rt_link_linkinfo_gre_attrs_parse(struct ynl_parse_arg *yarg,
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.encap_limit = 1;
-			dst->encap_limit = ynl_attr_get_u32(attr);
+			dst->encap_limit = ynl_attr_get_u8(attr);
 		} else if (type == IFLA_GRE_FLOWINFO) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -2092,6 +2122,195 @@ int rt_link_linkinfo_gre_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.ignore_df = 1;
 			dst->ignore_df = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_GRE_FWMARK) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.fwmark = 1;
+			dst->fwmark = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_ERSPAN_INDEX) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.erspan_index = 1;
+			dst->erspan_index = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_ERSPAN_VER) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.erspan_ver = 1;
+			dst->erspan_ver = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_GRE_ERSPAN_DIR) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.erspan_dir = 1;
+			dst->erspan_dir = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_GRE_ERSPAN_HWID) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.erspan_hwid = 1;
+			dst->erspan_hwid = ynl_attr_get_u16(attr);
+		}
+	}
+
+	return 0;
+}
+
+void rt_link_linkinfo_gre6_attrs_free(struct rt_link_linkinfo_gre6_attrs *obj)
+{
+	free(obj->local);
+	free(obj->remote);
+}
+
+int rt_link_linkinfo_gre6_attrs_put(struct nlmsghdr *nlh,
+				    unsigned int attr_type,
+				    struct rt_link_linkinfo_gre6_attrs *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.link)
+		ynl_attr_put_u32(nlh, IFLA_GRE_LINK, obj->link);
+	if (obj->_present.iflags)
+		ynl_attr_put_u16(nlh, IFLA_GRE_IFLAGS, obj->iflags);
+	if (obj->_present.oflags)
+		ynl_attr_put_u16(nlh, IFLA_GRE_OFLAGS, obj->oflags);
+	if (obj->_present.ikey)
+		ynl_attr_put_u32(nlh, IFLA_GRE_IKEY, obj->ikey);
+	if (obj->_present.okey)
+		ynl_attr_put_u32(nlh, IFLA_GRE_OKEY, obj->okey);
+	if (obj->_len.local)
+		ynl_attr_put(nlh, IFLA_GRE_LOCAL, obj->local, obj->_len.local);
+	if (obj->_len.remote)
+		ynl_attr_put(nlh, IFLA_GRE_REMOTE, obj->remote, obj->_len.remote);
+	if (obj->_present.ttl)
+		ynl_attr_put_u8(nlh, IFLA_GRE_TTL, obj->ttl);
+	if (obj->_present.encap_limit)
+		ynl_attr_put_u8(nlh, IFLA_GRE_ENCAP_LIMIT, obj->encap_limit);
+	if (obj->_present.flowinfo)
+		ynl_attr_put_u32(nlh, IFLA_GRE_FLOWINFO, obj->flowinfo);
+	if (obj->_present.flags)
+		ynl_attr_put_u32(nlh, IFLA_GRE_FLAGS, obj->flags);
+	if (obj->_present.encap_type)
+		ynl_attr_put_u16(nlh, IFLA_GRE_ENCAP_TYPE, obj->encap_type);
+	if (obj->_present.encap_flags)
+		ynl_attr_put_u16(nlh, IFLA_GRE_ENCAP_FLAGS, obj->encap_flags);
+	if (obj->_present.encap_sport)
+		ynl_attr_put_u16(nlh, IFLA_GRE_ENCAP_SPORT, obj->encap_sport);
+	if (obj->_present.encap_dport)
+		ynl_attr_put_u16(nlh, IFLA_GRE_ENCAP_DPORT, obj->encap_dport);
+	if (obj->_present.collect_metadata)
+		ynl_attr_put(nlh, IFLA_GRE_COLLECT_METADATA, NULL, 0);
+	if (obj->_present.fwmark)
+		ynl_attr_put_u32(nlh, IFLA_GRE_FWMARK, obj->fwmark);
+	if (obj->_present.erspan_index)
+		ynl_attr_put_u32(nlh, IFLA_GRE_ERSPAN_INDEX, obj->erspan_index);
+	if (obj->_present.erspan_ver)
+		ynl_attr_put_u8(nlh, IFLA_GRE_ERSPAN_VER, obj->erspan_ver);
+	if (obj->_present.erspan_dir)
+		ynl_attr_put_u8(nlh, IFLA_GRE_ERSPAN_DIR, obj->erspan_dir);
+	if (obj->_present.erspan_hwid)
+		ynl_attr_put_u16(nlh, IFLA_GRE_ERSPAN_HWID, obj->erspan_hwid);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int rt_link_linkinfo_gre6_attrs_parse(struct ynl_parse_arg *yarg,
+				      const struct nlattr *nested)
+{
+	struct rt_link_linkinfo_gre6_attrs *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == IFLA_GRE_LINK) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.link = 1;
+			dst->link = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_IFLAGS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.iflags = 1;
+			dst->iflags = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_GRE_OFLAGS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.oflags = 1;
+			dst->oflags = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_GRE_IKEY) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.ikey = 1;
+			dst->ikey = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_OKEY) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.okey = 1;
+			dst->okey = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_LOCAL) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = ynl_attr_data_len(attr);
+			dst->_len.local = len;
+			dst->local = malloc(len);
+			memcpy(dst->local, ynl_attr_data(attr), len);
+		} else if (type == IFLA_GRE_REMOTE) {
+			unsigned int len;
+
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = ynl_attr_data_len(attr);
+			dst->_len.remote = len;
+			dst->remote = malloc(len);
+			memcpy(dst->remote, ynl_attr_data(attr), len);
+		} else if (type == IFLA_GRE_TTL) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.ttl = 1;
+			dst->ttl = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_GRE_ENCAP_LIMIT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.encap_limit = 1;
+			dst->encap_limit = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_GRE_FLOWINFO) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.flowinfo = 1;
+			dst->flowinfo = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_FLAGS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.flags = 1;
+			dst->flags = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_GRE_ENCAP_TYPE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.encap_type = 1;
+			dst->encap_type = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_GRE_ENCAP_FLAGS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.encap_flags = 1;
+			dst->encap_flags = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_GRE_ENCAP_SPORT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.encap_sport = 1;
+			dst->encap_sport = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_GRE_ENCAP_DPORT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.encap_dport = 1;
+			dst->encap_dport = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_GRE_COLLECT_METADATA) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.collect_metadata = 1;
 		} else if (type == IFLA_GRE_FWMARK) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -4647,6 +4866,7 @@ void rt_link_linkinfo_data_msg_free(struct rt_link_linkinfo_data_msg *obj)
 	rt_link_linkinfo_gre_attrs_free(&obj->erspan);
 	rt_link_linkinfo_gre_attrs_free(&obj->gre);
 	rt_link_linkinfo_gre_attrs_free(&obj->gretap);
+	rt_link_linkinfo_gre6_attrs_free(&obj->ip6gre);
 	rt_link_linkinfo_geneve_attrs_free(&obj->geneve);
 	rt_link_linkinfo_iptun_attrs_free(&obj->ipip);
 	rt_link_linkinfo_ip6tnl_attrs_free(&obj->ip6tnl);
@@ -4673,6 +4893,8 @@ int rt_link_linkinfo_data_msg_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		rt_link_linkinfo_gre_attrs_put(nlh, IFLA_INFO_DATA, &obj->gre);
 	if (obj->_present.gretap)
 		rt_link_linkinfo_gre_attrs_put(nlh, IFLA_INFO_DATA, &obj->gretap);
+	if (obj->_present.ip6gre)
+		rt_link_linkinfo_gre6_attrs_put(nlh, IFLA_INFO_DATA, &obj->ip6gre);
 	if (obj->_present.geneve)
 		rt_link_linkinfo_geneve_attrs_put(nlh, IFLA_INFO_DATA, &obj->geneve);
 	if (obj->_present.ipip)
@@ -4739,6 +4961,12 @@ int rt_link_linkinfo_data_msg_parse(struct ynl_parse_arg *yarg,
 		if (rt_link_linkinfo_gre_attrs_parse(&parg, attr))
 			return YNL_PARSE_CB_ERROR;
 		dst->_present.gretap = 1;
+	} else if (!strcmp(sel, "ip6gre")) {
+		parg.rsp_policy = &rt_link_linkinfo_gre6_attrs_nest;
+		parg.data = &dst->ip6gre;
+		if (rt_link_linkinfo_gre6_attrs_parse(&parg, attr))
+			return YNL_PARSE_CB_ERROR;
+		dst->_present.ip6gre = 1;
 	} else if (!strcmp(sel, "geneve")) {
 		parg.rsp_policy = &rt_link_linkinfo_geneve_attrs_nest;
 		parg.data = &dst->geneve;

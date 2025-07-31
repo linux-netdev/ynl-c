@@ -62,6 +62,7 @@ struct handshake_accept_rsp {
 		__u32 message_type:1;
 		__u32 timeout:1;
 		__u32 auth_mode:1;
+		__u32 keyring:1;
 	} _present;
 	struct {
 		__u32 peername;
@@ -78,6 +79,7 @@ struct handshake_accept_rsp {
 	__u32 *peer_identity;
 	struct handshake_x509 *certificate;
 	char *peername;
+	__u32 keyring;
 };
 
 void handshake_accept_rsp_free(struct handshake_accept_rsp *rsp);

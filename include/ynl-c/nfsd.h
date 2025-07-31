@@ -30,7 +30,29 @@ struct nfsd_version {
 	__u32 minor;
 };
 
+static inline struct nfsd_version *nfsd_version_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct nfsd_version));
+}
+
 void nfsd_version_free(struct nfsd_version *obj);
+
+static inline void
+nfsd_version_set_major(struct nfsd_version *obj, __u32 major)
+{
+	obj->_present.major = 1;
+	obj->major = major;
+}
+static inline void
+nfsd_version_set_minor(struct nfsd_version *obj, __u32 minor)
+{
+	obj->_present.minor = 1;
+	obj->minor = minor;
+}
+static inline void nfsd_version_set_enabled(struct nfsd_version *obj)
+{
+	obj->_present.enabled = 1;
+}
 
 struct nfsd_sock {
 	struct {
@@ -42,7 +64,30 @@ struct nfsd_sock {
 	char *transport_name;
 };
 
+static inline struct nfsd_sock *nfsd_sock_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct nfsd_sock));
+}
+
 void nfsd_sock_free(struct nfsd_sock *obj);
+
+static inline void
+nfsd_sock_set_addr(struct nfsd_sock *obj, const void *addr, size_t len)
+{
+	free(obj->addr);
+	obj->_len.addr = len;
+	obj->addr = malloc(obj->_len.addr);
+	memcpy(obj->addr, addr, obj->_len.addr);
+}
+static inline void
+nfsd_sock_set_transport_name(struct nfsd_sock *obj, const char *transport_name)
+{
+	free(obj->transport_name);
+	obj->_len.transport_name = strlen(transport_name);
+	obj->transport_name = malloc(obj->_len.transport_name + 1);
+	memcpy(obj->transport_name, transport_name, obj->_len.transport_name);
+	obj->transport_name[obj->_len.transport_name] = 0;
+}
 
 /* ============== NFSD_CMD_RPC_STATUS_GET ============== */
 /* NFSD_CMD_RPC_STATUS_GET - dump */

@@ -79,11 +79,11 @@ static const char * const devlink_port_flavour_strmap[] = {
 	[0] = "physical",
 	[1] = "cpu",
 	[2] = "dsa",
-	[3] = "pci_pf",
-	[4] = "pci_vf",
+	[3] = "pci-pf",
+	[4] = "pci-vf",
 	[5] = "virtual",
 	[6] = "unused",
-	[7] = "pci_sf",
+	[7] = "pci-sf",
 };
 
 const char *devlink_port_flavour_str(enum devlink_port_flavour value)
@@ -324,7 +324,7 @@ static const char * const devlink_var_attr_type_strmap[] = {
 	[4] = "u64",
 	[5] = "string",
 	[6] = "flag",
-	[10] = "nul_string",
+	[10] = "nul-string",
 	[11] = "binary",
 };
 
@@ -554,6 +554,16 @@ const struct ynl_policy_attr devlink_dl_selftest_id_policy[DEVLINK_ATTR_SELFTEST
 const struct ynl_policy_nest devlink_dl_selftest_id_nest = {
 	.max_attr = DEVLINK_ATTR_SELFTEST_ID_MAX,
 	.table = devlink_dl_selftest_id_policy,
+};
+
+const struct ynl_policy_attr devlink_dl_rate_tc_bws_policy[DEVLINK_RATE_TC_ATTR_MAX + 1] = {
+	[DEVLINK_RATE_TC_ATTR_INDEX] = { .name = "index", .type = YNL_PT_U8, },
+	[DEVLINK_RATE_TC_ATTR_BW] = { .name = "bw", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest devlink_dl_rate_tc_bws_nest = {
+	.max_attr = DEVLINK_RATE_TC_ATTR_MAX,
+	.table = devlink_dl_rate_tc_bws_policy,
 };
 
 const struct ynl_policy_attr devlink_dl_dpipe_table_matches_policy[DEVLINK_ATTR_MAX + 1] = {
@@ -898,6 +908,7 @@ const struct ynl_policy_attr devlink_policy[DEVLINK_ATTR_MAX + 1] = {
 	[DEVLINK_ATTR_RATE_TX_PRIORITY] = { .name = "rate-tx-priority", .type = YNL_PT_U32, },
 	[DEVLINK_ATTR_RATE_TX_WEIGHT] = { .name = "rate-tx-weight", .type = YNL_PT_U32, },
 	[DEVLINK_ATTR_REGION_DIRECT] = { .name = "region-direct", .type = YNL_PT_FLAG, },
+	[DEVLINK_ATTR_RATE_TC_BWS] = { .name = "rate-tc-bws", .type = YNL_PT_NEST, .nest = &devlink_dl_rate_tc_bws_nest, },
 };
 
 const struct ynl_policy_nest devlink_nest = {
@@ -1508,6 +1519,25 @@ int devlink_dl_selftest_id_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.flash)
 		ynl_attr_put(nlh, DEVLINK_ATTR_SELFTEST_ID_FLASH, NULL, 0);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+void devlink_dl_rate_tc_bws_free(struct devlink_dl_rate_tc_bws *obj)
+{
+}
+
+int devlink_dl_rate_tc_bws_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			       struct devlink_dl_rate_tc_bws *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.index)
+		ynl_attr_put_u8(nlh, DEVLINK_RATE_TC_ATTR_INDEX, obj->index);
+	if (obj->_present.bw)
+		ynl_attr_put_u32(nlh, DEVLINK_RATE_TC_ATTR_BW, obj->bw);
 	ynl_attr_nest_end(nlh, nest);
 
 	return 0;
@@ -6833,10 +6863,15 @@ free_list:
 /* DEVLINK_CMD_RATE_SET - do */
 void devlink_rate_set_req_free(struct devlink_rate_set_req *req)
 {
+	unsigned int i;
+
 	free(req->bus_name);
 	free(req->dev_name);
 	free(req->rate_node_name);
 	free(req->rate_parent_node_name);
+	for (i = 0; i < req->_count.rate_tc_bws; i++)
+		devlink_dl_rate_tc_bws_free(&req->rate_tc_bws[i]);
+	free(req->rate_tc_bws);
 	free(req);
 }
 
@@ -6844,6 +6879,7 @@ int devlink_rate_set(struct ynl_sock *ys, struct devlink_rate_set_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RATE_SET, 1);
@@ -6866,6 +6902,8 @@ int devlink_rate_set(struct ynl_sock *ys, struct devlink_rate_set_req *req)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_RATE_TX_WEIGHT, req->rate_tx_weight);
 	if (req->_len.rate_parent_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_PARENT_NODE_NAME, req->rate_parent_node_name);
+	for (i = 0; i < req->_count.rate_tc_bws; i++)
+		devlink_dl_rate_tc_bws_put(nlh, DEVLINK_ATTR_RATE_TC_BWS, &req->rate_tc_bws[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -6878,10 +6916,15 @@ int devlink_rate_set(struct ynl_sock *ys, struct devlink_rate_set_req *req)
 /* DEVLINK_CMD_RATE_NEW - do */
 void devlink_rate_new_req_free(struct devlink_rate_new_req *req)
 {
+	unsigned int i;
+
 	free(req->bus_name);
 	free(req->dev_name);
 	free(req->rate_node_name);
 	free(req->rate_parent_node_name);
+	for (i = 0; i < req->_count.rate_tc_bws; i++)
+		devlink_dl_rate_tc_bws_free(&req->rate_tc_bws[i]);
+	free(req->rate_tc_bws);
 	free(req);
 }
 
@@ -6889,6 +6932,7 @@ int devlink_rate_new(struct ynl_sock *ys, struct devlink_rate_new_req *req)
 {
 	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
 	struct nlmsghdr *nlh;
+	unsigned int i;
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, DEVLINK_CMD_RATE_NEW, 1);
@@ -6911,6 +6955,8 @@ int devlink_rate_new(struct ynl_sock *ys, struct devlink_rate_new_req *req)
 		ynl_attr_put_u32(nlh, DEVLINK_ATTR_RATE_TX_WEIGHT, req->rate_tx_weight);
 	if (req->_len.rate_parent_node_name)
 		ynl_attr_put_str(nlh, DEVLINK_ATTR_RATE_PARENT_NODE_NAME, req->rate_parent_node_name);
+	for (i = 0; i < req->_count.rate_tc_bws; i++)
+		devlink_dl_rate_tc_bws_put(nlh, DEVLINK_ATTR_RATE_TC_BWS, &req->rate_tc_bws[i]);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

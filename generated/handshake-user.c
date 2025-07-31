@@ -85,6 +85,7 @@ const struct ynl_policy_attr handshake_accept_policy[HANDSHAKE_A_ACCEPT_MAX + 1]
 	[HANDSHAKE_A_ACCEPT_PEER_IDENTITY] = { .name = "peer-identity", .type = YNL_PT_U32, },
 	[HANDSHAKE_A_ACCEPT_CERTIFICATE] = { .name = "certificate", .type = YNL_PT_NEST, .nest = &handshake_x509_nest, },
 	[HANDSHAKE_A_ACCEPT_PEERNAME] = { .name = "peername", .type = YNL_PT_NUL_STR, },
+	[HANDSHAKE_A_ACCEPT_KEYRING] = { .name = "keyring", .type = YNL_PT_U32, },
 };
 
 const struct ynl_policy_nest handshake_accept_nest = {
@@ -208,6 +209,11 @@ int handshake_accept_rsp_parse(const struct nlmsghdr *nlh,
 			dst->peername = malloc(len + 1);
 			memcpy(dst->peername, ynl_attr_get_str(attr), len);
 			dst->peername[len] = 0;
+		} else if (type == HANDSHAKE_A_ACCEPT_KEYRING) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.keyring = 1;
+			dst->keyring = ynl_attr_get_u32(attr);
 		}
 	}
 

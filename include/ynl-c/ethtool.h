@@ -28,6 +28,10 @@ const char *
 ethtool_c33_pse_ext_state_str(enum ethtool_c33_pse_ext_state value);
 const char *ethtool_phy_upstream_type_str(enum phy_upstream value);
 const char *ethtool_tcp_data_split_str(enum ethtool_tcp_data_split value);
+const char *ethtool_hwtstamp_source_str(enum hwtstamp_source value);
+const char *ethtool_pse_event_str(enum ethtool_pse_event value);
+const char *ethtool_input_xfrm_str(int value);
+const char *ethtool_rxfh_fields_str(int value);
 
 /* Common nested types */
 struct ethtool_header {
@@ -116,6 +120,66 @@ struct ethtool_c33_pse_pw_limit {
 	__u32 max;
 };
 
+struct ethtool_flow {
+	struct {
+		__u32 ether:1;
+		__u32 ip4:1;
+		__u32 ip6:1;
+		__u32 tcp4:1;
+		__u32 tcp6:1;
+		__u32 udp4:1;
+		__u32 udp6:1;
+		__u32 sctp4:1;
+		__u32 sctp6:1;
+		__u32 ah4:1;
+		__u32 ah6:1;
+		__u32 esp4:1;
+		__u32 esp6:1;
+		__u32 ah_esp4:1;
+		__u32 ah_esp6:1;
+		__u32 gtpu4:1;
+		__u32 gtpu6:1;
+		__u32 gtpc4:1;
+		__u32 gtpc6:1;
+		__u32 gtpc_teid4:1;
+		__u32 gtpc_teid6:1;
+		__u32 gtpu_eh4:1;
+		__u32 gtpu_eh6:1;
+		__u32 gtpu_ul4:1;
+		__u32 gtpu_ul6:1;
+		__u32 gtpu_dl4:1;
+		__u32 gtpu_dl6:1;
+	} _present;
+
+	__u64 ether;
+	__u64 ip4;
+	__u64 ip6;
+	__u64 tcp4;
+	__u64 tcp6;
+	__u64 udp4;
+	__u64 udp6;
+	__u64 sctp4;
+	__u64 sctp6;
+	__u64 ah4;
+	__u64 ah6;
+	__u64 esp4;
+	__u64 esp6;
+	__u64 ah_esp4;
+	__u64 ah_esp6;
+	__u64 gtpu4;
+	__u64 gtpu6;
+	__u64 gtpc4;
+	__u64 gtpc6;
+	__u64 gtpc_teid4;
+	__u64 gtpc_teid6;
+	__u64 gtpu_eh4;
+	__u64 gtpu_eh6;
+	__u64 gtpu_ul4;
+	__u64 gtpu_ul6;
+	__u64 gtpu_dl4;
+	__u64 gtpu_dl6;
+};
+
 struct ethtool_mm_stat {
 	struct {
 		__u32 reassembly_errors:1;
@@ -146,7 +210,33 @@ struct ethtool_irq_moderation {
 	__u32 comps;
 };
 
+static inline struct ethtool_irq_moderation *
+ethtool_irq_moderation_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct ethtool_irq_moderation));
+}
+
 void ethtool_irq_moderation_free(struct ethtool_irq_moderation *obj);
+
+static inline void
+ethtool_irq_moderation_set_usec(struct ethtool_irq_moderation *obj, __u32 usec)
+{
+	obj->_present.usec = 1;
+	obj->usec = usec;
+}
+static inline void
+ethtool_irq_moderation_set_pkts(struct ethtool_irq_moderation *obj, __u32 pkts)
+{
+	obj->_present.pkts = 1;
+	obj->pkts = pkts;
+}
+static inline void
+ethtool_irq_moderation_set_comps(struct ethtool_irq_moderation *obj,
+				 __u32 comps)
+{
+	obj->_present.comps = 1;
+	obj->comps = comps;
+}
 
 struct ethtool_cable_result {
 	struct {
@@ -185,7 +275,33 @@ struct ethtool_bitset_bit {
 	char *name;
 };
 
+static inline struct ethtool_bitset_bit *
+ethtool_bitset_bit_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct ethtool_bitset_bit));
+}
+
 void ethtool_bitset_bit_free(struct ethtool_bitset_bit *obj);
+
+static inline void
+ethtool_bitset_bit_set_index(struct ethtool_bitset_bit *obj, __u32 index)
+{
+	obj->_present.index = 1;
+	obj->index = index;
+}
+static inline void
+ethtool_bitset_bit_set_name(struct ethtool_bitset_bit *obj, const char *name)
+{
+	free(obj->name);
+	obj->_len.name = strlen(name);
+	obj->name = malloc(obj->_len.name + 1);
+	memcpy(obj->name, name, obj->_len.name);
+	obj->name[obj->_len.name] = 0;
+}
+static inline void ethtool_bitset_bit_set_value(struct ethtool_bitset_bit *obj)
+{
+	obj->_present.value = 1;
+}
 
 struct ethtool_tunnel_udp_entry {
 	struct {
@@ -209,7 +325,28 @@ struct ethtool_string {
 	char *value;
 };
 
+static inline struct ethtool_string *ethtool_string_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct ethtool_string));
+}
+
 void ethtool_string_free(struct ethtool_string *obj);
+
+static inline void
+ethtool_string_set_index(struct ethtool_string *obj, __u32 index)
+{
+	obj->_present.index = 1;
+	obj->index = index;
+}
+static inline void
+ethtool_string_set_value(struct ethtool_string *obj, const char *value)
+{
+	free(obj->value);
+	obj->_len.value = strlen(value);
+	obj->value = malloc(obj->_len.value + 1);
+	memcpy(obj->value, value, obj->_len.value);
+	obj->value[obj->_len.value] = 0;
+}
 
 struct ethtool_profile {
 	struct {
@@ -245,7 +382,26 @@ struct ethtool_strings {
 	struct ethtool_string *string;
 };
 
+static inline struct ethtool_strings *ethtool_strings_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct ethtool_strings));
+}
+
 void ethtool_strings_free(struct ethtool_strings *obj);
+
+static inline void
+__ethtool_strings_set_string(struct ethtool_strings *obj,
+			     struct ethtool_string *string,
+			     unsigned int n_string)
+{
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.string; i++)
+		ethtool_string_free(&obj->string[i]);
+	free(obj->string);
+	obj->string = string;
+	obj->_count.string = n_string;
+}
 
 struct ethtool_bitset {
 	struct {
@@ -277,6 +433,12 @@ struct ethtool_stringset_ {
 	__u32 count;
 	struct ethtool_strings *strings;
 };
+
+static inline struct ethtool_stringset_ *
+ethtool_stringset_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct ethtool_stringset_));
+}
 
 void ethtool_stringset_free(struct ethtool_stringset_ *obj);
 
@@ -4384,6 +4546,8 @@ struct ethtool_tsinfo_get_rsp {
 		__u32 phc_index:1;
 		__u32 stats:1;
 		__u32 hwtstamp_provider:1;
+		__u32 hwtstamp_source:1;
+		__u32 hwtstamp_phyindex:1;
 	} _present;
 
 	struct ethtool_header header;
@@ -4393,6 +4557,8 @@ struct ethtool_tsinfo_get_rsp {
 	__u32 phc_index;
 	struct ethtool_ts_stat stats;
 	struct ethtool_ts_hwtstamp_provider hwtstamp_provider;
+	enum hwtstamp_source hwtstamp_source;
+	__u32 hwtstamp_phyindex;
 };
 
 void ethtool_tsinfo_get_rsp_free(struct ethtool_tsinfo_get_rsp *rsp);
@@ -5052,9 +5218,19 @@ int ethtool_fec_set(struct ynl_sock *ys, struct ethtool_fec_set_req *req);
 struct ethtool_module_eeprom_get_req {
 	struct {
 		__u32 header:1;
+		__u32 offset:1;
+		__u32 length:1;
+		__u32 page:1;
+		__u32 bank:1;
+		__u32 i2c_address:1;
 	} _present;
 
 	struct ethtool_header header;
+	__u32 offset;
+	__u32 length;
+	__u8 page;
+	__u8 bank;
+	__u8 i2c_address;
 };
 
 static inline struct ethtool_module_eeprom_get_req *
@@ -5100,26 +5276,51 @@ ethtool_module_eeprom_get_req_set_header_phy_index(struct ethtool_module_eeprom_
 	req->header._present.phy_index = 1;
 	req->header.phy_index = phy_index;
 }
+static inline void
+ethtool_module_eeprom_get_req_set_offset(struct ethtool_module_eeprom_get_req *req,
+					 __u32 offset)
+{
+	req->_present.offset = 1;
+	req->offset = offset;
+}
+static inline void
+ethtool_module_eeprom_get_req_set_length(struct ethtool_module_eeprom_get_req *req,
+					 __u32 length)
+{
+	req->_present.length = 1;
+	req->length = length;
+}
+static inline void
+ethtool_module_eeprom_get_req_set_page(struct ethtool_module_eeprom_get_req *req,
+				       __u8 page)
+{
+	req->_present.page = 1;
+	req->page = page;
+}
+static inline void
+ethtool_module_eeprom_get_req_set_bank(struct ethtool_module_eeprom_get_req *req,
+				       __u8 bank)
+{
+	req->_present.bank = 1;
+	req->bank = bank;
+}
+static inline void
+ethtool_module_eeprom_get_req_set_i2c_address(struct ethtool_module_eeprom_get_req *req,
+					      __u8 i2c_address)
+{
+	req->_present.i2c_address = 1;
+	req->i2c_address = i2c_address;
+}
 
 struct ethtool_module_eeprom_get_rsp {
 	struct {
 		__u32 header:1;
-		__u32 offset:1;
-		__u32 length:1;
-		__u32 page:1;
-		__u32 bank:1;
-		__u32 i2c_address:1;
 	} _present;
 	struct {
 		__u32 data;
 	} _len;
 
 	struct ethtool_header header;
-	__u32 offset;
-	__u32 length;
-	__u8 page;
-	__u8 bank;
-	__u8 i2c_address;
 	void *data;
 };
 
@@ -5137,9 +5338,19 @@ ethtool_module_eeprom_get(struct ynl_sock *ys,
 struct ethtool_module_eeprom_get_req_dump {
 	struct {
 		__u32 header:1;
+		__u32 offset:1;
+		__u32 length:1;
+		__u32 page:1;
+		__u32 bank:1;
+		__u32 i2c_address:1;
 	} _present;
 
 	struct ethtool_header header;
+	__u32 offset;
+	__u32 length;
+	__u8 page;
+	__u8 bank;
+	__u8 i2c_address;
 };
 
 static inline struct ethtool_module_eeprom_get_req_dump *
@@ -5184,6 +5395,41 @@ ethtool_module_eeprom_get_req_dump_set_header_phy_index(struct ethtool_module_ee
 	req->_present.header = 1;
 	req->header._present.phy_index = 1;
 	req->header.phy_index = phy_index;
+}
+static inline void
+ethtool_module_eeprom_get_req_dump_set_offset(struct ethtool_module_eeprom_get_req_dump *req,
+					      __u32 offset)
+{
+	req->_present.offset = 1;
+	req->offset = offset;
+}
+static inline void
+ethtool_module_eeprom_get_req_dump_set_length(struct ethtool_module_eeprom_get_req_dump *req,
+					      __u32 length)
+{
+	req->_present.length = 1;
+	req->length = length;
+}
+static inline void
+ethtool_module_eeprom_get_req_dump_set_page(struct ethtool_module_eeprom_get_req_dump *req,
+					    __u8 page)
+{
+	req->_present.page = 1;
+	req->page = page;
+}
+static inline void
+ethtool_module_eeprom_get_req_dump_set_bank(struct ethtool_module_eeprom_get_req_dump *req,
+					    __u8 bank)
+{
+	req->_present.bank = 1;
+	req->bank = bank;
+}
+static inline void
+ethtool_module_eeprom_get_req_dump_set_i2c_address(struct ethtool_module_eeprom_get_req_dump *req,
+						   __u8 i2c_address)
+{
+	req->_present.i2c_address = 1;
+	req->i2c_address = i2c_address;
 }
 
 struct ethtool_module_eeprom_get_list {
@@ -5622,6 +5868,9 @@ struct ethtool_pse_get_rsp {
 		__u32 c33_pse_ext_state:1;
 		__u32 c33_pse_ext_substate:1;
 		__u32 c33_pse_avail_pw_limit:1;
+		__u32 pse_pw_d_id:1;
+		__u32 pse_prio_max:1;
+		__u32 pse_prio:1;
 	} _present;
 	struct {
 		__u32 c33_pse_pw_limit_ranges;
@@ -5640,6 +5889,9 @@ struct ethtool_pse_get_rsp {
 	__u32 c33_pse_ext_substate;
 	__u32 c33_pse_avail_pw_limit;
 	struct ethtool_c33_pse_pw_limit *c33_pse_pw_limit_ranges;
+	__u32 pse_pw_d_id;
+	__u32 pse_prio_max;
+	__u32 pse_prio;
 };
 
 void ethtool_pse_get_rsp_free(struct ethtool_pse_get_rsp *rsp);
@@ -5720,12 +5972,14 @@ struct ethtool_pse_set_req {
 		__u32 podl_pse_admin_control:1;
 		__u32 c33_pse_admin_control:1;
 		__u32 c33_pse_avail_pw_limit:1;
+		__u32 pse_prio:1;
 	} _present;
 
 	struct ethtool_header header;
 	__u32 podl_pse_admin_control;
 	__u32 c33_pse_admin_control;
 	__u32 c33_pse_avail_pw_limit;
+	__u32 pse_prio;
 };
 
 static inline struct ethtool_pse_set_req *ethtool_pse_set_req_alloc(void)
@@ -5789,6 +6043,13 @@ ethtool_pse_set_req_set_c33_pse_avail_pw_limit(struct ethtool_pse_set_req *req,
 {
 	req->_present.c33_pse_avail_pw_limit = 1;
 	req->c33_pse_avail_pw_limit = c33_pse_avail_pw_limit;
+}
+static inline void
+ethtool_pse_set_req_set_pse_prio(struct ethtool_pse_set_req *req,
+				 __u32 pse_prio)
+{
+	req->_present.pse_prio = 1;
+	req->pse_prio = pse_prio;
 }
 
 /*
@@ -5862,6 +6123,7 @@ struct ethtool_rss_get_rsp {
 		__u32 context:1;
 		__u32 hfunc:1;
 		__u32 input_xfrm:1;
+		__u32 flow_hash:1;
 	} _present;
 	struct {
 		__u32 hkey;
@@ -5876,6 +6138,7 @@ struct ethtool_rss_get_rsp {
 	__u32 *indir;
 	void *hkey;
 	__u32 input_xfrm;
+	struct ethtool_flow flow_hash;
 };
 
 void ethtool_rss_get_rsp_free(struct ethtool_rss_get_rsp *rsp);
@@ -5956,6 +6219,17 @@ void ethtool_rss_get_list_free(struct ethtool_rss_get_list *rsp);
 
 struct ethtool_rss_get_list *
 ethtool_rss_get_dump(struct ynl_sock *ys, struct ethtool_rss_get_req_dump *req);
+
+/* ETHTOOL_MSG_RSS_GET - notify */
+struct ethtool_rss_get_ntf {
+	__u16 family;
+	__u8 cmd;
+	struct ynl_ntf_base_type *next;
+	void (*free)(struct ethtool_rss_get_ntf *ntf);
+	struct ethtool_rss_get_rsp obj __attribute__((aligned(8)));
+};
+
+void ethtool_rss_get_ntf_free(struct ethtool_rss_get_ntf *rsp);
 
 /* ============== ETHTOOL_MSG_PLCA_GET_CFG ============== */
 /* ETHTOOL_MSG_PLCA_GET_CFG - do */
@@ -7290,6 +7564,550 @@ void ethtool_tsconfig_set_rsp_free(struct ethtool_tsconfig_set_rsp *rsp);
 struct ethtool_tsconfig_set_rsp *
 ethtool_tsconfig_set(struct ynl_sock *ys, struct ethtool_tsconfig_set_req *req);
 
+/* ============== ETHTOOL_MSG_RSS_SET ============== */
+/* ETHTOOL_MSG_RSS_SET - do */
+struct ethtool_rss_set_req {
+	struct {
+		__u32 header:1;
+		__u32 context:1;
+		__u32 hfunc:1;
+		__u32 input_xfrm:1;
+		__u32 flow_hash:1;
+	} _present;
+	struct {
+		__u32 hkey;
+	} _len;
+	struct {
+		__u32 indir;
+	} _count;
+
+	struct ethtool_header header;
+	__u32 context;
+	__u32 hfunc;
+	__u32 *indir;
+	void *hkey;
+	__u32 input_xfrm;
+	struct ethtool_flow flow_hash;
+};
+
+static inline struct ethtool_rss_set_req *ethtool_rss_set_req_alloc(void)
+{
+	return calloc(1, sizeof(struct ethtool_rss_set_req));
+}
+void ethtool_rss_set_req_free(struct ethtool_rss_set_req *req);
+
+static inline void
+ethtool_rss_set_req_set_header_dev_index(struct ethtool_rss_set_req *req,
+					 __u32 dev_index)
+{
+	req->_present.header = 1;
+	req->header._present.dev_index = 1;
+	req->header.dev_index = dev_index;
+}
+static inline void
+ethtool_rss_set_req_set_header_dev_name(struct ethtool_rss_set_req *req,
+					const char *dev_name)
+{
+	req->_present.header = 1;
+	free(req->header.dev_name);
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
+}
+static inline void
+ethtool_rss_set_req_set_header_flags(struct ethtool_rss_set_req *req,
+				     __u32 flags)
+{
+	req->_present.header = 1;
+	req->header._present.flags = 1;
+	req->header.flags = flags;
+}
+static inline void
+ethtool_rss_set_req_set_header_phy_index(struct ethtool_rss_set_req *req,
+					 __u32 phy_index)
+{
+	req->_present.header = 1;
+	req->header._present.phy_index = 1;
+	req->header.phy_index = phy_index;
+}
+static inline void
+ethtool_rss_set_req_set_context(struct ethtool_rss_set_req *req, __u32 context)
+{
+	req->_present.context = 1;
+	req->context = context;
+}
+static inline void
+ethtool_rss_set_req_set_hfunc(struct ethtool_rss_set_req *req, __u32 hfunc)
+{
+	req->_present.hfunc = 1;
+	req->hfunc = hfunc;
+}
+static inline void
+ethtool_rss_set_req_set_indir(struct ethtool_rss_set_req *req, __u32 *indir,
+			      size_t count)
+{
+	free(req->indir);
+	req->_count.indir = count;
+	count *= sizeof(__u32);
+	req->indir = malloc(count);
+	memcpy(req->indir, indir, count);
+}
+static inline void
+ethtool_rss_set_req_set_hkey(struct ethtool_rss_set_req *req, const void *hkey,
+			     size_t len)
+{
+	free(req->hkey);
+	req->_len.hkey = len;
+	req->hkey = malloc(req->_len.hkey);
+	memcpy(req->hkey, hkey, req->_len.hkey);
+}
+static inline void
+ethtool_rss_set_req_set_input_xfrm(struct ethtool_rss_set_req *req,
+				   __u32 input_xfrm)
+{
+	req->_present.input_xfrm = 1;
+	req->input_xfrm = input_xfrm;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ether(struct ethtool_rss_set_req *req,
+					__u64 ether)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ether = 1;
+	req->flow_hash.ether = ether;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ip4(struct ethtool_rss_set_req *req,
+				      __u64 ip4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ip4 = 1;
+	req->flow_hash.ip4 = ip4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ip6(struct ethtool_rss_set_req *req,
+				      __u64 ip6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ip6 = 1;
+	req->flow_hash.ip6 = ip6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_tcp4(struct ethtool_rss_set_req *req,
+				       __u64 tcp4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.tcp4 = 1;
+	req->flow_hash.tcp4 = tcp4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_tcp6(struct ethtool_rss_set_req *req,
+				       __u64 tcp6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.tcp6 = 1;
+	req->flow_hash.tcp6 = tcp6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_udp4(struct ethtool_rss_set_req *req,
+				       __u64 udp4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.udp4 = 1;
+	req->flow_hash.udp4 = udp4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_udp6(struct ethtool_rss_set_req *req,
+				       __u64 udp6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.udp6 = 1;
+	req->flow_hash.udp6 = udp6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_sctp4(struct ethtool_rss_set_req *req,
+					__u64 sctp4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.sctp4 = 1;
+	req->flow_hash.sctp4 = sctp4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_sctp6(struct ethtool_rss_set_req *req,
+					__u64 sctp6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.sctp6 = 1;
+	req->flow_hash.sctp6 = sctp6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ah4(struct ethtool_rss_set_req *req,
+				      __u64 ah4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ah4 = 1;
+	req->flow_hash.ah4 = ah4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ah6(struct ethtool_rss_set_req *req,
+				      __u64 ah6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ah6 = 1;
+	req->flow_hash.ah6 = ah6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_esp4(struct ethtool_rss_set_req *req,
+				       __u64 esp4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.esp4 = 1;
+	req->flow_hash.esp4 = esp4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_esp6(struct ethtool_rss_set_req *req,
+				       __u64 esp6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.esp6 = 1;
+	req->flow_hash.esp6 = esp6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ah_esp4(struct ethtool_rss_set_req *req,
+					  __u64 ah_esp4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ah_esp4 = 1;
+	req->flow_hash.ah_esp4 = ah_esp4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_ah_esp6(struct ethtool_rss_set_req *req,
+					  __u64 ah_esp6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.ah_esp6 = 1;
+	req->flow_hash.ah_esp6 = ah_esp6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu4(struct ethtool_rss_set_req *req,
+					__u64 gtpu4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu4 = 1;
+	req->flow_hash.gtpu4 = gtpu4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu6(struct ethtool_rss_set_req *req,
+					__u64 gtpu6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu6 = 1;
+	req->flow_hash.gtpu6 = gtpu6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpc4(struct ethtool_rss_set_req *req,
+					__u64 gtpc4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpc4 = 1;
+	req->flow_hash.gtpc4 = gtpc4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpc6(struct ethtool_rss_set_req *req,
+					__u64 gtpc6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpc6 = 1;
+	req->flow_hash.gtpc6 = gtpc6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpc_teid4(struct ethtool_rss_set_req *req,
+					     __u64 gtpc_teid4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpc_teid4 = 1;
+	req->flow_hash.gtpc_teid4 = gtpc_teid4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpc_teid6(struct ethtool_rss_set_req *req,
+					     __u64 gtpc_teid6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpc_teid6 = 1;
+	req->flow_hash.gtpc_teid6 = gtpc_teid6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu_eh4(struct ethtool_rss_set_req *req,
+					   __u64 gtpu_eh4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu_eh4 = 1;
+	req->flow_hash.gtpu_eh4 = gtpu_eh4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu_eh6(struct ethtool_rss_set_req *req,
+					   __u64 gtpu_eh6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu_eh6 = 1;
+	req->flow_hash.gtpu_eh6 = gtpu_eh6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu_ul4(struct ethtool_rss_set_req *req,
+					   __u64 gtpu_ul4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu_ul4 = 1;
+	req->flow_hash.gtpu_ul4 = gtpu_ul4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu_ul6(struct ethtool_rss_set_req *req,
+					   __u64 gtpu_ul6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu_ul6 = 1;
+	req->flow_hash.gtpu_ul6 = gtpu_ul6;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu_dl4(struct ethtool_rss_set_req *req,
+					   __u64 gtpu_dl4)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu_dl4 = 1;
+	req->flow_hash.gtpu_dl4 = gtpu_dl4;
+}
+static inline void
+ethtool_rss_set_req_set_flow_hash_gtpu_dl6(struct ethtool_rss_set_req *req,
+					   __u64 gtpu_dl6)
+{
+	req->_present.flow_hash = 1;
+	req->flow_hash._present.gtpu_dl6 = 1;
+	req->flow_hash.gtpu_dl6 = gtpu_dl6;
+}
+
+/*
+ * Set RSS params.
+ */
+int ethtool_rss_set(struct ynl_sock *ys, struct ethtool_rss_set_req *req);
+
+/* ============== ETHTOOL_MSG_RSS_CREATE_ACT ============== */
+/* ETHTOOL_MSG_RSS_CREATE_ACT - do */
+struct ethtool_rss_create_act_req {
+	struct {
+		__u32 header:1;
+		__u32 context:1;
+		__u32 hfunc:1;
+		__u32 input_xfrm:1;
+	} _present;
+	struct {
+		__u32 hkey;
+	} _len;
+	struct {
+		__u32 indir;
+	} _count;
+
+	struct ethtool_header header;
+	__u32 context;
+	__u32 hfunc;
+	__u32 *indir;
+	void *hkey;
+	__u32 input_xfrm;
+};
+
+static inline struct ethtool_rss_create_act_req *
+ethtool_rss_create_act_req_alloc(void)
+{
+	return calloc(1, sizeof(struct ethtool_rss_create_act_req));
+}
+void ethtool_rss_create_act_req_free(struct ethtool_rss_create_act_req *req);
+
+static inline void
+ethtool_rss_create_act_req_set_header_dev_index(struct ethtool_rss_create_act_req *req,
+						__u32 dev_index)
+{
+	req->_present.header = 1;
+	req->header._present.dev_index = 1;
+	req->header.dev_index = dev_index;
+}
+static inline void
+ethtool_rss_create_act_req_set_header_dev_name(struct ethtool_rss_create_act_req *req,
+					       const char *dev_name)
+{
+	req->_present.header = 1;
+	free(req->header.dev_name);
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
+}
+static inline void
+ethtool_rss_create_act_req_set_header_flags(struct ethtool_rss_create_act_req *req,
+					    __u32 flags)
+{
+	req->_present.header = 1;
+	req->header._present.flags = 1;
+	req->header.flags = flags;
+}
+static inline void
+ethtool_rss_create_act_req_set_header_phy_index(struct ethtool_rss_create_act_req *req,
+						__u32 phy_index)
+{
+	req->_present.header = 1;
+	req->header._present.phy_index = 1;
+	req->header.phy_index = phy_index;
+}
+static inline void
+ethtool_rss_create_act_req_set_context(struct ethtool_rss_create_act_req *req,
+				       __u32 context)
+{
+	req->_present.context = 1;
+	req->context = context;
+}
+static inline void
+ethtool_rss_create_act_req_set_hfunc(struct ethtool_rss_create_act_req *req,
+				     __u32 hfunc)
+{
+	req->_present.hfunc = 1;
+	req->hfunc = hfunc;
+}
+static inline void
+ethtool_rss_create_act_req_set_indir(struct ethtool_rss_create_act_req *req,
+				     __u32 *indir, size_t count)
+{
+	free(req->indir);
+	req->_count.indir = count;
+	count *= sizeof(__u32);
+	req->indir = malloc(count);
+	memcpy(req->indir, indir, count);
+}
+static inline void
+ethtool_rss_create_act_req_set_hkey(struct ethtool_rss_create_act_req *req,
+				    const void *hkey, size_t len)
+{
+	free(req->hkey);
+	req->_len.hkey = len;
+	req->hkey = malloc(req->_len.hkey);
+	memcpy(req->hkey, hkey, req->_len.hkey);
+}
+static inline void
+ethtool_rss_create_act_req_set_input_xfrm(struct ethtool_rss_create_act_req *req,
+					  __u32 input_xfrm)
+{
+	req->_present.input_xfrm = 1;
+	req->input_xfrm = input_xfrm;
+}
+
+struct ethtool_rss_create_act_rsp {
+	struct {
+		__u32 header:1;
+		__u32 context:1;
+		__u32 hfunc:1;
+		__u32 input_xfrm:1;
+	} _present;
+	struct {
+		__u32 hkey;
+	} _len;
+	struct {
+		__u32 indir;
+	} _count;
+
+	struct ethtool_header header;
+	__u32 context;
+	__u32 hfunc;
+	__u32 *indir;
+	void *hkey;
+	__u32 input_xfrm;
+};
+
+void ethtool_rss_create_act_rsp_free(struct ethtool_rss_create_act_rsp *rsp);
+
+/*
+ * Create an RSS context.
+ */
+struct ethtool_rss_create_act_rsp *
+ethtool_rss_create_act(struct ynl_sock *ys,
+		       struct ethtool_rss_create_act_req *req);
+
+/* ETHTOOL_MSG_RSS_CREATE_ACT - notify */
+struct ethtool_rss_create_act_ntf {
+	__u16 family;
+	__u8 cmd;
+	struct ynl_ntf_base_type *next;
+	void (*free)(struct ethtool_rss_create_act_ntf *ntf);
+	struct ethtool_rss_create_act_rsp obj __attribute__((aligned(8)));
+};
+
+void ethtool_rss_create_act_ntf_free(struct ethtool_rss_create_act_ntf *rsp);
+
+/* ============== ETHTOOL_MSG_RSS_DELETE_ACT ============== */
+/* ETHTOOL_MSG_RSS_DELETE_ACT - do */
+struct ethtool_rss_delete_act_req {
+	struct {
+		__u32 header:1;
+		__u32 context:1;
+	} _present;
+
+	struct ethtool_header header;
+	__u32 context;
+};
+
+static inline struct ethtool_rss_delete_act_req *
+ethtool_rss_delete_act_req_alloc(void)
+{
+	return calloc(1, sizeof(struct ethtool_rss_delete_act_req));
+}
+void ethtool_rss_delete_act_req_free(struct ethtool_rss_delete_act_req *req);
+
+static inline void
+ethtool_rss_delete_act_req_set_header_dev_index(struct ethtool_rss_delete_act_req *req,
+						__u32 dev_index)
+{
+	req->_present.header = 1;
+	req->header._present.dev_index = 1;
+	req->header.dev_index = dev_index;
+}
+static inline void
+ethtool_rss_delete_act_req_set_header_dev_name(struct ethtool_rss_delete_act_req *req,
+					       const char *dev_name)
+{
+	req->_present.header = 1;
+	free(req->header.dev_name);
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
+}
+static inline void
+ethtool_rss_delete_act_req_set_header_flags(struct ethtool_rss_delete_act_req *req,
+					    __u32 flags)
+{
+	req->_present.header = 1;
+	req->header._present.flags = 1;
+	req->header.flags = flags;
+}
+static inline void
+ethtool_rss_delete_act_req_set_header_phy_index(struct ethtool_rss_delete_act_req *req,
+						__u32 phy_index)
+{
+	req->_present.header = 1;
+	req->header._present.phy_index = 1;
+	req->header.phy_index = phy_index;
+}
+static inline void
+ethtool_rss_delete_act_req_set_context(struct ethtool_rss_delete_act_req *req,
+				       __u32 context)
+{
+	req->_present.context = 1;
+	req->context = context;
+}
+
+/*
+ * Delete an RSS context.
+ */
+int ethtool_rss_delete_act(struct ynl_sock *ys,
+			   struct ethtool_rss_delete_act_req *req);
+
 /* ETHTOOL_MSG_CABLE_TEST_NTF - event */
 struct ethtool_cable_test_ntf_rsp {
 	struct {
@@ -7362,5 +8180,47 @@ struct ethtool_module_fw_flash_ntf {
 };
 
 void ethtool_module_fw_flash_ntf_free(struct ethtool_module_fw_flash_ntf *rsp);
+
+/* ETHTOOL_MSG_PSE_NTF - event */
+struct ethtool_pse_ntf_rsp {
+	struct {
+		__u32 header:1;
+		__u32 events:1;
+	} _present;
+
+	struct ethtool_header header;
+	__u64 events;
+};
+
+struct ethtool_pse_ntf {
+	__u16 family;
+	__u8 cmd;
+	struct ynl_ntf_base_type *next;
+	void (*free)(struct ethtool_pse_ntf *ntf);
+	struct ethtool_pse_ntf_rsp obj __attribute__((aligned(8)));
+};
+
+void ethtool_pse_ntf_free(struct ethtool_pse_ntf *rsp);
+
+/* ETHTOOL_MSG_RSS_DELETE_NTF - event */
+struct ethtool_rss_delete_ntf_rsp {
+	struct {
+		__u32 header:1;
+		__u32 context:1;
+	} _present;
+
+	struct ethtool_header header;
+	__u32 context;
+};
+
+struct ethtool_rss_delete_ntf {
+	__u16 family;
+	__u8 cmd;
+	struct ynl_ntf_base_type *next;
+	void (*free)(struct ethtool_rss_delete_ntf *ntf);
+	struct ethtool_rss_delete_ntf_rsp obj __attribute__((aligned(8)));
+};
+
+void ethtool_rss_delete_ntf_free(struct ethtool_rss_delete_ntf *rsp);
 
 #endif /* _LINUX_ETHTOOL_GEN_H */

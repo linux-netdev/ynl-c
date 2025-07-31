@@ -73,6 +73,45 @@ const char *ovpn_key_slot_str(enum ovpn_key_slot value)
 }
 
 /* Policies */
+const struct ynl_policy_attr ovpn_peer_new_input_policy[OVPN_A_PEER_MAX + 1] = {
+	[OVPN_A_PEER_ID] = { .name = "id", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_REMOTE_IPV4] = { .name = "remote-ipv4", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_REMOTE_IPV6] = { .name = "remote-ipv6", .type = YNL_PT_BINARY,},
+	[OVPN_A_PEER_REMOTE_IPV6_SCOPE_ID] = { .name = "remote-ipv6-scope-id", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_REMOTE_PORT] = { .name = "remote-port", .type = YNL_PT_U16, },
+	[OVPN_A_PEER_SOCKET] = { .name = "socket", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_VPN_IPV4] = { .name = "vpn-ipv4", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_VPN_IPV6] = { .name = "vpn-ipv6", .type = YNL_PT_BINARY,},
+	[OVPN_A_PEER_LOCAL_IPV4] = { .name = "local-ipv4", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_LOCAL_IPV6] = { .name = "local-ipv6", .type = YNL_PT_BINARY,},
+	[OVPN_A_PEER_KEEPALIVE_INTERVAL] = { .name = "keepalive-interval", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_KEEPALIVE_TIMEOUT] = { .name = "keepalive-timeout", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ovpn_peer_new_input_nest = {
+	.max_attr = OVPN_A_PEER_MAX,
+	.table = ovpn_peer_new_input_policy,
+};
+
+const struct ynl_policy_attr ovpn_peer_set_input_policy[OVPN_A_PEER_MAX + 1] = {
+	[OVPN_A_PEER_ID] = { .name = "id", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_REMOTE_IPV4] = { .name = "remote-ipv4", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_REMOTE_IPV6] = { .name = "remote-ipv6", .type = YNL_PT_BINARY,},
+	[OVPN_A_PEER_REMOTE_IPV6_SCOPE_ID] = { .name = "remote-ipv6-scope-id", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_REMOTE_PORT] = { .name = "remote-port", .type = YNL_PT_U16, },
+	[OVPN_A_PEER_VPN_IPV4] = { .name = "vpn-ipv4", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_VPN_IPV6] = { .name = "vpn-ipv6", .type = YNL_PT_BINARY,},
+	[OVPN_A_PEER_LOCAL_IPV4] = { .name = "local-ipv4", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_LOCAL_IPV6] = { .name = "local-ipv6", .type = YNL_PT_BINARY,},
+	[OVPN_A_PEER_KEEPALIVE_INTERVAL] = { .name = "keepalive-interval", .type = YNL_PT_U32, },
+	[OVPN_A_PEER_KEEPALIVE_TIMEOUT] = { .name = "keepalive-timeout", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ovpn_peer_set_input_nest = {
+	.max_attr = OVPN_A_PEER_MAX,
+	.table = ovpn_peer_set_input_policy,
+};
+
 const struct ynl_policy_attr ovpn_peer_policy[OVPN_A_PEER_MAX + 1] = {
 	[OVPN_A_PEER_ID] = { .name = "id", .type = YNL_PT_U32, },
 	[OVPN_A_PEER_REMOTE_IPV4] = { .name = "remote-ipv4", .type = YNL_PT_U32, },
@@ -104,6 +143,46 @@ const struct ynl_policy_nest ovpn_peer_nest = {
 	.table = ovpn_peer_policy,
 };
 
+const struct ynl_policy_attr ovpn_peer_del_input_policy[OVPN_A_PEER_MAX + 1] = {
+	[OVPN_A_PEER_ID] = { .name = "id", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ovpn_peer_del_input_nest = {
+	.max_attr = OVPN_A_PEER_MAX,
+	.table = ovpn_peer_del_input_policy,
+};
+
+const struct ynl_policy_attr ovpn_keyconf_get_policy[OVPN_A_KEYCONF_MAX + 1] = {
+	[OVPN_A_KEYCONF_PEER_ID] = { .name = "peer-id", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF_SLOT] = { .name = "slot", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF_KEY_ID] = { .name = "key-id", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF_CIPHER_ALG] = { .name = "cipher-alg", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ovpn_keyconf_get_nest = {
+	.max_attr = OVPN_A_KEYCONF_MAX,
+	.table = ovpn_keyconf_get_policy,
+};
+
+const struct ynl_policy_attr ovpn_keyconf_swap_input_policy[OVPN_A_KEYCONF_MAX + 1] = {
+	[OVPN_A_KEYCONF_PEER_ID] = { .name = "peer-id", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ovpn_keyconf_swap_input_nest = {
+	.max_attr = OVPN_A_KEYCONF_MAX,
+	.table = ovpn_keyconf_swap_input_policy,
+};
+
+const struct ynl_policy_attr ovpn_keyconf_del_input_policy[OVPN_A_KEYCONF_MAX + 1] = {
+	[OVPN_A_KEYCONF_PEER_ID] = { .name = "peer-id", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF_SLOT] = { .name = "slot", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest ovpn_keyconf_del_input_nest = {
+	.max_attr = OVPN_A_KEYCONF_MAX,
+	.table = ovpn_keyconf_del_input_policy,
+};
+
 const struct ynl_policy_attr ovpn_keydir_policy[OVPN_A_KEYDIR_MAX + 1] = {
 	[OVPN_A_KEYDIR_CIPHER_KEY] = { .name = "cipher-key", .type = YNL_PT_BINARY,},
 	[OVPN_A_KEYDIR_NONCE_TAIL] = { .name = "nonce-tail", .type = YNL_PT_BINARY,},
@@ -128,6 +207,26 @@ const struct ynl_policy_nest ovpn_keyconf_nest = {
 	.table = ovpn_keyconf_policy,
 };
 
+const struct ynl_policy_attr ovpn_ovpn_peer_new_input_policy[OVPN_A_MAX + 1] = {
+	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
+	[OVPN_A_PEER] = { .name = "peer", .type = YNL_PT_NEST, .nest = &ovpn_peer_new_input_nest, },
+};
+
+const struct ynl_policy_nest ovpn_ovpn_peer_new_input_nest = {
+	.max_attr = OVPN_A_MAX,
+	.table = ovpn_ovpn_peer_new_input_policy,
+};
+
+const struct ynl_policy_attr ovpn_ovpn_peer_set_input_policy[OVPN_A_MAX + 1] = {
+	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
+	[OVPN_A_PEER] = { .name = "peer", .type = YNL_PT_NEST, .nest = &ovpn_peer_set_input_nest, },
+};
+
+const struct ynl_policy_nest ovpn_ovpn_peer_set_input_nest = {
+	.max_attr = OVPN_A_MAX,
+	.table = ovpn_ovpn_peer_set_input_policy,
+};
+
 const struct ynl_policy_attr ovpn_policy[OVPN_A_MAX + 1] = {
 	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 	[OVPN_A_PEER] = { .name = "peer", .type = YNL_PT_NEST, .nest = &ovpn_peer_nest, },
@@ -139,7 +238,129 @@ const struct ynl_policy_nest ovpn_nest = {
 	.table = ovpn_policy,
 };
 
+const struct ynl_policy_attr ovpn_ovpn_peer_del_input_policy[OVPN_A_MAX + 1] = {
+	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
+	[OVPN_A_PEER] = { .name = "peer", .type = YNL_PT_NEST, .nest = &ovpn_peer_del_input_nest, },
+};
+
+const struct ynl_policy_nest ovpn_ovpn_peer_del_input_nest = {
+	.max_attr = OVPN_A_MAX,
+	.table = ovpn_ovpn_peer_del_input_policy,
+};
+
+const struct ynl_policy_attr ovpn_ovpn_keyconf_get_policy[OVPN_A_MAX + 1] = {
+	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF] = { .name = "keyconf", .type = YNL_PT_NEST, .nest = &ovpn_keyconf_get_nest, },
+};
+
+const struct ynl_policy_nest ovpn_ovpn_keyconf_get_nest = {
+	.max_attr = OVPN_A_MAX,
+	.table = ovpn_ovpn_keyconf_get_policy,
+};
+
+const struct ynl_policy_attr ovpn_ovpn_keyconf_swap_input_policy[OVPN_A_MAX + 1] = {
+	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF] = { .name = "keyconf", .type = YNL_PT_NEST, .nest = &ovpn_keyconf_swap_input_nest, },
+};
+
+const struct ynl_policy_nest ovpn_ovpn_keyconf_swap_input_nest = {
+	.max_attr = OVPN_A_MAX,
+	.table = ovpn_ovpn_keyconf_swap_input_policy,
+};
+
+const struct ynl_policy_attr ovpn_ovpn_keyconf_del_input_policy[OVPN_A_MAX + 1] = {
+	[OVPN_A_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
+	[OVPN_A_KEYCONF] = { .name = "keyconf", .type = YNL_PT_NEST, .nest = &ovpn_keyconf_del_input_nest, },
+};
+
+const struct ynl_policy_nest ovpn_ovpn_keyconf_del_input_nest = {
+	.max_attr = OVPN_A_MAX,
+	.table = ovpn_ovpn_keyconf_del_input_policy,
+};
+
 /* Common nested types */
+void ovpn_peer_new_input_free(struct ovpn_peer_new_input *obj)
+{
+	free(obj->remote_ipv6);
+	free(obj->vpn_ipv6);
+	free(obj->local_ipv6);
+}
+
+int ovpn_peer_new_input_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			    struct ovpn_peer_new_input *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.id)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_ID, obj->id);
+	if (obj->_present.remote_ipv4)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_REMOTE_IPV4, obj->remote_ipv4);
+	if (obj->_len.remote_ipv6)
+		ynl_attr_put(nlh, OVPN_A_PEER_REMOTE_IPV6, obj->remote_ipv6, obj->_len.remote_ipv6);
+	if (obj->_present.remote_ipv6_scope_id)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_REMOTE_IPV6_SCOPE_ID, obj->remote_ipv6_scope_id);
+	if (obj->_present.remote_port)
+		ynl_attr_put_u16(nlh, OVPN_A_PEER_REMOTE_PORT, obj->remote_port);
+	if (obj->_present.socket)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_SOCKET, obj->socket);
+	if (obj->_present.vpn_ipv4)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_VPN_IPV4, obj->vpn_ipv4);
+	if (obj->_len.vpn_ipv6)
+		ynl_attr_put(nlh, OVPN_A_PEER_VPN_IPV6, obj->vpn_ipv6, obj->_len.vpn_ipv6);
+	if (obj->_present.local_ipv4)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_LOCAL_IPV4, obj->local_ipv4);
+	if (obj->_len.local_ipv6)
+		ynl_attr_put(nlh, OVPN_A_PEER_LOCAL_IPV6, obj->local_ipv6, obj->_len.local_ipv6);
+	if (obj->_present.keepalive_interval)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_KEEPALIVE_INTERVAL, obj->keepalive_interval);
+	if (obj->_present.keepalive_timeout)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_KEEPALIVE_TIMEOUT, obj->keepalive_timeout);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+void ovpn_peer_set_input_free(struct ovpn_peer_set_input *obj)
+{
+	free(obj->remote_ipv6);
+	free(obj->vpn_ipv6);
+	free(obj->local_ipv6);
+}
+
+int ovpn_peer_set_input_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			    struct ovpn_peer_set_input *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.id)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_ID, obj->id);
+	if (obj->_present.remote_ipv4)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_REMOTE_IPV4, obj->remote_ipv4);
+	if (obj->_len.remote_ipv6)
+		ynl_attr_put(nlh, OVPN_A_PEER_REMOTE_IPV6, obj->remote_ipv6, obj->_len.remote_ipv6);
+	if (obj->_present.remote_ipv6_scope_id)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_REMOTE_IPV6_SCOPE_ID, obj->remote_ipv6_scope_id);
+	if (obj->_present.remote_port)
+		ynl_attr_put_u16(nlh, OVPN_A_PEER_REMOTE_PORT, obj->remote_port);
+	if (obj->_present.vpn_ipv4)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_VPN_IPV4, obj->vpn_ipv4);
+	if (obj->_len.vpn_ipv6)
+		ynl_attr_put(nlh, OVPN_A_PEER_VPN_IPV6, obj->vpn_ipv6, obj->_len.vpn_ipv6);
+	if (obj->_present.local_ipv4)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_LOCAL_IPV4, obj->local_ipv4);
+	if (obj->_len.local_ipv6)
+		ynl_attr_put(nlh, OVPN_A_PEER_LOCAL_IPV6, obj->local_ipv6, obj->_len.local_ipv6);
+	if (obj->_present.keepalive_interval)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_KEEPALIVE_INTERVAL, obj->keepalive_interval);
+	if (obj->_present.keepalive_timeout)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_KEEPALIVE_TIMEOUT, obj->keepalive_timeout);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
 void ovpn_peer_free(struct ovpn_peer *obj)
 {
 	free(obj->remote_ipv6);
@@ -348,6 +569,117 @@ int ovpn_peer_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 	return 0;
 }
 
+void ovpn_peer_del_input_free(struct ovpn_peer_del_input *obj)
+{
+}
+
+int ovpn_peer_del_input_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			    struct ovpn_peer_del_input *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.id)
+		ynl_attr_put_u32(nlh, OVPN_A_PEER_ID, obj->id);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+void ovpn_keyconf_get_free(struct ovpn_keyconf_get *obj)
+{
+}
+
+int ovpn_keyconf_get_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			 struct ovpn_keyconf_get *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.peer_id)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_PEER_ID, obj->peer_id);
+	if (obj->_present.slot)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_SLOT, obj->slot);
+	if (obj->_present.key_id)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_KEY_ID, obj->key_id);
+	if (obj->_present.cipher_alg)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_CIPHER_ALG, obj->cipher_alg);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int ovpn_keyconf_get_parse(struct ynl_parse_arg *yarg,
+			   const struct nlattr *nested)
+{
+	struct ovpn_keyconf_get *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == OVPN_A_KEYCONF_PEER_ID) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.peer_id = 1;
+			dst->peer_id = ynl_attr_get_u32(attr);
+		} else if (type == OVPN_A_KEYCONF_SLOT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.slot = 1;
+			dst->slot = ynl_attr_get_u32(attr);
+		} else if (type == OVPN_A_KEYCONF_KEY_ID) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.key_id = 1;
+			dst->key_id = ynl_attr_get_u32(attr);
+		} else if (type == OVPN_A_KEYCONF_CIPHER_ALG) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.cipher_alg = 1;
+			dst->cipher_alg = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return 0;
+}
+
+void ovpn_keyconf_swap_input_free(struct ovpn_keyconf_swap_input *obj)
+{
+}
+
+int ovpn_keyconf_swap_input_put(struct nlmsghdr *nlh, unsigned int attr_type,
+				struct ovpn_keyconf_swap_input *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.peer_id)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_PEER_ID, obj->peer_id);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+void ovpn_keyconf_del_input_free(struct ovpn_keyconf_del_input *obj)
+{
+}
+
+int ovpn_keyconf_del_input_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			       struct ovpn_keyconf_del_input *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.peer_id)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_PEER_ID, obj->peer_id);
+	if (obj->_present.slot)
+		ynl_attr_put_u32(nlh, OVPN_A_KEYCONF_SLOT, obj->slot);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
 void ovpn_keydir_free(struct ovpn_keydir *obj)
 {
 	free(obj->cipher_key);
@@ -365,40 +697,6 @@ int ovpn_keydir_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	if (obj->_len.nonce_tail)
 		ynl_attr_put(nlh, OVPN_A_KEYDIR_NONCE_TAIL, obj->nonce_tail, obj->_len.nonce_tail);
 	ynl_attr_nest_end(nlh, nest);
-
-	return 0;
-}
-
-int ovpn_keydir_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
-{
-	struct ovpn_keydir *dst = yarg->data;
-	const struct nlattr *attr;
-
-	ynl_attr_for_each_nested(attr, nested) {
-		unsigned int type = ynl_attr_type(attr);
-
-		if (type == OVPN_A_KEYDIR_CIPHER_KEY) {
-			unsigned int len;
-
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-
-			len = ynl_attr_data_len(attr);
-			dst->_len.cipher_key = len;
-			dst->cipher_key = malloc(len);
-			memcpy(dst->cipher_key, ynl_attr_data(attr), len);
-		} else if (type == OVPN_A_KEYDIR_NONCE_TAIL) {
-			unsigned int len;
-
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-
-			len = ynl_attr_data_len(attr);
-			dst->_len.nonce_tail = len;
-			dst->nonce_tail = malloc(len);
-			memcpy(dst->nonce_tail, ynl_attr_data(attr), len);
-		}
-	}
 
 	return 0;
 }
@@ -432,66 +730,11 @@ int ovpn_keyconf_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	return 0;
 }
 
-int ovpn_keyconf_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
-{
-	struct ovpn_keyconf *dst = yarg->data;
-	const struct nlattr *attr;
-	struct ynl_parse_arg parg;
-
-	parg.ys = yarg->ys;
-
-	ynl_attr_for_each_nested(attr, nested) {
-		unsigned int type = ynl_attr_type(attr);
-
-		if (type == OVPN_A_KEYCONF_PEER_ID) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.peer_id = 1;
-			dst->peer_id = ynl_attr_get_u32(attr);
-		} else if (type == OVPN_A_KEYCONF_SLOT) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.slot = 1;
-			dst->slot = ynl_attr_get_u32(attr);
-		} else if (type == OVPN_A_KEYCONF_KEY_ID) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.key_id = 1;
-			dst->key_id = ynl_attr_get_u32(attr);
-		} else if (type == OVPN_A_KEYCONF_CIPHER_ALG) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.cipher_alg = 1;
-			dst->cipher_alg = ynl_attr_get_u32(attr);
-		} else if (type == OVPN_A_KEYCONF_ENCRYPT_DIR) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.encrypt_dir = 1;
-
-			parg.rsp_policy = &ovpn_keydir_nest;
-			parg.data = &dst->encrypt_dir;
-			if (ovpn_keydir_parse(&parg, attr))
-				return YNL_PARSE_CB_ERROR;
-		} else if (type == OVPN_A_KEYCONF_DECRYPT_DIR) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.decrypt_dir = 1;
-
-			parg.rsp_policy = &ovpn_keydir_nest;
-			parg.data = &dst->decrypt_dir;
-			if (ovpn_keydir_parse(&parg, attr))
-				return YNL_PARSE_CB_ERROR;
-		}
-	}
-
-	return 0;
-}
-
 /* ============== OVPN_CMD_PEER_NEW ============== */
 /* OVPN_CMD_PEER_NEW - do */
 void ovpn_peer_new_req_free(struct ovpn_peer_new_req *req)
 {
-	ovpn_peer_free(&req->peer);
+	ovpn_peer_new_input_free(&req->peer);
 	free(req);
 }
 
@@ -502,13 +745,13 @@ int ovpn_peer_new(struct ynl_sock *ys, struct ovpn_peer_new_req *req)
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVPN_CMD_PEER_NEW, 1);
-	ys->req_policy = &ovpn_nest;
+	ys->req_policy = &ovpn_ovpn_peer_new_input_nest;
 	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVPN_A_IFINDEX, req->ifindex);
 	if (req->_present.peer)
-		ovpn_peer_put(nlh, OVPN_A_PEER, &req->peer);
+		ovpn_peer_new_input_put(nlh, OVPN_A_PEER, &req->peer);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -521,7 +764,7 @@ int ovpn_peer_new(struct ynl_sock *ys, struct ovpn_peer_new_req *req)
 /* OVPN_CMD_PEER_SET - do */
 void ovpn_peer_set_req_free(struct ovpn_peer_set_req *req)
 {
-	ovpn_peer_free(&req->peer);
+	ovpn_peer_set_input_free(&req->peer);
 	free(req);
 }
 
@@ -532,13 +775,13 @@ int ovpn_peer_set(struct ynl_sock *ys, struct ovpn_peer_set_req *req)
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVPN_CMD_PEER_SET, 1);
-	ys->req_policy = &ovpn_nest;
+	ys->req_policy = &ovpn_ovpn_peer_set_input_nest;
 	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVPN_A_IFINDEX, req->ifindex);
 	if (req->_present.peer)
-		ovpn_peer_put(nlh, OVPN_A_PEER, &req->peer);
+		ovpn_peer_set_input_put(nlh, OVPN_A_PEER, &req->peer);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -685,7 +928,7 @@ void ovpn_peer_get_ntf_free(struct ovpn_peer_get_ntf *rsp)
 /* OVPN_CMD_PEER_DEL - do */
 void ovpn_peer_del_req_free(struct ovpn_peer_del_req *req)
 {
-	ovpn_peer_free(&req->peer);
+	ovpn_peer_del_input_free(&req->peer);
 	free(req);
 }
 
@@ -696,13 +939,13 @@ int ovpn_peer_del(struct ynl_sock *ys, struct ovpn_peer_del_req *req)
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVPN_CMD_PEER_DEL, 1);
-	ys->req_policy = &ovpn_nest;
+	ys->req_policy = &ovpn_ovpn_peer_del_input_nest;
 	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVPN_A_IFINDEX, req->ifindex);
 	if (req->_present.peer)
-		ovpn_peer_put(nlh, OVPN_A_PEER, &req->peer);
+		ovpn_peer_del_input_put(nlh, OVPN_A_PEER, &req->peer);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -745,13 +988,13 @@ int ovpn_key_new(struct ynl_sock *ys, struct ovpn_key_new_req *req)
 /* OVPN_CMD_KEY_GET - do */
 void ovpn_key_get_req_free(struct ovpn_key_get_req *req)
 {
-	ovpn_keyconf_free(&req->keyconf);
+	ovpn_keyconf_get_free(&req->keyconf);
 	free(req);
 }
 
 void ovpn_key_get_rsp_free(struct ovpn_key_get_rsp *rsp)
 {
-	ovpn_keyconf_free(&rsp->keyconf);
+	ovpn_keyconf_get_free(&rsp->keyconf);
 	free(rsp);
 }
 
@@ -773,9 +1016,9 @@ int ovpn_key_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.keyconf = 1;
 
-			parg.rsp_policy = &ovpn_keyconf_nest;
+			parg.rsp_policy = &ovpn_keyconf_get_nest;
 			parg.data = &dst->keyconf;
-			if (ovpn_keyconf_parse(&parg, attr))
+			if (ovpn_keyconf_get_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		}
 	}
@@ -792,14 +1035,14 @@ ovpn_key_get(struct ynl_sock *ys, struct ovpn_key_get_req *req)
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVPN_CMD_KEY_GET, 1);
-	ys->req_policy = &ovpn_nest;
+	ys->req_policy = &ovpn_ovpn_keyconf_get_nest;
 	ys->req_hdr_len = ys->family->hdr_len;
-	yrs.yarg.rsp_policy = &ovpn_nest;
+	yrs.yarg.rsp_policy = &ovpn_ovpn_keyconf_get_nest;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVPN_A_IFINDEX, req->ifindex);
 	if (req->_present.keyconf)
-		ovpn_keyconf_put(nlh, OVPN_A_KEYCONF, &req->keyconf);
+		ovpn_keyconf_get_put(nlh, OVPN_A_KEYCONF, &req->keyconf);
 
 	rsp = calloc(1, sizeof(*rsp));
 	yrs.yarg.data = rsp;
@@ -820,7 +1063,7 @@ err_free:
 /* OVPN_CMD_KEY_GET - notify */
 void ovpn_key_get_ntf_free(struct ovpn_key_get_ntf *rsp)
 {
-	ovpn_keyconf_free(&rsp->obj.keyconf);
+	ovpn_keyconf_get_free(&rsp->obj.keyconf);
 	free(rsp);
 }
 
@@ -828,7 +1071,7 @@ void ovpn_key_get_ntf_free(struct ovpn_key_get_ntf *rsp)
 /* OVPN_CMD_KEY_SWAP - do */
 void ovpn_key_swap_req_free(struct ovpn_key_swap_req *req)
 {
-	ovpn_keyconf_free(&req->keyconf);
+	ovpn_keyconf_swap_input_free(&req->keyconf);
 	free(req);
 }
 
@@ -839,13 +1082,13 @@ int ovpn_key_swap(struct ynl_sock *ys, struct ovpn_key_swap_req *req)
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVPN_CMD_KEY_SWAP, 1);
-	ys->req_policy = &ovpn_nest;
+	ys->req_policy = &ovpn_ovpn_keyconf_swap_input_nest;
 	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVPN_A_IFINDEX, req->ifindex);
 	if (req->_present.keyconf)
-		ovpn_keyconf_put(nlh, OVPN_A_KEYCONF, &req->keyconf);
+		ovpn_keyconf_swap_input_put(nlh, OVPN_A_KEYCONF, &req->keyconf);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -858,7 +1101,7 @@ int ovpn_key_swap(struct ynl_sock *ys, struct ovpn_key_swap_req *req)
 /* OVPN_CMD_KEY_DEL - do */
 void ovpn_key_del_req_free(struct ovpn_key_del_req *req)
 {
-	ovpn_keyconf_free(&req->keyconf);
+	ovpn_keyconf_del_input_free(&req->keyconf);
 	free(req);
 }
 
@@ -869,13 +1112,13 @@ int ovpn_key_del(struct ynl_sock *ys, struct ovpn_key_del_req *req)
 	int err;
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, OVPN_CMD_KEY_DEL, 1);
-	ys->req_policy = &ovpn_nest;
+	ys->req_policy = &ovpn_ovpn_keyconf_del_input_nest;
 	ys->req_hdr_len = ys->family->hdr_len;
 
 	if (req->_present.ifindex)
 		ynl_attr_put_u32(nlh, OVPN_A_IFINDEX, req->ifindex);
 	if (req->_present.keyconf)
-		ovpn_keyconf_put(nlh, OVPN_A_KEYCONF, &req->keyconf);
+		ovpn_keyconf_del_input_put(nlh, OVPN_A_KEYCONF, &req->keyconf);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -894,7 +1137,7 @@ static const struct ynl_ntf_info ovpn_ntf_info[] =  {
 	[OVPN_CMD_KEY_SWAP_NTF] =  {
 		.alloc_sz	= sizeof(struct ovpn_key_get_ntf),
 		.cb		= ovpn_key_get_rsp_parse,
-		.policy		= &ovpn_nest,
+		.policy		= &ovpn_ovpn_keyconf_get_nest,
 		.free		= (void *)ovpn_key_get_ntf_free,
 	},
 };

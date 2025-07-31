@@ -45,12 +45,12 @@ const struct ynl_policy_attr fou_policy[FOU_ATTR_MAX + 1] = {
 	[FOU_ATTR_AF] = { .name = "af", .type = YNL_PT_U8, },
 	[FOU_ATTR_IPPROTO] = { .name = "ipproto", .type = YNL_PT_U8, },
 	[FOU_ATTR_TYPE] = { .name = "type", .type = YNL_PT_U8, },
-	[FOU_ATTR_REMCSUM_NOPARTIAL] = { .name = "remcsum_nopartial", .type = YNL_PT_FLAG, },
-	[FOU_ATTR_LOCAL_V4] = { .name = "local_v4", .type = YNL_PT_U32, },
-	[FOU_ATTR_LOCAL_V6] = { .name = "local_v6", .type = YNL_PT_BINARY,},
-	[FOU_ATTR_PEER_V4] = { .name = "peer_v4", .type = YNL_PT_U32, },
-	[FOU_ATTR_PEER_V6] = { .name = "peer_v6", .type = YNL_PT_BINARY,},
-	[FOU_ATTR_PEER_PORT] = { .name = "peer_port", .type = YNL_PT_U16, },
+	[FOU_ATTR_REMCSUM_NOPARTIAL] = { .name = "remcsum-nopartial", .type = YNL_PT_FLAG, },
+	[FOU_ATTR_LOCAL_V4] = { .name = "local-v4", .type = YNL_PT_U32, },
+	[FOU_ATTR_LOCAL_V6] = { .name = "local-v6", .type = YNL_PT_BINARY,},
+	[FOU_ATTR_PEER_V4] = { .name = "peer-v4", .type = YNL_PT_U32, },
+	[FOU_ATTR_PEER_V6] = { .name = "peer-v6", .type = YNL_PT_BINARY,},
+	[FOU_ATTR_PEER_PORT] = { .name = "peer-port", .type = YNL_PT_U16, },
 	[FOU_ATTR_IFINDEX] = { .name = "ifindex", .type = YNL_PT_U32, },
 };
 

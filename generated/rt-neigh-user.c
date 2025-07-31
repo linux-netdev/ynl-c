@@ -67,6 +67,7 @@ const char *rt_neigh_ntf_flags_str(int value)
 static const char * const rt_neigh_ntf_ext_flags_strmap[] = {
 	[0] = "managed",
 	[1] = "locked",
+	[2] = "ext-validated",
 };
 
 const char *rt_neigh_ntf_ext_flags_str(int value)

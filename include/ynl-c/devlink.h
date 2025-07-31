@@ -309,6 +309,38 @@ struct devlink_dl_selftest_id {
 	} _present;
 };
 
+struct devlink_dl_rate_tc_bws {
+	struct {
+		__u32 index:1;
+		__u32 bw:1;
+	} _present;
+
+	__u8 index;
+	__u32 bw;
+};
+
+static inline struct devlink_dl_rate_tc_bws *
+devlink_dl_rate_tc_bws_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct devlink_dl_rate_tc_bws));
+}
+
+void devlink_dl_rate_tc_bws_free(struct devlink_dl_rate_tc_bws *obj);
+
+static inline void
+devlink_dl_rate_tc_bws_set_index(struct devlink_dl_rate_tc_bws *obj,
+				 __u8 index)
+{
+	obj->_present.index = 1;
+	obj->index = index;
+}
+static inline void
+devlink_dl_rate_tc_bws_set_bw(struct devlink_dl_rate_tc_bws *obj, __u32 bw)
+{
+	obj->_present.bw = 1;
+	obj->bw = bw;
+}
+
 struct devlink_dl_dpipe_table_matches {
 	struct {
 		__u32 dpipe_match;
@@ -3523,7 +3555,9 @@ struct devlink_info_get_rsp {
 void devlink_info_get_rsp_free(struct devlink_info_get_rsp *rsp);
 
 /*
- * Get device information, like driver name, hardware and firmware versions etc.
+ * Get device information, like driver name, hardware and firmware versions
+etc.
+
  */
 struct devlink_info_get_rsp *
 devlink_info_get(struct ynl_sock *ys, struct devlink_info_get_req *req);
@@ -4978,6 +5012,9 @@ struct devlink_rate_set_req {
 		__u32 rate_node_name;
 		__u32 rate_parent_node_name;
 	} _len;
+	struct {
+		__u32 rate_tc_bws;
+	} _count;
 
 	char *bus_name;
 	char *dev_name;
@@ -4987,6 +5024,7 @@ struct devlink_rate_set_req {
 	__u32 rate_tx_priority;
 	__u32 rate_tx_weight;
 	char *rate_parent_node_name;
+	struct devlink_dl_rate_tc_bws *rate_tc_bws;
 };
 
 static inline struct devlink_rate_set_req *devlink_rate_set_req_alloc(void)
@@ -5063,6 +5101,19 @@ devlink_rate_set_req_set_rate_parent_node_name(struct devlink_rate_set_req *req,
 	memcpy(req->rate_parent_node_name, rate_parent_node_name, req->_len.rate_parent_node_name);
 	req->rate_parent_node_name[req->_len.rate_parent_node_name] = 0;
 }
+static inline void
+__devlink_rate_set_req_set_rate_tc_bws(struct devlink_rate_set_req *req,
+				       struct devlink_dl_rate_tc_bws *rate_tc_bws,
+				       unsigned int n_rate_tc_bws)
+{
+	unsigned int i;
+
+	for (i = 0; i < req->_count.rate_tc_bws; i++)
+		devlink_dl_rate_tc_bws_free(&req->rate_tc_bws[i]);
+	free(req->rate_tc_bws);
+	req->rate_tc_bws = rate_tc_bws;
+	req->_count.rate_tc_bws = n_rate_tc_bws;
+}
 
 /*
  * Set rate instances.
@@ -5084,6 +5135,9 @@ struct devlink_rate_new_req {
 		__u32 rate_node_name;
 		__u32 rate_parent_node_name;
 	} _len;
+	struct {
+		__u32 rate_tc_bws;
+	} _count;
 
 	char *bus_name;
 	char *dev_name;
@@ -5093,6 +5147,7 @@ struct devlink_rate_new_req {
 	__u32 rate_tx_priority;
 	__u32 rate_tx_weight;
 	char *rate_parent_node_name;
+	struct devlink_dl_rate_tc_bws *rate_tc_bws;
 };
 
 static inline struct devlink_rate_new_req *devlink_rate_new_req_alloc(void)
@@ -5168,6 +5223,19 @@ devlink_rate_new_req_set_rate_parent_node_name(struct devlink_rate_new_req *req,
 	req->rate_parent_node_name = malloc(req->_len.rate_parent_node_name + 1);
 	memcpy(req->rate_parent_node_name, rate_parent_node_name, req->_len.rate_parent_node_name);
 	req->rate_parent_node_name[req->_len.rate_parent_node_name] = 0;
+}
+static inline void
+__devlink_rate_new_req_set_rate_tc_bws(struct devlink_rate_new_req *req,
+				       struct devlink_dl_rate_tc_bws *rate_tc_bws,
+				       unsigned int n_rate_tc_bws)
+{
+	unsigned int i;
+
+	for (i = 0; i < req->_count.rate_tc_bws; i++)
+		devlink_dl_rate_tc_bws_free(&req->rate_tc_bws[i]);
+	free(req->rate_tc_bws);
+	req->rate_tc_bws = rate_tc_bws;
+	req->_count.rate_tc_bws = n_rate_tc_bws;
 }
 
 /*

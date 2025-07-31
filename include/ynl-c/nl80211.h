@@ -527,8 +527,9 @@ struct nl80211_get_wiphy_rsp {
 void nl80211_get_wiphy_rsp_free(struct nl80211_get_wiphy_rsp *rsp);
 
 /*
- * Get information about a wiphy or dump a list of all wiphys. Requests to dump get-wiphy
-should unconditionally include the split-wiphy-dump flag in the request.
+ * Get information about a wiphy or dump a list of all wiphys. Requests to
+dump get-wiphy should unconditionally include the split-wiphy-dump flag
+in the request.
 
  */
 struct nl80211_get_wiphy_rsp *

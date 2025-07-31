@@ -22,6 +22,7 @@ const char *netdev_xdp_rx_metadata_str(enum netdev_xdp_rx_metadata value);
 const char *netdev_xsk_flags_str(enum netdev_xsk_flags value);
 const char *netdev_queue_type_str(enum netdev_queue_type value);
 const char *netdev_qstats_scope_str(enum netdev_qstats_scope value);
+const char *netdev_napi_threaded_str(enum netdev_napi_threaded value);
 
 /* Common nested types */
 struct netdev_io_uring_provider_info {
@@ -50,7 +51,26 @@ struct netdev_queue_id {
 	enum netdev_queue_type type;
 };
 
+static inline struct netdev_queue_id *netdev_queue_id_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct netdev_queue_id));
+}
+
 void netdev_queue_id_free(struct netdev_queue_id *obj);
+
+static inline void
+netdev_queue_id_set_id(struct netdev_queue_id *obj, __u32 id)
+{
+	obj->_present.id = 1;
+	obj->id = id;
+}
+static inline void
+netdev_queue_id_set_type(struct netdev_queue_id *obj,
+			 enum netdev_queue_type type)
+{
+	obj->_present.type = 1;
+	obj->type = type;
+}
 
 /* ============== NETDEV_CMD_DEV_GET ============== */
 /* NETDEV_CMD_DEV_GET - do */
@@ -421,6 +441,7 @@ struct netdev_napi_get_rsp {
 		__u32 defer_hard_irqs:1;
 		__u32 gro_flush_timeout:1;
 		__u32 irq_suspend_timeout:1;
+		__u32 threaded:1;
 	} _present;
 
 	__u32 id;
@@ -430,6 +451,7 @@ struct netdev_napi_get_rsp {
 	__u32 defer_hard_irqs;
 	__u64 gro_flush_timeout;
 	__u64 irq_suspend_timeout;
+	enum netdev_napi_threaded threaded;
 };
 
 void netdev_napi_get_rsp_free(struct netdev_napi_get_rsp *rsp);
@@ -608,12 +630,14 @@ struct netdev_napi_set_req {
 		__u32 defer_hard_irqs:1;
 		__u32 gro_flush_timeout:1;
 		__u32 irq_suspend_timeout:1;
+		__u32 threaded:1;
 	} _present;
 
 	__u32 id;
 	__u32 defer_hard_irqs;
 	__u64 gro_flush_timeout;
 	__u64 irq_suspend_timeout;
+	enum netdev_napi_threaded threaded;
 };
 
 static inline struct netdev_napi_set_req *netdev_napi_set_req_alloc(void)
@@ -648,6 +672,13 @@ netdev_napi_set_req_set_irq_suspend_timeout(struct netdev_napi_set_req *req,
 {
 	req->_present.irq_suspend_timeout = 1;
 	req->irq_suspend_timeout = irq_suspend_timeout;
+}
+static inline void
+netdev_napi_set_req_set_threaded(struct netdev_napi_set_req *req,
+				 enum netdev_napi_threaded threaded)
+{
+	req->_present.threaded = 1;
+	req->threaded = threaded;
 }
 
 /*

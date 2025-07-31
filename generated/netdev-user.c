@@ -107,6 +107,18 @@ const char *netdev_qstats_scope_str(enum netdev_qstats_scope value)
 	return netdev_qstats_scope_strmap[value];
 }
 
+static const char * const netdev_napi_threaded_strmap[] = {
+	[0] = "disabled",
+	[1] = "enabled",
+};
+
+const char *netdev_napi_threaded_str(enum netdev_napi_threaded value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(netdev_napi_threaded_strmap))
+		return NULL;
+	return netdev_napi_threaded_strmap[value];
+}
+
 /* Policies */
 const struct ynl_policy_attr netdev_io_uring_provider_info_policy[NETDEV_A_IO_URING_PROVIDER_INFO_MAX + 1] = {
 };
@@ -217,6 +229,7 @@ const struct ynl_policy_attr netdev_napi_policy[NETDEV_A_NAPI_MAX + 1] = {
 	[NETDEV_A_NAPI_DEFER_HARD_IRQS] = { .name = "defer-hard-irqs", .type = YNL_PT_U32, },
 	[NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT] = { .name = "gro-flush-timeout", .type = YNL_PT_UINT, },
 	[NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT] = { .name = "irq-suspend-timeout", .type = YNL_PT_UINT, },
+	[NETDEV_A_NAPI_THREADED] = { .name = "threaded", .type = YNL_PT_U32, },
 };
 
 const struct ynl_policy_nest netdev_napi_nest = {
@@ -1044,6 +1057,11 @@ int netdev_napi_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.irq_suspend_timeout = 1;
 			dst->irq_suspend_timeout = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_NAPI_THREADED) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.threaded = 1;
+			dst->threaded = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -1338,6 +1356,8 @@ int netdev_napi_set(struct ynl_sock *ys, struct netdev_napi_set_req *req)
 		ynl_attr_put_uint(nlh, NETDEV_A_NAPI_GRO_FLUSH_TIMEOUT, req->gro_flush_timeout);
 	if (req->_present.irq_suspend_timeout)
 		ynl_attr_put_uint(nlh, NETDEV_A_NAPI_IRQ_SUSPEND_TIMEOUT, req->irq_suspend_timeout);
+	if (req->_present.threaded)
+		ynl_attr_put_u32(nlh, NETDEV_A_NAPI_THREADED, req->threaded);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

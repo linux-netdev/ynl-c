@@ -80,6 +80,55 @@ const char *tc_flower_key_ctrl_flags_str(int value)
 	return tc_flower_key_ctrl_flags_strmap[value];
 }
 
+static const char * const tc_dualpi2_drop_overload_strmap[] = {
+	[0] = "overflow",
+	[1] = "drop",
+};
+
+const char *tc_dualpi2_drop_overload_str(enum tc_dualpi2_drop_overload value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(tc_dualpi2_drop_overload_strmap))
+		return NULL;
+	return tc_dualpi2_drop_overload_strmap[value];
+}
+
+static const char * const tc_dualpi2_drop_early_strmap[] = {
+	[0] = "drop-dequeue",
+	[1] = "drop-enqueue",
+};
+
+const char *tc_dualpi2_drop_early_str(enum tc_dualpi2_drop_early value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(tc_dualpi2_drop_early_strmap))
+		return NULL;
+	return tc_dualpi2_drop_early_strmap[value];
+}
+
+static const char * const tc_dualpi2_ecn_mask_strmap[] = {
+	[1] = "l4s-ect",
+	[2] = "cla-ect",
+	[3] = "any-ect",
+};
+
+const char *tc_dualpi2_ecn_mask_str(enum tc_dualpi2_ecn_mask value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(tc_dualpi2_ecn_mask_strmap))
+		return NULL;
+	return tc_dualpi2_ecn_mask_strmap[value];
+}
+
+static const char * const tc_dualpi2_split_gso_strmap[] = {
+	[0] = "no-split-gso",
+	[1] = "split-gso",
+};
+
+const char *tc_dualpi2_split_gso_str(enum tc_dualpi2_split_gso value)
+{
+	if (value < 0 || value >= (int)YNL_ARRAY_SIZE(tc_dualpi2_split_gso_strmap))
+		return NULL;
+	return tc_dualpi2_split_gso_strmap[value];
+}
+
 /* Policies */
 extern const struct ynl_policy_nest tc_ets_attrs_nest;
 
@@ -159,6 +208,29 @@ const struct ynl_policy_attr tc_drr_attrs_policy[TCA_DRR_MAX + 1] = {
 const struct ynl_policy_nest tc_drr_attrs_nest = {
 	.max_attr = TCA_DRR_MAX,
 	.table = tc_drr_attrs_policy,
+};
+
+const struct ynl_policy_attr tc_dualpi2_attrs_policy[TCA_DUALPI2_MAX + 1] = {
+	[TCA_DUALPI2_LIMIT] = { .name = "limit", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_MEMORY_LIMIT] = { .name = "memory-limit", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_TARGET] = { .name = "target", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_TUPDATE] = { .name = "tupdate", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_ALPHA] = { .name = "alpha", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_BETA] = { .name = "beta", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_STEP_THRESH_PKTS] = { .name = "step-thresh-pkts", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_STEP_THRESH_US] = { .name = "step-thresh-us", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_MIN_QLEN_STEP] = { .name = "min-qlen-step", .type = YNL_PT_U32, },
+	[TCA_DUALPI2_COUPLING] = { .name = "coupling", .type = YNL_PT_U8, },
+	[TCA_DUALPI2_DROP_OVERLOAD] = { .name = "drop-overload", .type = YNL_PT_U8, },
+	[TCA_DUALPI2_DROP_EARLY] = { .name = "drop-early", .type = YNL_PT_U8, },
+	[TCA_DUALPI2_C_PROTECTION] = { .name = "c-protection", .type = YNL_PT_U8, },
+	[TCA_DUALPI2_ECN_MASK] = { .name = "ecn-mask", .type = YNL_PT_U8, },
+	[TCA_DUALPI2_SPLIT_GSO] = { .name = "split-gso", .type = YNL_PT_U8, },
+};
+
+const struct ynl_policy_nest tc_dualpi2_attrs_nest = {
+	.max_attr = TCA_DUALPI2_MAX,
+	.table = tc_dualpi2_attrs_policy,
 };
 
 const struct ynl_policy_attr tc_etf_attrs_policy[TCA_ETF_MAX + 1] = {
@@ -906,18 +978,19 @@ const struct ynl_policy_attr tc_tca_stats_app_msg_policy[] = {
 	[0] = { .type = YNL_PT_SUBMSG, .name = "cake", .nest = &tc_cake_stats_attrs_nest, },
 	[1] = { .type = YNL_PT_SUBMSG, .name = "choke", },
 	[2] = { .type = YNL_PT_SUBMSG, .name = "codel", },
-	[3] = { .type = YNL_PT_SUBMSG, .name = "fq", },
-	[4] = { .type = YNL_PT_SUBMSG, .name = "fq_codel", },
-	[5] = { .type = YNL_PT_SUBMSG, .name = "fq_pie", },
-	[6] = { .type = YNL_PT_SUBMSG, .name = "hhf", },
-	[7] = { .type = YNL_PT_SUBMSG, .name = "pie", },
-	[8] = { .type = YNL_PT_SUBMSG, .name = "red", },
-	[9] = { .type = YNL_PT_SUBMSG, .name = "sfb", },
-	[10] = { .type = YNL_PT_SUBMSG, .name = "sfq", },
+	[3] = { .type = YNL_PT_SUBMSG, .name = "dualpi2", },
+	[4] = { .type = YNL_PT_SUBMSG, .name = "fq", },
+	[5] = { .type = YNL_PT_SUBMSG, .name = "fq_codel", },
+	[6] = { .type = YNL_PT_SUBMSG, .name = "fq_pie", },
+	[7] = { .type = YNL_PT_SUBMSG, .name = "hhf", },
+	[8] = { .type = YNL_PT_SUBMSG, .name = "pie", },
+	[9] = { .type = YNL_PT_SUBMSG, .name = "red", },
+	[10] = { .type = YNL_PT_SUBMSG, .name = "sfb", },
+	[11] = { .type = YNL_PT_SUBMSG, .name = "sfq", },
 };
 
 const struct ynl_policy_nest tc_tca_stats_app_msg_nest = {
-	.max_attr = 10,
+	.max_attr = 11,
 	.table = tc_tca_stats_app_msg_policy,
 };
 
@@ -1237,42 +1310,43 @@ const struct ynl_policy_attr tc_options_msg_policy[] = {
 	[7] = { .type = YNL_PT_SUBMSG, .name = "clsact", },
 	[8] = { .type = YNL_PT_SUBMSG, .name = "codel", .nest = &tc_codel_attrs_nest, },
 	[9] = { .type = YNL_PT_SUBMSG, .name = "drr", .nest = &tc_drr_attrs_nest, },
-	[10] = { .type = YNL_PT_SUBMSG, .name = "etf", .nest = &tc_etf_attrs_nest, },
-	[11] = { .type = YNL_PT_SUBMSG, .name = "ets", .nest = &tc_ets_attrs_nest, },
-	[12] = { .type = YNL_PT_SUBMSG, .name = "flow", .nest = &tc_flow_attrs_nest, },
-	[13] = { .type = YNL_PT_SUBMSG, .name = "flower", .nest = &tc_flower_attrs_nest, },
-	[14] = { .type = YNL_PT_SUBMSG, .name = "fq", .nest = &tc_fq_attrs_nest, },
-	[15] = { .type = YNL_PT_SUBMSG, .name = "fq_codel", .nest = &tc_fq_codel_attrs_nest, },
-	[16] = { .type = YNL_PT_SUBMSG, .name = "fq_pie", .nest = &tc_fq_pie_attrs_nest, },
-	[17] = { .type = YNL_PT_SUBMSG, .name = "fw", .nest = &tc_fw_attrs_nest, },
-	[18] = { .type = YNL_PT_SUBMSG, .name = "gred", .nest = &tc_gred_attrs_nest, },
-	[19] = { .type = YNL_PT_SUBMSG, .name = "hfsc", },
-	[20] = { .type = YNL_PT_SUBMSG, .name = "hhf", .nest = &tc_hhf_attrs_nest, },
-	[21] = { .type = YNL_PT_SUBMSG, .name = "htb", .nest = &tc_htb_attrs_nest, },
-	[22] = { .type = YNL_PT_SUBMSG, .name = "ingress", },
-	[23] = { .type = YNL_PT_SUBMSG, .name = "matchall", .nest = &tc_matchall_attrs_nest, },
-	[24] = { .type = YNL_PT_SUBMSG, .name = "mq", },
-	[25] = { .type = YNL_PT_SUBMSG, .name = "mqprio", },
-	[26] = { .type = YNL_PT_SUBMSG, .name = "multiq", },
-	[27] = { .type = YNL_PT_SUBMSG, .name = "netem", .nest = &tc_netem_attrs_nest, },
-	[28] = { .type = YNL_PT_SUBMSG, .name = "pfifo", },
-	[29] = { .type = YNL_PT_SUBMSG, .name = "pfifo_fast", },
-	[30] = { .type = YNL_PT_SUBMSG, .name = "pfifo_head_drop", },
-	[31] = { .type = YNL_PT_SUBMSG, .name = "pie", .nest = &tc_pie_attrs_nest, },
-	[32] = { .type = YNL_PT_SUBMSG, .name = "plug", },
-	[33] = { .type = YNL_PT_SUBMSG, .name = "prio", },
-	[34] = { .type = YNL_PT_SUBMSG, .name = "qfq", .nest = &tc_qfq_attrs_nest, },
-	[35] = { .type = YNL_PT_SUBMSG, .name = "red", .nest = &tc_red_attrs_nest, },
-	[36] = { .type = YNL_PT_SUBMSG, .name = "route", .nest = &tc_route_attrs_nest, },
-	[37] = { .type = YNL_PT_SUBMSG, .name = "sfb", },
-	[38] = { .type = YNL_PT_SUBMSG, .name = "sfq", },
-	[39] = { .type = YNL_PT_SUBMSG, .name = "taprio", .nest = &tc_taprio_attrs_nest, },
-	[40] = { .type = YNL_PT_SUBMSG, .name = "tbf", .nest = &tc_tbf_attrs_nest, },
-	[41] = { .type = YNL_PT_SUBMSG, .name = "u32", .nest = &tc_u32_attrs_nest, },
+	[10] = { .type = YNL_PT_SUBMSG, .name = "dualpi2", .nest = &tc_dualpi2_attrs_nest, },
+	[11] = { .type = YNL_PT_SUBMSG, .name = "etf", .nest = &tc_etf_attrs_nest, },
+	[12] = { .type = YNL_PT_SUBMSG, .name = "ets", .nest = &tc_ets_attrs_nest, },
+	[13] = { .type = YNL_PT_SUBMSG, .name = "flow", .nest = &tc_flow_attrs_nest, },
+	[14] = { .type = YNL_PT_SUBMSG, .name = "flower", .nest = &tc_flower_attrs_nest, },
+	[15] = { .type = YNL_PT_SUBMSG, .name = "fq", .nest = &tc_fq_attrs_nest, },
+	[16] = { .type = YNL_PT_SUBMSG, .name = "fq_codel", .nest = &tc_fq_codel_attrs_nest, },
+	[17] = { .type = YNL_PT_SUBMSG, .name = "fq_pie", .nest = &tc_fq_pie_attrs_nest, },
+	[18] = { .type = YNL_PT_SUBMSG, .name = "fw", .nest = &tc_fw_attrs_nest, },
+	[19] = { .type = YNL_PT_SUBMSG, .name = "gred", .nest = &tc_gred_attrs_nest, },
+	[20] = { .type = YNL_PT_SUBMSG, .name = "hfsc", },
+	[21] = { .type = YNL_PT_SUBMSG, .name = "hhf", .nest = &tc_hhf_attrs_nest, },
+	[22] = { .type = YNL_PT_SUBMSG, .name = "htb", .nest = &tc_htb_attrs_nest, },
+	[23] = { .type = YNL_PT_SUBMSG, .name = "ingress", },
+	[24] = { .type = YNL_PT_SUBMSG, .name = "matchall", .nest = &tc_matchall_attrs_nest, },
+	[25] = { .type = YNL_PT_SUBMSG, .name = "mq", },
+	[26] = { .type = YNL_PT_SUBMSG, .name = "mqprio", },
+	[27] = { .type = YNL_PT_SUBMSG, .name = "multiq", },
+	[28] = { .type = YNL_PT_SUBMSG, .name = "netem", .nest = &tc_netem_attrs_nest, },
+	[29] = { .type = YNL_PT_SUBMSG, .name = "pfifo", },
+	[30] = { .type = YNL_PT_SUBMSG, .name = "pfifo_fast", },
+	[31] = { .type = YNL_PT_SUBMSG, .name = "pfifo_head_drop", },
+	[32] = { .type = YNL_PT_SUBMSG, .name = "pie", .nest = &tc_pie_attrs_nest, },
+	[33] = { .type = YNL_PT_SUBMSG, .name = "plug", },
+	[34] = { .type = YNL_PT_SUBMSG, .name = "prio", },
+	[35] = { .type = YNL_PT_SUBMSG, .name = "qfq", .nest = &tc_qfq_attrs_nest, },
+	[36] = { .type = YNL_PT_SUBMSG, .name = "red", .nest = &tc_red_attrs_nest, },
+	[37] = { .type = YNL_PT_SUBMSG, .name = "route", .nest = &tc_route_attrs_nest, },
+	[38] = { .type = YNL_PT_SUBMSG, .name = "sfb", },
+	[39] = { .type = YNL_PT_SUBMSG, .name = "sfq", },
+	[40] = { .type = YNL_PT_SUBMSG, .name = "taprio", .nest = &tc_taprio_attrs_nest, },
+	[41] = { .type = YNL_PT_SUBMSG, .name = "tbf", .nest = &tc_tbf_attrs_nest, },
+	[42] = { .type = YNL_PT_SUBMSG, .name = "u32", .nest = &tc_u32_attrs_nest, },
 };
 
 const struct ynl_policy_nest tc_options_msg_nest = {
-	.max_attr = 41,
+	.max_attr = 42,
 	.table = tc_options_msg_policy,
 };
 
@@ -1327,6 +1401,11 @@ void tc_drr_attrs_free(struct tc_drr_attrs *obj);
 int tc_drr_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		     struct tc_drr_attrs *obj);
 int tc_drr_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested);
+void tc_dualpi2_attrs_free(struct tc_dualpi2_attrs *obj);
+int tc_dualpi2_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			 struct tc_dualpi2_attrs *obj);
+int tc_dualpi2_attrs_parse(struct ynl_parse_arg *yarg,
+			   const struct nlattr *nested);
 void tc_etf_attrs_free(struct tc_etf_attrs *obj);
 int tc_etf_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		     struct tc_etf_attrs *obj);
@@ -2045,6 +2124,141 @@ int tc_drr_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.quantum = 1;
 			dst->quantum = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return 0;
+}
+
+void tc_dualpi2_attrs_free(struct tc_dualpi2_attrs *obj)
+{
+}
+
+int tc_dualpi2_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
+			 struct tc_dualpi2_attrs *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.limit)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_LIMIT, obj->limit);
+	if (obj->_present.memory_limit)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_MEMORY_LIMIT, obj->memory_limit);
+	if (obj->_present.target)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_TARGET, obj->target);
+	if (obj->_present.tupdate)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_TUPDATE, obj->tupdate);
+	if (obj->_present.alpha)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_ALPHA, obj->alpha);
+	if (obj->_present.beta)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_BETA, obj->beta);
+	if (obj->_present.step_thresh_pkts)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_STEP_THRESH_PKTS, obj->step_thresh_pkts);
+	if (obj->_present.step_thresh_us)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_STEP_THRESH_US, obj->step_thresh_us);
+	if (obj->_present.min_qlen_step)
+		ynl_attr_put_u32(nlh, TCA_DUALPI2_MIN_QLEN_STEP, obj->min_qlen_step);
+	if (obj->_present.coupling)
+		ynl_attr_put_u8(nlh, TCA_DUALPI2_COUPLING, obj->coupling);
+	if (obj->_present.drop_overload)
+		ynl_attr_put_u8(nlh, TCA_DUALPI2_DROP_OVERLOAD, obj->drop_overload);
+	if (obj->_present.drop_early)
+		ynl_attr_put_u8(nlh, TCA_DUALPI2_DROP_EARLY, obj->drop_early);
+	if (obj->_present.c_protection)
+		ynl_attr_put_u8(nlh, TCA_DUALPI2_C_PROTECTION, obj->c_protection);
+	if (obj->_present.ecn_mask)
+		ynl_attr_put_u8(nlh, TCA_DUALPI2_ECN_MASK, obj->ecn_mask);
+	if (obj->_present.split_gso)
+		ynl_attr_put_u8(nlh, TCA_DUALPI2_SPLIT_GSO, obj->split_gso);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int tc_dualpi2_attrs_parse(struct ynl_parse_arg *yarg,
+			   const struct nlattr *nested)
+{
+	struct tc_dualpi2_attrs *dst = yarg->data;
+	const struct nlattr *attr;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == TCA_DUALPI2_LIMIT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.limit = 1;
+			dst->limit = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_MEMORY_LIMIT) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.memory_limit = 1;
+			dst->memory_limit = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_TARGET) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.target = 1;
+			dst->target = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_TUPDATE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tupdate = 1;
+			dst->tupdate = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_ALPHA) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.alpha = 1;
+			dst->alpha = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_BETA) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.beta = 1;
+			dst->beta = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_STEP_THRESH_PKTS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.step_thresh_pkts = 1;
+			dst->step_thresh_pkts = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_STEP_THRESH_US) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.step_thresh_us = 1;
+			dst->step_thresh_us = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_MIN_QLEN_STEP) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.min_qlen_step = 1;
+			dst->min_qlen_step = ynl_attr_get_u32(attr);
+		} else if (type == TCA_DUALPI2_COUPLING) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.coupling = 1;
+			dst->coupling = ynl_attr_get_u8(attr);
+		} else if (type == TCA_DUALPI2_DROP_OVERLOAD) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.drop_overload = 1;
+			dst->drop_overload = ynl_attr_get_u8(attr);
+		} else if (type == TCA_DUALPI2_DROP_EARLY) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.drop_early = 1;
+			dst->drop_early = ynl_attr_get_u8(attr);
+		} else if (type == TCA_DUALPI2_C_PROTECTION) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.c_protection = 1;
+			dst->c_protection = ynl_attr_get_u8(attr);
+		} else if (type == TCA_DUALPI2_ECN_MASK) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.ecn_mask = 1;
+			dst->ecn_mask = ynl_attr_get_u8(attr);
+		} else if (type == TCA_DUALPI2_SPLIT_GSO) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.split_gso = 1;
+			dst->split_gso = ynl_attr_get_u8(attr);
 		}
 	}
 
@@ -6685,6 +6899,7 @@ void tc_tca_stats_app_msg_free(struct tc_tca_stats_app_msg *obj)
 	tc_cake_stats_attrs_free(&obj->cake);
 	free(obj->choke);
 	free(obj->codel);
+	free(obj->dualpi2);
 	free(obj->fq);
 	free(obj->fq_codel);
 	free(obj->fq_pie);
@@ -6704,6 +6919,8 @@ int tc_tca_stats_app_msg_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		ynl_attr_put(nlh, TCA_XSTATS, obj->choke, obj->_len.choke);
 	if (obj->_len.codel)
 		ynl_attr_put(nlh, TCA_XSTATS, obj->codel, obj->_len.codel);
+	if (obj->_len.dualpi2)
+		ynl_attr_put(nlh, TCA_XSTATS, obj->dualpi2, obj->_len.dualpi2);
 	if (obj->_len.fq)
 		ynl_attr_put(nlh, TCA_XSTATS, obj->fq, obj->_len.fq);
 	if (obj->_len.fq_codel)
@@ -6756,6 +6973,14 @@ int tc_tca_stats_app_msg_parse(struct ynl_parse_arg *yarg, const char *sel,
 		else
 			dst->codel = malloc(len);
 		memcpy(dst->codel, ynl_attr_data(attr), len);
+	} else if (!strcmp(sel, "dualpi2")) {
+		len = ynl_attr_data_len(attr);
+		dst->_len.dualpi2 = len;
+		if (len < sizeof(struct tc_dualpi2_xstats))
+			dst->dualpi2 = calloc(1, sizeof(struct tc_dualpi2_xstats));
+		else
+			dst->dualpi2 = malloc(len);
+		memcpy(dst->dualpi2, ynl_attr_data(attr), len);
 	} else if (!strcmp(sel, "fq")) {
 		len = ynl_attr_data_len(attr);
 		dst->_len.fq = len;
@@ -9292,6 +9517,7 @@ void tc_options_msg_free(struct tc_options_msg *obj)
 	tc_choke_attrs_free(&obj->choke);
 	tc_codel_attrs_free(&obj->codel);
 	tc_drr_attrs_free(&obj->drr);
+	tc_dualpi2_attrs_free(&obj->dualpi2);
 	tc_etf_attrs_free(&obj->etf);
 	if (obj->ets)
 		tc_ets_attrs_free(obj->ets);
@@ -9348,6 +9574,8 @@ int tc_options_msg_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		tc_codel_attrs_put(nlh, TCA_OPTIONS, &obj->codel);
 	if (obj->_present.drr)
 		tc_drr_attrs_put(nlh, TCA_OPTIONS, &obj->drr);
+	if (obj->_present.dualpi2)
+		tc_dualpi2_attrs_put(nlh, TCA_OPTIONS, &obj->dualpi2);
 	if (obj->_present.etf)
 		tc_etf_attrs_put(nlh, TCA_OPTIONS, &obj->etf);
 	if (obj->_present.ets)
@@ -9484,6 +9712,12 @@ int tc_options_msg_parse(struct ynl_parse_arg *yarg, const char *sel,
 		if (tc_drr_attrs_parse(&parg, attr))
 			return YNL_PARSE_CB_ERROR;
 		dst->_present.drr = 1;
+	} else if (!strcmp(sel, "dualpi2")) {
+		parg.rsp_policy = &tc_dualpi2_attrs_nest;
+		parg.data = &dst->dualpi2;
+		if (tc_dualpi2_attrs_parse(&parg, attr))
+			return YNL_PARSE_CB_ERROR;
+		dst->_present.dualpi2 = 1;
 	} else if (!strcmp(sel, "etf")) {
 		parg.rsp_policy = &tc_etf_attrs_nest;
 		parg.data = &dst->etf;

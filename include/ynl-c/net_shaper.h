@@ -43,7 +43,42 @@ struct net_shaper_leaf_info {
 	__u32 weight;
 };
 
+static inline struct net_shaper_leaf_info *
+net_shaper_leaf_info_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct net_shaper_leaf_info));
+}
+
 void net_shaper_leaf_info_free(struct net_shaper_leaf_info *obj);
+
+static inline void
+net_shaper_leaf_info_set_handle_scope(struct net_shaper_leaf_info *obj,
+				      enum net_shaper_scope scope)
+{
+	obj->_present.handle = 1;
+	obj->handle._present.scope = 1;
+	obj->handle.scope = scope;
+}
+static inline void
+net_shaper_leaf_info_set_handle_id(struct net_shaper_leaf_info *obj, __u32 id)
+{
+	obj->_present.handle = 1;
+	obj->handle._present.id = 1;
+	obj->handle.id = id;
+}
+static inline void
+net_shaper_leaf_info_set_priority(struct net_shaper_leaf_info *obj,
+				  __u32 priority)
+{
+	obj->_present.priority = 1;
+	obj->priority = priority;
+}
+static inline void
+net_shaper_leaf_info_set_weight(struct net_shaper_leaf_info *obj, __u32 weight)
+{
+	obj->_present.weight = 1;
+	obj->weight = weight;
+}
 
 /* ============== NET_SHAPER_CMD_GET ============== */
 /* NET_SHAPER_CMD_GET - do */

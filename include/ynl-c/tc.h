@@ -41,6 +41,10 @@ extern const struct ynl_family ynl_tc_family;
 const char *tc_op_str(int op);
 const char *tc_cls_flags_str(int value);
 const char *tc_flower_key_ctrl_flags_str(int value);
+const char *tc_dualpi2_drop_overload_str(enum tc_dualpi2_drop_overload value);
+const char *tc_dualpi2_drop_early_str(enum tc_dualpi2_drop_early value);
+const char *tc_dualpi2_ecn_mask_str(enum tc_dualpi2_ecn_mask value);
+const char *tc_dualpi2_split_gso_str(enum tc_dualpi2_split_gso value);
 
 /* Common nested types */
 struct tc_tca_stab_attrs {
@@ -137,6 +141,42 @@ struct tc_drr_attrs {
 	} _present;
 
 	__u32 quantum;
+};
+
+struct tc_dualpi2_attrs {
+	struct {
+		__u32 limit:1;
+		__u32 memory_limit:1;
+		__u32 target:1;
+		__u32 tupdate:1;
+		__u32 alpha:1;
+		__u32 beta:1;
+		__u32 step_thresh_pkts:1;
+		__u32 step_thresh_us:1;
+		__u32 min_qlen_step:1;
+		__u32 coupling:1;
+		__u32 drop_overload:1;
+		__u32 drop_early:1;
+		__u32 c_protection:1;
+		__u32 ecn_mask:1;
+		__u32 split_gso:1;
+	} _present;
+
+	__u32 limit;
+	__u32 memory_limit;
+	__u32 target;
+	__u32 tupdate;
+	__u32 alpha;
+	__u32 beta;
+	__u32 step_thresh_pkts;
+	__u32 step_thresh_us;
+	__u32 min_qlen_step;
+	__u8 coupling;
+	enum tc_dualpi2_drop_overload drop_overload;
+	enum tc_dualpi2_drop_early drop_early;
+	__u8 c_protection;
+	enum tc_dualpi2_ecn_mask ecn_mask;
+	enum tc_dualpi2_split_gso split_gso;
 };
 
 struct tc_etf_attrs {
@@ -454,7 +494,40 @@ struct tc_taprio_sched_entry {
 	__u32 interval;
 };
 
+static inline struct tc_taprio_sched_entry *
+tc_taprio_sched_entry_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct tc_taprio_sched_entry));
+}
+
 void tc_taprio_sched_entry_free(struct tc_taprio_sched_entry *obj);
+
+static inline void
+tc_taprio_sched_entry_set_index(struct tc_taprio_sched_entry *obj, __u32 index)
+{
+	obj->_present.index = 1;
+	obj->index = index;
+}
+static inline void
+tc_taprio_sched_entry_set_cmd(struct tc_taprio_sched_entry *obj, __u8 cmd)
+{
+	obj->_present.cmd = 1;
+	obj->cmd = cmd;
+}
+static inline void
+tc_taprio_sched_entry_set_gate_mask(struct tc_taprio_sched_entry *obj,
+				    __u32 gate_mask)
+{
+	obj->_present.gate_mask = 1;
+	obj->gate_mask = gate_mask;
+}
+static inline void
+tc_taprio_sched_entry_set_interval(struct tc_taprio_sched_entry *obj,
+				   __u32 interval)
+{
+	obj->_present.interval = 1;
+	obj->interval = interval;
+}
 
 struct tc_taprio_tc_entry_attrs {
 	struct {
@@ -523,7 +596,182 @@ struct tc_cake_tin_stats_attrs {
 	__u32 flow_quantum;
 };
 
+static inline struct tc_cake_tin_stats_attrs *
+tc_cake_tin_stats_attrs_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct tc_cake_tin_stats_attrs));
+}
+
 void tc_cake_tin_stats_attrs_free(struct tc_cake_tin_stats_attrs *obj);
+
+static inline void
+tc_cake_tin_stats_attrs_set_sent_packets(struct tc_cake_tin_stats_attrs *obj,
+					 __u32 sent_packets)
+{
+	obj->_present.sent_packets = 1;
+	obj->sent_packets = sent_packets;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_sent_bytes64(struct tc_cake_tin_stats_attrs *obj,
+					 __u64 sent_bytes64)
+{
+	obj->_present.sent_bytes64 = 1;
+	obj->sent_bytes64 = sent_bytes64;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_dropped_packets(struct tc_cake_tin_stats_attrs *obj,
+					    __u32 dropped_packets)
+{
+	obj->_present.dropped_packets = 1;
+	obj->dropped_packets = dropped_packets;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_dropped_bytes64(struct tc_cake_tin_stats_attrs *obj,
+					    __u64 dropped_bytes64)
+{
+	obj->_present.dropped_bytes64 = 1;
+	obj->dropped_bytes64 = dropped_bytes64;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_acks_dropped_packets(struct tc_cake_tin_stats_attrs *obj,
+						 __u32 acks_dropped_packets)
+{
+	obj->_present.acks_dropped_packets = 1;
+	obj->acks_dropped_packets = acks_dropped_packets;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_acks_dropped_bytes64(struct tc_cake_tin_stats_attrs *obj,
+						 __u64 acks_dropped_bytes64)
+{
+	obj->_present.acks_dropped_bytes64 = 1;
+	obj->acks_dropped_bytes64 = acks_dropped_bytes64;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_ecn_marked_packets(struct tc_cake_tin_stats_attrs *obj,
+					       __u32 ecn_marked_packets)
+{
+	obj->_present.ecn_marked_packets = 1;
+	obj->ecn_marked_packets = ecn_marked_packets;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_ecn_marked_bytes64(struct tc_cake_tin_stats_attrs *obj,
+					       __u64 ecn_marked_bytes64)
+{
+	obj->_present.ecn_marked_bytes64 = 1;
+	obj->ecn_marked_bytes64 = ecn_marked_bytes64;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_backlog_packets(struct tc_cake_tin_stats_attrs *obj,
+					    __u32 backlog_packets)
+{
+	obj->_present.backlog_packets = 1;
+	obj->backlog_packets = backlog_packets;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_backlog_bytes(struct tc_cake_tin_stats_attrs *obj,
+					  __u32 backlog_bytes)
+{
+	obj->_present.backlog_bytes = 1;
+	obj->backlog_bytes = backlog_bytes;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_threshold_rate64(struct tc_cake_tin_stats_attrs *obj,
+					     __u64 threshold_rate64)
+{
+	obj->_present.threshold_rate64 = 1;
+	obj->threshold_rate64 = threshold_rate64;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_target_us(struct tc_cake_tin_stats_attrs *obj,
+				      __u32 target_us)
+{
+	obj->_present.target_us = 1;
+	obj->target_us = target_us;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_interval_us(struct tc_cake_tin_stats_attrs *obj,
+					__u32 interval_us)
+{
+	obj->_present.interval_us = 1;
+	obj->interval_us = interval_us;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_way_indirect_hits(struct tc_cake_tin_stats_attrs *obj,
+					      __u32 way_indirect_hits)
+{
+	obj->_present.way_indirect_hits = 1;
+	obj->way_indirect_hits = way_indirect_hits;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_way_misses(struct tc_cake_tin_stats_attrs *obj,
+				       __u32 way_misses)
+{
+	obj->_present.way_misses = 1;
+	obj->way_misses = way_misses;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_way_collisions(struct tc_cake_tin_stats_attrs *obj,
+					   __u32 way_collisions)
+{
+	obj->_present.way_collisions = 1;
+	obj->way_collisions = way_collisions;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_peak_delay_us(struct tc_cake_tin_stats_attrs *obj,
+					  __u32 peak_delay_us)
+{
+	obj->_present.peak_delay_us = 1;
+	obj->peak_delay_us = peak_delay_us;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_avg_delay_us(struct tc_cake_tin_stats_attrs *obj,
+					 __u32 avg_delay_us)
+{
+	obj->_present.avg_delay_us = 1;
+	obj->avg_delay_us = avg_delay_us;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_base_delay_us(struct tc_cake_tin_stats_attrs *obj,
+					  __u32 base_delay_us)
+{
+	obj->_present.base_delay_us = 1;
+	obj->base_delay_us = base_delay_us;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_sparse_flows(struct tc_cake_tin_stats_attrs *obj,
+					 __u32 sparse_flows)
+{
+	obj->_present.sparse_flows = 1;
+	obj->sparse_flows = sparse_flows;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_bulk_flows(struct tc_cake_tin_stats_attrs *obj,
+				       __u32 bulk_flows)
+{
+	obj->_present.bulk_flows = 1;
+	obj->bulk_flows = bulk_flows;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_unresponsive_flows(struct tc_cake_tin_stats_attrs *obj,
+					       __u32 unresponsive_flows)
+{
+	obj->_present.unresponsive_flows = 1;
+	obj->unresponsive_flows = unresponsive_flows;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_max_skblen(struct tc_cake_tin_stats_attrs *obj,
+				       __u32 max_skblen)
+{
+	obj->_present.max_skblen = 1;
+	obj->max_skblen = max_skblen;
+}
+static inline void
+tc_cake_tin_stats_attrs_set_flow_quantum(struct tc_cake_tin_stats_attrs *obj,
+					 __u32 flow_quantum)
+{
+	obj->_present.flow_quantum = 1;
+	obj->flow_quantum = flow_quantum;
+}
 
 struct tc_flower_key_enc_opt_geneve_attrs {
 	struct {
@@ -599,7 +847,91 @@ struct tc_tca_gred_vq_entry_attrs {
 	__u32 flags;
 };
 
+static inline struct tc_tca_gred_vq_entry_attrs *
+tc_tca_gred_vq_entry_attrs_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct tc_tca_gred_vq_entry_attrs));
+}
+
 void tc_tca_gred_vq_entry_attrs_free(struct tc_tca_gred_vq_entry_attrs *obj);
+
+static inline void
+tc_tca_gred_vq_entry_attrs_set_dp(struct tc_tca_gred_vq_entry_attrs *obj,
+				  __u32 dp)
+{
+	obj->_present.dp = 1;
+	obj->dp = dp;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_bytes(struct tc_tca_gred_vq_entry_attrs *obj,
+					  __u64 stat_bytes)
+{
+	obj->_present.stat_bytes = 1;
+	obj->stat_bytes = stat_bytes;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_packets(struct tc_tca_gred_vq_entry_attrs *obj,
+					    __u32 stat_packets)
+{
+	obj->_present.stat_packets = 1;
+	obj->stat_packets = stat_packets;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_backlog(struct tc_tca_gred_vq_entry_attrs *obj,
+					    __u32 stat_backlog)
+{
+	obj->_present.stat_backlog = 1;
+	obj->stat_backlog = stat_backlog;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_prob_drop(struct tc_tca_gred_vq_entry_attrs *obj,
+					      __u32 stat_prob_drop)
+{
+	obj->_present.stat_prob_drop = 1;
+	obj->stat_prob_drop = stat_prob_drop;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_prob_mark(struct tc_tca_gred_vq_entry_attrs *obj,
+					      __u32 stat_prob_mark)
+{
+	obj->_present.stat_prob_mark = 1;
+	obj->stat_prob_mark = stat_prob_mark;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_forced_drop(struct tc_tca_gred_vq_entry_attrs *obj,
+						__u32 stat_forced_drop)
+{
+	obj->_present.stat_forced_drop = 1;
+	obj->stat_forced_drop = stat_forced_drop;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_forced_mark(struct tc_tca_gred_vq_entry_attrs *obj,
+						__u32 stat_forced_mark)
+{
+	obj->_present.stat_forced_mark = 1;
+	obj->stat_forced_mark = stat_forced_mark;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_pdrop(struct tc_tca_gred_vq_entry_attrs *obj,
+					  __u32 stat_pdrop)
+{
+	obj->_present.stat_pdrop = 1;
+	obj->stat_pdrop = stat_pdrop;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_stat_other(struct tc_tca_gred_vq_entry_attrs *obj,
+					  __u32 stat_other)
+{
+	obj->_present.stat_other = 1;
+	obj->stat_other = stat_other;
+}
+static inline void
+tc_tca_gred_vq_entry_attrs_set_flags(struct tc_tca_gred_vq_entry_attrs *obj,
+				     __u32 flags)
+{
+	obj->_present.flags = 1;
+	obj->flags = flags;
+}
 
 struct tc_act_bpf_attrs {
 	struct {
@@ -1149,6 +1481,7 @@ struct tc_tca_stats_app_msg {
 	struct {
 		__u32 choke;
 		__u32 codel;
+		__u32 dualpi2;
 		__u32 fq;
 		__u32 fq_codel;
 		__u32 fq_pie;
@@ -1162,6 +1495,7 @@ struct tc_tca_stats_app_msg {
 	struct tc_cake_stats_attrs cake;
 	struct tc_choke_xstats *choke;
 	struct tc_codel_xstats *codel;
+	struct tc_dualpi2_xstats *dualpi2;
 	struct tc_fq_qd_stats *fq;
 	struct tc_fq_codel_xstats *fq_codel;
 	struct tc_fq_pie_xstats *fq_pie;
@@ -1273,7 +1607,1633 @@ struct tc_act_attrs {
 	__u32 in_hw_count;
 };
 
+static inline struct tc_act_attrs *tc_act_attrs_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct tc_act_attrs));
+}
+
 void tc_act_attrs_free(struct tc_act_attrs *obj);
+
+static inline void
+tc_act_attrs_set_kind(struct tc_act_attrs *obj, const char *kind)
+{
+	free(obj->kind);
+	obj->_len.kind = strlen(kind);
+	obj->kind = malloc(obj->_len.kind + 1);
+	memcpy(obj->kind, kind, obj->_len.kind);
+	obj->kind[obj->_len.kind] = 0;
+}
+static inline void
+tc_act_attrs_set_options_bpf_tm(struct tc_act_attrs *obj, const void *tm,
+				size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	free(obj->options.bpf.tm);
+	obj->options.bpf._len.tm = len;
+	obj->options.bpf.tm = malloc(obj->options.bpf._len.tm);
+	memcpy(obj->options.bpf.tm, tm, obj->options.bpf._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_bpf_parms(struct tc_act_attrs *obj, const void *parms,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	free(obj->options.bpf.parms);
+	obj->options.bpf._len.parms = len;
+	obj->options.bpf.parms = malloc(obj->options.bpf._len.parms);
+	memcpy(obj->options.bpf.parms, parms, obj->options.bpf._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_bpf_ops_len(struct tc_act_attrs *obj, __u16 ops_len)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	obj->options.bpf._present.ops_len = 1;
+	obj->options.bpf.ops_len = ops_len;
+}
+static inline void
+tc_act_attrs_set_options_bpf_ops(struct tc_act_attrs *obj, const void *ops,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	free(obj->options.bpf.ops);
+	obj->options.bpf._len.ops = len;
+	obj->options.bpf.ops = malloc(obj->options.bpf._len.ops);
+	memcpy(obj->options.bpf.ops, ops, obj->options.bpf._len.ops);
+}
+static inline void
+tc_act_attrs_set_options_bpf_fd(struct tc_act_attrs *obj, __u32 fd)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	obj->options.bpf._present.fd = 1;
+	obj->options.bpf.fd = fd;
+}
+static inline void
+tc_act_attrs_set_options_bpf_name(struct tc_act_attrs *obj, const char *name)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	free(obj->options.bpf.name);
+	obj->options.bpf._len.name = strlen(name);
+	obj->options.bpf.name = malloc(obj->options.bpf._len.name + 1);
+	memcpy(obj->options.bpf.name, name, obj->options.bpf._len.name);
+	obj->options.bpf.name[obj->options.bpf._len.name] = 0;
+}
+static inline void
+tc_act_attrs_set_options_bpf_tag(struct tc_act_attrs *obj, const void *tag,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	free(obj->options.bpf.tag);
+	obj->options.bpf._len.tag = len;
+	obj->options.bpf.tag = malloc(obj->options.bpf._len.tag);
+	memcpy(obj->options.bpf.tag, tag, obj->options.bpf._len.tag);
+}
+static inline void
+tc_act_attrs_set_options_bpf_id(struct tc_act_attrs *obj, const void *id,
+				size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.bpf = 1;
+	free(obj->options.bpf.id);
+	obj->options.bpf._len.id = len;
+	obj->options.bpf.id = malloc(obj->options.bpf._len.id);
+	memcpy(obj->options.bpf.id, id, obj->options.bpf._len.id);
+}
+static inline void
+tc_act_attrs_set_options_connmark_parms(struct tc_act_attrs *obj,
+					const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.connmark = 1;
+	free(obj->options.connmark.parms);
+	obj->options.connmark._len.parms = len;
+	obj->options.connmark.parms = malloc(obj->options.connmark._len.parms);
+	memcpy(obj->options.connmark.parms, parms, obj->options.connmark._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_connmark_tm(struct tc_act_attrs *obj, const void *tm,
+				     size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.connmark = 1;
+	free(obj->options.connmark.tm);
+	obj->options.connmark._len.tm = len;
+	obj->options.connmark.tm = malloc(obj->options.connmark._len.tm);
+	memcpy(obj->options.connmark.tm, tm, obj->options.connmark._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_csum_parms(struct tc_act_attrs *obj,
+				    const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.csum = 1;
+	free(obj->options.csum.parms);
+	obj->options.csum._len.parms = len;
+	obj->options.csum.parms = malloc(obj->options.csum._len.parms);
+	memcpy(obj->options.csum.parms, parms, obj->options.csum._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_csum_tm(struct tc_act_attrs *obj, const void *tm,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.csum = 1;
+	free(obj->options.csum.tm);
+	obj->options.csum._len.tm = len;
+	obj->options.csum.tm = malloc(obj->options.csum._len.tm);
+	memcpy(obj->options.csum.tm, tm, obj->options.csum._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_ct_parms(struct tc_act_attrs *obj, const void *parms,
+				  size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.parms);
+	obj->options.ct._len.parms = len;
+	obj->options.ct.parms = malloc(obj->options.ct._len.parms);
+	memcpy(obj->options.ct.parms, parms, obj->options.ct._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_ct_tm(struct tc_act_attrs *obj, const void *tm,
+			       size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.tm);
+	obj->options.ct._len.tm = len;
+	obj->options.ct.tm = malloc(obj->options.ct._len.tm);
+	memcpy(obj->options.ct.tm, tm, obj->options.ct._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_ct_action(struct tc_act_attrs *obj, __u16 action)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.action = 1;
+	obj->options.ct.action = action;
+}
+static inline void
+tc_act_attrs_set_options_ct_zone(struct tc_act_attrs *obj, __u16 zone)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.zone = 1;
+	obj->options.ct.zone = zone;
+}
+static inline void
+tc_act_attrs_set_options_ct_mark(struct tc_act_attrs *obj, __u32 mark)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.mark = 1;
+	obj->options.ct.mark = mark;
+}
+static inline void
+tc_act_attrs_set_options_ct_mark_mask(struct tc_act_attrs *obj,
+				      __u32 mark_mask)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.mark_mask = 1;
+	obj->options.ct.mark_mask = mark_mask;
+}
+static inline void
+tc_act_attrs_set_options_ct_labels(struct tc_act_attrs *obj,
+				   const void *labels, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.labels);
+	obj->options.ct._len.labels = len;
+	obj->options.ct.labels = malloc(obj->options.ct._len.labels);
+	memcpy(obj->options.ct.labels, labels, obj->options.ct._len.labels);
+}
+static inline void
+tc_act_attrs_set_options_ct_labels_mask(struct tc_act_attrs *obj,
+					const void *labels_mask, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.labels_mask);
+	obj->options.ct._len.labels_mask = len;
+	obj->options.ct.labels_mask = malloc(obj->options.ct._len.labels_mask);
+	memcpy(obj->options.ct.labels_mask, labels_mask, obj->options.ct._len.labels_mask);
+}
+static inline void
+tc_act_attrs_set_options_ct_nat_ipv4_min(struct tc_act_attrs *obj,
+					 __u32 nat_ipv4_min /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.nat_ipv4_min = 1;
+	obj->options.ct.nat_ipv4_min = nat_ipv4_min;
+}
+static inline void
+tc_act_attrs_set_options_ct_nat_ipv4_max(struct tc_act_attrs *obj,
+					 __u32 nat_ipv4_max /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.nat_ipv4_max = 1;
+	obj->options.ct.nat_ipv4_max = nat_ipv4_max;
+}
+static inline void
+tc_act_attrs_set_options_ct_nat_ipv6_min(struct tc_act_attrs *obj,
+					 const void *nat_ipv6_min, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.nat_ipv6_min);
+	obj->options.ct._len.nat_ipv6_min = len;
+	obj->options.ct.nat_ipv6_min = malloc(obj->options.ct._len.nat_ipv6_min);
+	memcpy(obj->options.ct.nat_ipv6_min, nat_ipv6_min, obj->options.ct._len.nat_ipv6_min);
+}
+static inline void
+tc_act_attrs_set_options_ct_nat_ipv6_max(struct tc_act_attrs *obj,
+					 const void *nat_ipv6_max, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.nat_ipv6_max);
+	obj->options.ct._len.nat_ipv6_max = len;
+	obj->options.ct.nat_ipv6_max = malloc(obj->options.ct._len.nat_ipv6_max);
+	memcpy(obj->options.ct.nat_ipv6_max, nat_ipv6_max, obj->options.ct._len.nat_ipv6_max);
+}
+static inline void
+tc_act_attrs_set_options_ct_nat_port_min(struct tc_act_attrs *obj,
+					 __u16 nat_port_min /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.nat_port_min = 1;
+	obj->options.ct.nat_port_min = nat_port_min;
+}
+static inline void
+tc_act_attrs_set_options_ct_nat_port_max(struct tc_act_attrs *obj,
+					 __u16 nat_port_max /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.nat_port_max = 1;
+	obj->options.ct.nat_port_max = nat_port_max;
+}
+static inline void
+tc_act_attrs_set_options_ct_helper_name(struct tc_act_attrs *obj,
+					const char *helper_name)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	free(obj->options.ct.helper_name);
+	obj->options.ct._len.helper_name = strlen(helper_name);
+	obj->options.ct.helper_name = malloc(obj->options.ct._len.helper_name + 1);
+	memcpy(obj->options.ct.helper_name, helper_name, obj->options.ct._len.helper_name);
+	obj->options.ct.helper_name[obj->options.ct._len.helper_name] = 0;
+}
+static inline void
+tc_act_attrs_set_options_ct_helper_family(struct tc_act_attrs *obj,
+					  __u8 helper_family)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.helper_family = 1;
+	obj->options.ct.helper_family = helper_family;
+}
+static inline void
+tc_act_attrs_set_options_ct_helper_proto(struct tc_act_attrs *obj,
+					 __u8 helper_proto)
+{
+	obj->_present.options = 1;
+	obj->options._present.ct = 1;
+	obj->options.ct._present.helper_proto = 1;
+	obj->options.ct.helper_proto = helper_proto;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_tm(struct tc_act_attrs *obj, const void *tm,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	free(obj->options.ctinfo.tm);
+	obj->options.ctinfo._len.tm = len;
+	obj->options.ctinfo.tm = malloc(obj->options.ctinfo._len.tm);
+	memcpy(obj->options.ctinfo.tm, tm, obj->options.ctinfo._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_act(struct tc_act_attrs *obj, const void *act,
+				    size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	free(obj->options.ctinfo.act);
+	obj->options.ctinfo._len.act = len;
+	obj->options.ctinfo.act = malloc(obj->options.ctinfo._len.act);
+	memcpy(obj->options.ctinfo.act, act, obj->options.ctinfo._len.act);
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_zone(struct tc_act_attrs *obj, __u16 zone)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.zone = 1;
+	obj->options.ctinfo.zone = zone;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_parms_dscp_mask(struct tc_act_attrs *obj,
+						__u32 parms_dscp_mask)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.parms_dscp_mask = 1;
+	obj->options.ctinfo.parms_dscp_mask = parms_dscp_mask;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_parms_dscp_statemask(struct tc_act_attrs *obj,
+						     __u32 parms_dscp_statemask)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.parms_dscp_statemask = 1;
+	obj->options.ctinfo.parms_dscp_statemask = parms_dscp_statemask;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_parms_cpmark_mask(struct tc_act_attrs *obj,
+						  __u32 parms_cpmark_mask)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.parms_cpmark_mask = 1;
+	obj->options.ctinfo.parms_cpmark_mask = parms_cpmark_mask;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_stats_dscp_set(struct tc_act_attrs *obj,
+					       __u64 stats_dscp_set)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.stats_dscp_set = 1;
+	obj->options.ctinfo.stats_dscp_set = stats_dscp_set;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_stats_dscp_error(struct tc_act_attrs *obj,
+						 __u64 stats_dscp_error)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.stats_dscp_error = 1;
+	obj->options.ctinfo.stats_dscp_error = stats_dscp_error;
+}
+static inline void
+tc_act_attrs_set_options_ctinfo_stats_cpmark_set(struct tc_act_attrs *obj,
+						 __u64 stats_cpmark_set)
+{
+	obj->_present.options = 1;
+	obj->options._present.ctinfo = 1;
+	obj->options.ctinfo._present.stats_cpmark_set = 1;
+	obj->options.ctinfo.stats_cpmark_set = stats_cpmark_set;
+}
+static inline void
+tc_act_attrs_set_options_gact_tm(struct tc_act_attrs *obj, const void *tm,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.gact = 1;
+	free(obj->options.gact.tm);
+	obj->options.gact._len.tm = len;
+	obj->options.gact.tm = malloc(obj->options.gact._len.tm);
+	memcpy(obj->options.gact.tm, tm, obj->options.gact._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_gact_parms(struct tc_act_attrs *obj,
+				    const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.gact = 1;
+	free(obj->options.gact.parms);
+	obj->options.gact._len.parms = len;
+	obj->options.gact.parms = malloc(obj->options.gact._len.parms);
+	memcpy(obj->options.gact.parms, parms, obj->options.gact._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_gact_prob(struct tc_act_attrs *obj, const void *prob,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.gact = 1;
+	free(obj->options.gact.prob);
+	obj->options.gact._len.prob = len;
+	obj->options.gact.prob = malloc(obj->options.gact._len.prob);
+	memcpy(obj->options.gact.prob, prob, obj->options.gact._len.prob);
+}
+static inline void
+tc_act_attrs_set_options_gate_tm(struct tc_act_attrs *obj, const void *tm,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	free(obj->options.gate.tm);
+	obj->options.gate._len.tm = len;
+	obj->options.gate.tm = malloc(obj->options.gate._len.tm);
+	memcpy(obj->options.gate.tm, tm, obj->options.gate._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_gate_parms(struct tc_act_attrs *obj,
+				    const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	free(obj->options.gate.parms);
+	obj->options.gate._len.parms = len;
+	obj->options.gate.parms = malloc(obj->options.gate._len.parms);
+	memcpy(obj->options.gate.parms, parms, obj->options.gate._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_gate_priority(struct tc_act_attrs *obj,
+				       __s32 priority)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	obj->options.gate._present.priority = 1;
+	obj->options.gate.priority = priority;
+}
+static inline void
+tc_act_attrs_set_options_gate_entry_list(struct tc_act_attrs *obj,
+					 const void *entry_list, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	free(obj->options.gate.entry_list);
+	obj->options.gate._len.entry_list = len;
+	obj->options.gate.entry_list = malloc(obj->options.gate._len.entry_list);
+	memcpy(obj->options.gate.entry_list, entry_list, obj->options.gate._len.entry_list);
+}
+static inline void
+tc_act_attrs_set_options_gate_base_time(struct tc_act_attrs *obj,
+					__u64 base_time)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	obj->options.gate._present.base_time = 1;
+	obj->options.gate.base_time = base_time;
+}
+static inline void
+tc_act_attrs_set_options_gate_cycle_time(struct tc_act_attrs *obj,
+					 __u64 cycle_time)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	obj->options.gate._present.cycle_time = 1;
+	obj->options.gate.cycle_time = cycle_time;
+}
+static inline void
+tc_act_attrs_set_options_gate_cycle_time_ext(struct tc_act_attrs *obj,
+					     __u64 cycle_time_ext)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	obj->options.gate._present.cycle_time_ext = 1;
+	obj->options.gate.cycle_time_ext = cycle_time_ext;
+}
+static inline void
+tc_act_attrs_set_options_gate_flags(struct tc_act_attrs *obj, __u32 flags)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	obj->options.gate._present.flags = 1;
+	obj->options.gate.flags = flags;
+}
+static inline void
+tc_act_attrs_set_options_gate_clockid(struct tc_act_attrs *obj, __s32 clockid)
+{
+	obj->_present.options = 1;
+	obj->options._present.gate = 1;
+	obj->options.gate._present.clockid = 1;
+	obj->options.gate.clockid = clockid;
+}
+static inline void
+tc_act_attrs_set_options_ife_parms(struct tc_act_attrs *obj, const void *parms,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ife = 1;
+	free(obj->options.ife.parms);
+	obj->options.ife._len.parms = len;
+	obj->options.ife.parms = malloc(obj->options.ife._len.parms);
+	memcpy(obj->options.ife.parms, parms, obj->options.ife._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_ife_tm(struct tc_act_attrs *obj, const void *tm,
+				size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ife = 1;
+	free(obj->options.ife.tm);
+	obj->options.ife._len.tm = len;
+	obj->options.ife.tm = malloc(obj->options.ife._len.tm);
+	memcpy(obj->options.ife.tm, tm, obj->options.ife._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_ife_dmac(struct tc_act_attrs *obj, const void *dmac,
+				  size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ife = 1;
+	free(obj->options.ife.dmac);
+	obj->options.ife._len.dmac = len;
+	obj->options.ife.dmac = malloc(obj->options.ife._len.dmac);
+	memcpy(obj->options.ife.dmac, dmac, obj->options.ife._len.dmac);
+}
+static inline void
+tc_act_attrs_set_options_ife_smac(struct tc_act_attrs *obj, const void *smac,
+				  size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ife = 1;
+	free(obj->options.ife.smac);
+	obj->options.ife._len.smac = len;
+	obj->options.ife.smac = malloc(obj->options.ife._len.smac);
+	memcpy(obj->options.ife.smac, smac, obj->options.ife._len.smac);
+}
+static inline void
+tc_act_attrs_set_options_ife_type(struct tc_act_attrs *obj, __u16 type)
+{
+	obj->_present.options = 1;
+	obj->options._present.ife = 1;
+	obj->options.ife._present.type = 1;
+	obj->options.ife.type = type;
+}
+static inline void
+tc_act_attrs_set_options_ife_metalst(struct tc_act_attrs *obj,
+				     const void *metalst, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.ife = 1;
+	free(obj->options.ife.metalst);
+	obj->options.ife._len.metalst = len;
+	obj->options.ife.metalst = malloc(obj->options.ife._len.metalst);
+	memcpy(obj->options.ife.metalst, metalst, obj->options.ife._len.metalst);
+}
+static inline void
+tc_act_attrs_set_options_mirred_tm(struct tc_act_attrs *obj, const void *tm,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.mirred = 1;
+	free(obj->options.mirred.tm);
+	obj->options.mirred._len.tm = len;
+	obj->options.mirred.tm = malloc(obj->options.mirred._len.tm);
+	memcpy(obj->options.mirred.tm, tm, obj->options.mirred._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_mirred_parms(struct tc_act_attrs *obj,
+				      const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.mirred = 1;
+	free(obj->options.mirred.parms);
+	obj->options.mirred._len.parms = len;
+	obj->options.mirred.parms = malloc(obj->options.mirred._len.parms);
+	memcpy(obj->options.mirred.parms, parms, obj->options.mirred._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_mirred_blockid(struct tc_act_attrs *obj,
+					const void *blockid, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.mirred = 1;
+	free(obj->options.mirred.blockid);
+	obj->options.mirred._len.blockid = len;
+	obj->options.mirred.blockid = malloc(obj->options.mirred._len.blockid);
+	memcpy(obj->options.mirred.blockid, blockid, obj->options.mirred._len.blockid);
+}
+static inline void
+tc_act_attrs_set_options_mpls_tm(struct tc_act_attrs *obj, const void *tm,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	free(obj->options.mpls.tm);
+	obj->options.mpls._len.tm = len;
+	obj->options.mpls.tm = malloc(obj->options.mpls._len.tm);
+	memcpy(obj->options.mpls.tm, tm, obj->options.mpls._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_mpls_parms(struct tc_act_attrs *obj,
+				    const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	free(obj->options.mpls.parms);
+	obj->options.mpls._len.parms = len;
+	obj->options.mpls.parms = malloc(obj->options.mpls._len.parms);
+	memcpy(obj->options.mpls.parms, parms, obj->options.mpls._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_mpls_proto(struct tc_act_attrs *obj,
+				    __u16 proto /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	obj->options.mpls._present.proto = 1;
+	obj->options.mpls.proto = proto;
+}
+static inline void
+tc_act_attrs_set_options_mpls_label(struct tc_act_attrs *obj, __u32 label)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	obj->options.mpls._present.label = 1;
+	obj->options.mpls.label = label;
+}
+static inline void
+tc_act_attrs_set_options_mpls_tc(struct tc_act_attrs *obj, __u8 tc)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	obj->options.mpls._present.tc = 1;
+	obj->options.mpls.tc = tc;
+}
+static inline void
+tc_act_attrs_set_options_mpls_ttl(struct tc_act_attrs *obj, __u8 ttl)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	obj->options.mpls._present.ttl = 1;
+	obj->options.mpls.ttl = ttl;
+}
+static inline void
+tc_act_attrs_set_options_mpls_bos(struct tc_act_attrs *obj, __u8 bos)
+{
+	obj->_present.options = 1;
+	obj->options._present.mpls = 1;
+	obj->options.mpls._present.bos = 1;
+	obj->options.mpls.bos = bos;
+}
+static inline void
+tc_act_attrs_set_options_nat_parms(struct tc_act_attrs *obj, const void *parms,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.nat = 1;
+	free(obj->options.nat.parms);
+	obj->options.nat._len.parms = len;
+	obj->options.nat.parms = malloc(obj->options.nat._len.parms);
+	memcpy(obj->options.nat.parms, parms, obj->options.nat._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_nat_tm(struct tc_act_attrs *obj, const void *tm,
+				size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.nat = 1;
+	free(obj->options.nat.tm);
+	obj->options.nat._len.tm = len;
+	obj->options.nat.tm = malloc(obj->options.nat._len.tm);
+	memcpy(obj->options.nat.tm, tm, obj->options.nat._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_pedit_tm(struct tc_act_attrs *obj, const void *tm,
+				  size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.pedit = 1;
+	free(obj->options.pedit.tm);
+	obj->options.pedit._len.tm = len;
+	obj->options.pedit.tm = malloc(obj->options.pedit._len.tm);
+	memcpy(obj->options.pedit.tm, tm, obj->options.pedit._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_pedit_parms(struct tc_act_attrs *obj,
+				     const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.pedit = 1;
+	free(obj->options.pedit.parms);
+	obj->options.pedit._len.parms = len;
+	obj->options.pedit.parms = malloc(obj->options.pedit._len.parms);
+	memcpy(obj->options.pedit.parms, parms, obj->options.pedit._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_pedit_parms_ex(struct tc_act_attrs *obj,
+					const void *parms_ex, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.pedit = 1;
+	free(obj->options.pedit.parms_ex);
+	obj->options.pedit._len.parms_ex = len;
+	obj->options.pedit.parms_ex = malloc(obj->options.pedit._len.parms_ex);
+	memcpy(obj->options.pedit.parms_ex, parms_ex, obj->options.pedit._len.parms_ex);
+}
+static inline void
+tc_act_attrs_set_options_pedit_keys_ex(struct tc_act_attrs *obj,
+				       const void *keys_ex, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.pedit = 1;
+	free(obj->options.pedit.keys_ex);
+	obj->options.pedit._len.keys_ex = len;
+	obj->options.pedit.keys_ex = malloc(obj->options.pedit._len.keys_ex);
+	memcpy(obj->options.pedit.keys_ex, keys_ex, obj->options.pedit._len.keys_ex);
+}
+static inline void
+tc_act_attrs_set_options_pedit_key_ex(struct tc_act_attrs *obj,
+				      const void *key_ex, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.pedit = 1;
+	free(obj->options.pedit.key_ex);
+	obj->options.pedit._len.key_ex = len;
+	obj->options.pedit.key_ex = malloc(obj->options.pedit._len.key_ex);
+	memcpy(obj->options.pedit.key_ex, key_ex, obj->options.pedit._len.key_ex);
+}
+static inline void
+tc_act_attrs_set_options_police_tbf(struct tc_act_attrs *obj, const void *tbf,
+				    size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	free(obj->options.police.tbf);
+	obj->options.police._len.tbf = len;
+	obj->options.police.tbf = malloc(obj->options.police._len.tbf);
+	memcpy(obj->options.police.tbf, tbf, obj->options.police._len.tbf);
+}
+static inline void
+tc_act_attrs_set_options_police_rate(struct tc_act_attrs *obj,
+				     const void *rate, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	free(obj->options.police.rate);
+	obj->options.police._len.rate = len;
+	obj->options.police.rate = malloc(obj->options.police._len.rate);
+	memcpy(obj->options.police.rate, rate, obj->options.police._len.rate);
+}
+static inline void
+tc_act_attrs_set_options_police_peakrate(struct tc_act_attrs *obj,
+					 const void *peakrate, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	free(obj->options.police.peakrate);
+	obj->options.police._len.peakrate = len;
+	obj->options.police.peakrate = malloc(obj->options.police._len.peakrate);
+	memcpy(obj->options.police.peakrate, peakrate, obj->options.police._len.peakrate);
+}
+static inline void
+tc_act_attrs_set_options_police_avrate(struct tc_act_attrs *obj, __u32 avrate)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	obj->options.police._present.avrate = 1;
+	obj->options.police.avrate = avrate;
+}
+static inline void
+tc_act_attrs_set_options_police_result(struct tc_act_attrs *obj, __u32 result)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	obj->options.police._present.result = 1;
+	obj->options.police.result = result;
+}
+static inline void
+tc_act_attrs_set_options_police_tm(struct tc_act_attrs *obj, const void *tm,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	free(obj->options.police.tm);
+	obj->options.police._len.tm = len;
+	obj->options.police.tm = malloc(obj->options.police._len.tm);
+	memcpy(obj->options.police.tm, tm, obj->options.police._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_police_rate64(struct tc_act_attrs *obj, __u64 rate64)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	obj->options.police._present.rate64 = 1;
+	obj->options.police.rate64 = rate64;
+}
+static inline void
+tc_act_attrs_set_options_police_peakrate64(struct tc_act_attrs *obj,
+					   __u64 peakrate64)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	obj->options.police._present.peakrate64 = 1;
+	obj->options.police.peakrate64 = peakrate64;
+}
+static inline void
+tc_act_attrs_set_options_police_pktrate64(struct tc_act_attrs *obj,
+					  __u64 pktrate64)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	obj->options.police._present.pktrate64 = 1;
+	obj->options.police.pktrate64 = pktrate64;
+}
+static inline void
+tc_act_attrs_set_options_police_pktburst64(struct tc_act_attrs *obj,
+					   __u64 pktburst64)
+{
+	obj->_present.options = 1;
+	obj->options._present.police = 1;
+	obj->options.police._present.pktburst64 = 1;
+	obj->options.police.pktburst64 = pktburst64;
+}
+static inline void
+tc_act_attrs_set_options_sample_tm(struct tc_act_attrs *obj, const void *tm,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.sample = 1;
+	free(obj->options.sample.tm);
+	obj->options.sample._len.tm = len;
+	obj->options.sample.tm = malloc(obj->options.sample._len.tm);
+	memcpy(obj->options.sample.tm, tm, obj->options.sample._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_sample_parms(struct tc_act_attrs *obj,
+				      const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.sample = 1;
+	free(obj->options.sample.parms);
+	obj->options.sample._len.parms = len;
+	obj->options.sample.parms = malloc(obj->options.sample._len.parms);
+	memcpy(obj->options.sample.parms, parms, obj->options.sample._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_sample_rate(struct tc_act_attrs *obj, __u32 rate)
+{
+	obj->_present.options = 1;
+	obj->options._present.sample = 1;
+	obj->options.sample._present.rate = 1;
+	obj->options.sample.rate = rate;
+}
+static inline void
+tc_act_attrs_set_options_sample_trunc_size(struct tc_act_attrs *obj,
+					   __u32 trunc_size)
+{
+	obj->_present.options = 1;
+	obj->options._present.sample = 1;
+	obj->options.sample._present.trunc_size = 1;
+	obj->options.sample.trunc_size = trunc_size;
+}
+static inline void
+tc_act_attrs_set_options_sample_psample_group(struct tc_act_attrs *obj,
+					      __u32 psample_group)
+{
+	obj->_present.options = 1;
+	obj->options._present.sample = 1;
+	obj->options.sample._present.psample_group = 1;
+	obj->options.sample.psample_group = psample_group;
+}
+static inline void
+tc_act_attrs_set_options_simple_tm(struct tc_act_attrs *obj, const void *tm,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.simple = 1;
+	free(obj->options.simple.tm);
+	obj->options.simple._len.tm = len;
+	obj->options.simple.tm = malloc(obj->options.simple._len.tm);
+	memcpy(obj->options.simple.tm, tm, obj->options.simple._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_simple_parms(struct tc_act_attrs *obj,
+				      const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.simple = 1;
+	free(obj->options.simple.parms);
+	obj->options.simple._len.parms = len;
+	obj->options.simple.parms = malloc(obj->options.simple._len.parms);
+	memcpy(obj->options.simple.parms, parms, obj->options.simple._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_simple_data(struct tc_act_attrs *obj,
+				     const void *data, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.simple = 1;
+	free(obj->options.simple.data);
+	obj->options.simple._len.data = len;
+	obj->options.simple.data = malloc(obj->options.simple._len.data);
+	memcpy(obj->options.simple.data, data, obj->options.simple._len.data);
+}
+static inline void
+tc_act_attrs_set_options_skbedit_tm(struct tc_act_attrs *obj, const void *tm,
+				    size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	free(obj->options.skbedit.tm);
+	obj->options.skbedit._len.tm = len;
+	obj->options.skbedit.tm = malloc(obj->options.skbedit._len.tm);
+	memcpy(obj->options.skbedit.tm, tm, obj->options.skbedit._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_skbedit_parms(struct tc_act_attrs *obj,
+				       const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	free(obj->options.skbedit.parms);
+	obj->options.skbedit._len.parms = len;
+	obj->options.skbedit.parms = malloc(obj->options.skbedit._len.parms);
+	memcpy(obj->options.skbedit.parms, parms, obj->options.skbedit._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_skbedit_priority(struct tc_act_attrs *obj,
+					  __u32 priority)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.priority = 1;
+	obj->options.skbedit.priority = priority;
+}
+static inline void
+tc_act_attrs_set_options_skbedit_queue_mapping(struct tc_act_attrs *obj,
+					       __u16 queue_mapping)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.queue_mapping = 1;
+	obj->options.skbedit.queue_mapping = queue_mapping;
+}
+static inline void
+tc_act_attrs_set_options_skbedit_mark(struct tc_act_attrs *obj, __u32 mark)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.mark = 1;
+	obj->options.skbedit.mark = mark;
+}
+static inline void
+tc_act_attrs_set_options_skbedit_ptype(struct tc_act_attrs *obj, __u16 ptype)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.ptype = 1;
+	obj->options.skbedit.ptype = ptype;
+}
+static inline void
+tc_act_attrs_set_options_skbedit_mask(struct tc_act_attrs *obj, __u32 mask)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.mask = 1;
+	obj->options.skbedit.mask = mask;
+}
+static inline void
+tc_act_attrs_set_options_skbedit_flags(struct tc_act_attrs *obj, __u64 flags)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.flags = 1;
+	obj->options.skbedit.flags = flags;
+}
+static inline void
+tc_act_attrs_set_options_skbedit_queue_mapping_max(struct tc_act_attrs *obj,
+						   __u16 queue_mapping_max)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbedit = 1;
+	obj->options.skbedit._present.queue_mapping_max = 1;
+	obj->options.skbedit.queue_mapping_max = queue_mapping_max;
+}
+static inline void
+tc_act_attrs_set_options_skbmod_tm(struct tc_act_attrs *obj, const void *tm,
+				   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbmod = 1;
+	free(obj->options.skbmod.tm);
+	obj->options.skbmod._len.tm = len;
+	obj->options.skbmod.tm = malloc(obj->options.skbmod._len.tm);
+	memcpy(obj->options.skbmod.tm, tm, obj->options.skbmod._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_skbmod_parms(struct tc_act_attrs *obj,
+				      const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbmod = 1;
+	free(obj->options.skbmod.parms);
+	obj->options.skbmod._len.parms = len;
+	obj->options.skbmod.parms = malloc(obj->options.skbmod._len.parms);
+	memcpy(obj->options.skbmod.parms, parms, obj->options.skbmod._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_skbmod_dmac(struct tc_act_attrs *obj,
+				     const void *dmac, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbmod = 1;
+	free(obj->options.skbmod.dmac);
+	obj->options.skbmod._len.dmac = len;
+	obj->options.skbmod.dmac = malloc(obj->options.skbmod._len.dmac);
+	memcpy(obj->options.skbmod.dmac, dmac, obj->options.skbmod._len.dmac);
+}
+static inline void
+tc_act_attrs_set_options_skbmod_smac(struct tc_act_attrs *obj,
+				     const void *smac, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbmod = 1;
+	free(obj->options.skbmod.smac);
+	obj->options.skbmod._len.smac = len;
+	obj->options.skbmod.smac = malloc(obj->options.skbmod._len.smac);
+	memcpy(obj->options.skbmod.smac, smac, obj->options.skbmod._len.smac);
+}
+static inline void
+tc_act_attrs_set_options_skbmod_etype(struct tc_act_attrs *obj,
+				      const void *etype, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.skbmod = 1;
+	free(obj->options.skbmod.etype);
+	obj->options.skbmod._len.etype = len;
+	obj->options.skbmod.etype = malloc(obj->options.skbmod._len.etype);
+	memcpy(obj->options.skbmod.etype, etype, obj->options.skbmod._len.etype);
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_tm(struct tc_act_attrs *obj,
+				       const void *tm, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	free(obj->options.tunnel_key.tm);
+	obj->options.tunnel_key._len.tm = len;
+	obj->options.tunnel_key.tm = malloc(obj->options.tunnel_key._len.tm);
+	memcpy(obj->options.tunnel_key.tm, tm, obj->options.tunnel_key._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_parms(struct tc_act_attrs *obj,
+					  const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	free(obj->options.tunnel_key.parms);
+	obj->options.tunnel_key._len.parms = len;
+	obj->options.tunnel_key.parms = malloc(obj->options.tunnel_key._len.parms);
+	memcpy(obj->options.tunnel_key.parms, parms, obj->options.tunnel_key._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_ipv4_src(struct tc_act_attrs *obj,
+						 __u32 enc_ipv4_src /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.enc_ipv4_src = 1;
+	obj->options.tunnel_key.enc_ipv4_src = enc_ipv4_src;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_ipv4_dst(struct tc_act_attrs *obj,
+						 __u32 enc_ipv4_dst /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.enc_ipv4_dst = 1;
+	obj->options.tunnel_key.enc_ipv4_dst = enc_ipv4_dst;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_ipv6_src(struct tc_act_attrs *obj,
+						 const void *enc_ipv6_src,
+						 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	free(obj->options.tunnel_key.enc_ipv6_src);
+	obj->options.tunnel_key._len.enc_ipv6_src = len;
+	obj->options.tunnel_key.enc_ipv6_src = malloc(obj->options.tunnel_key._len.enc_ipv6_src);
+	memcpy(obj->options.tunnel_key.enc_ipv6_src, enc_ipv6_src, obj->options.tunnel_key._len.enc_ipv6_src);
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_ipv6_dst(struct tc_act_attrs *obj,
+						 const void *enc_ipv6_dst,
+						 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	free(obj->options.tunnel_key.enc_ipv6_dst);
+	obj->options.tunnel_key._len.enc_ipv6_dst = len;
+	obj->options.tunnel_key.enc_ipv6_dst = malloc(obj->options.tunnel_key._len.enc_ipv6_dst);
+	memcpy(obj->options.tunnel_key.enc_ipv6_dst, enc_ipv6_dst, obj->options.tunnel_key._len.enc_ipv6_dst);
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_key_id(struct tc_act_attrs *obj,
+					       __u64 enc_key_id /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.enc_key_id = 1;
+	obj->options.tunnel_key.enc_key_id = enc_key_id;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_dst_port(struct tc_act_attrs *obj,
+						 __u16 enc_dst_port /* big-endian */)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.enc_dst_port = 1;
+	obj->options.tunnel_key.enc_dst_port = enc_dst_port;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_no_csum(struct tc_act_attrs *obj,
+					    __u8 no_csum)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.no_csum = 1;
+	obj->options.tunnel_key.no_csum = no_csum;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_opts(struct tc_act_attrs *obj,
+					     const void *enc_opts, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	free(obj->options.tunnel_key.enc_opts);
+	obj->options.tunnel_key._len.enc_opts = len;
+	obj->options.tunnel_key.enc_opts = malloc(obj->options.tunnel_key._len.enc_opts);
+	memcpy(obj->options.tunnel_key.enc_opts, enc_opts, obj->options.tunnel_key._len.enc_opts);
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_tos(struct tc_act_attrs *obj,
+					    __u8 enc_tos)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.enc_tos = 1;
+	obj->options.tunnel_key.enc_tos = enc_tos;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_enc_ttl(struct tc_act_attrs *obj,
+					    __u8 enc_ttl)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.enc_ttl = 1;
+	obj->options.tunnel_key.enc_ttl = enc_ttl;
+}
+static inline void
+tc_act_attrs_set_options_tunnel_key_no_frag(struct tc_act_attrs *obj)
+{
+	obj->_present.options = 1;
+	obj->options._present.tunnel_key = 1;
+	obj->options.tunnel_key._present.no_frag = 1;
+}
+static inline void
+tc_act_attrs_set_options_vlan_tm(struct tc_act_attrs *obj, const void *tm,
+				 size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	free(obj->options.vlan.tm);
+	obj->options.vlan._len.tm = len;
+	obj->options.vlan.tm = malloc(obj->options.vlan._len.tm);
+	memcpy(obj->options.vlan.tm, tm, obj->options.vlan._len.tm);
+}
+static inline void
+tc_act_attrs_set_options_vlan_parms(struct tc_act_attrs *obj,
+				    const void *parms, size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	free(obj->options.vlan.parms);
+	obj->options.vlan._len.parms = len;
+	obj->options.vlan.parms = malloc(obj->options.vlan._len.parms);
+	memcpy(obj->options.vlan.parms, parms, obj->options.vlan._len.parms);
+}
+static inline void
+tc_act_attrs_set_options_vlan_push_vlan_id(struct tc_act_attrs *obj,
+					   __u16 push_vlan_id)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	obj->options.vlan._present.push_vlan_id = 1;
+	obj->options.vlan.push_vlan_id = push_vlan_id;
+}
+static inline void
+tc_act_attrs_set_options_vlan_push_vlan_protocol(struct tc_act_attrs *obj,
+						 __u16 push_vlan_protocol)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	obj->options.vlan._present.push_vlan_protocol = 1;
+	obj->options.vlan.push_vlan_protocol = push_vlan_protocol;
+}
+static inline void
+tc_act_attrs_set_options_vlan_push_vlan_priority(struct tc_act_attrs *obj,
+						 __u8 push_vlan_priority)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	obj->options.vlan._present.push_vlan_priority = 1;
+	obj->options.vlan.push_vlan_priority = push_vlan_priority;
+}
+static inline void
+tc_act_attrs_set_options_vlan_push_eth_dst(struct tc_act_attrs *obj,
+					   const void *push_eth_dst,
+					   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	free(obj->options.vlan.push_eth_dst);
+	obj->options.vlan._len.push_eth_dst = len;
+	obj->options.vlan.push_eth_dst = malloc(obj->options.vlan._len.push_eth_dst);
+	memcpy(obj->options.vlan.push_eth_dst, push_eth_dst, obj->options.vlan._len.push_eth_dst);
+}
+static inline void
+tc_act_attrs_set_options_vlan_push_eth_src(struct tc_act_attrs *obj,
+					   const void *push_eth_src,
+					   size_t len)
+{
+	obj->_present.options = 1;
+	obj->options._present.vlan = 1;
+	free(obj->options.vlan.push_eth_src);
+	obj->options.vlan._len.push_eth_src = len;
+	obj->options.vlan.push_eth_src = malloc(obj->options.vlan._len.push_eth_src);
+	memcpy(obj->options.vlan.push_eth_src, push_eth_src, obj->options.vlan._len.push_eth_src);
+}
+static inline void
+tc_act_attrs_set_index(struct tc_act_attrs *obj, __u32 index)
+{
+	obj->_present.index = 1;
+	obj->index = index;
+}
+static inline void
+tc_act_attrs_set_stats_basic(struct tc_act_attrs *obj, const void *basic,
+			     size_t len)
+{
+	obj->_present.stats = 1;
+	free(obj->stats.basic);
+	obj->stats._len.basic = len;
+	obj->stats.basic = malloc(obj->stats._len.basic);
+	memcpy(obj->stats.basic, basic, obj->stats._len.basic);
+}
+static inline void
+tc_act_attrs_set_stats_rate_est(struct tc_act_attrs *obj, const void *rate_est,
+				size_t len)
+{
+	obj->_present.stats = 1;
+	free(obj->stats.rate_est);
+	obj->stats._len.rate_est = len;
+	obj->stats.rate_est = malloc(obj->stats._len.rate_est);
+	memcpy(obj->stats.rate_est, rate_est, obj->stats._len.rate_est);
+}
+static inline void
+tc_act_attrs_set_stats_queue(struct tc_act_attrs *obj, const void *queue,
+			     size_t len)
+{
+	obj->_present.stats = 1;
+	free(obj->stats.queue);
+	obj->stats._len.queue = len;
+	obj->stats.queue = malloc(obj->stats._len.queue);
+	memcpy(obj->stats.queue, queue, obj->stats._len.queue);
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_capacity_estimate64(struct tc_act_attrs *obj,
+						    __u64 capacity_estimate64)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.capacity_estimate64 = 1;
+	obj->stats.app.cake.capacity_estimate64 = capacity_estimate64;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_memory_limit(struct tc_act_attrs *obj,
+					     __u32 memory_limit)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.memory_limit = 1;
+	obj->stats.app.cake.memory_limit = memory_limit;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_memory_used(struct tc_act_attrs *obj,
+					    __u32 memory_used)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.memory_used = 1;
+	obj->stats.app.cake.memory_used = memory_used;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_avg_netoff(struct tc_act_attrs *obj,
+					   __u32 avg_netoff)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.avg_netoff = 1;
+	obj->stats.app.cake.avg_netoff = avg_netoff;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_min_netlen(struct tc_act_attrs *obj,
+					   __u32 min_netlen)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.min_netlen = 1;
+	obj->stats.app.cake.min_netlen = min_netlen;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_max_netlen(struct tc_act_attrs *obj,
+					   __u32 max_netlen)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.max_netlen = 1;
+	obj->stats.app.cake.max_netlen = max_netlen;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_min_adjlen(struct tc_act_attrs *obj,
+					   __u32 min_adjlen)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.min_adjlen = 1;
+	obj->stats.app.cake.min_adjlen = min_adjlen;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_max_adjlen(struct tc_act_attrs *obj,
+					   __u32 max_adjlen)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.max_adjlen = 1;
+	obj->stats.app.cake.max_adjlen = max_adjlen;
+}
+static inline void
+__tc_act_attrs_set_stats_app_cake_tin_stats(struct tc_act_attrs *obj,
+					    struct tc_cake_tin_stats_attrs *tin_stats,
+					    unsigned int n_tin_stats)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	free(obj->stats.app.cake.tin_stats);
+	obj->stats.app.cake.tin_stats = tin_stats;
+	obj->stats.app.cake._count.tin_stats = n_tin_stats;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_deficit(struct tc_act_attrs *obj,
+					__s32 deficit)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.deficit = 1;
+	obj->stats.app.cake.deficit = deficit;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_cobalt_count(struct tc_act_attrs *obj,
+					     __u32 cobalt_count)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.cobalt_count = 1;
+	obj->stats.app.cake.cobalt_count = cobalt_count;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_dropping(struct tc_act_attrs *obj,
+					 __u32 dropping)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.dropping = 1;
+	obj->stats.app.cake.dropping = dropping;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_drop_next_us(struct tc_act_attrs *obj,
+					     __s32 drop_next_us)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.drop_next_us = 1;
+	obj->stats.app.cake.drop_next_us = drop_next_us;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_p_drop(struct tc_act_attrs *obj, __u32 p_drop)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.p_drop = 1;
+	obj->stats.app.cake.p_drop = p_drop;
+}
+static inline void
+tc_act_attrs_set_stats_app_cake_blue_timer_us(struct tc_act_attrs *obj,
+					      __s32 blue_timer_us)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	obj->stats.app._present.cake = 1;
+	obj->stats.app.cake._present.blue_timer_us = 1;
+	obj->stats.app.cake.blue_timer_us = blue_timer_us;
+}
+static inline void
+tc_act_attrs_set_stats_app_choke(struct tc_act_attrs *obj, const void *choke,
+				 size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.choke);
+	obj->stats.app._len.choke = len;
+	obj->stats.app.choke = malloc(obj->stats.app._len.choke);
+	memcpy(obj->stats.app.choke, choke, obj->stats.app._len.choke);
+}
+static inline void
+tc_act_attrs_set_stats_app_codel(struct tc_act_attrs *obj, const void *codel,
+				 size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.codel);
+	obj->stats.app._len.codel = len;
+	obj->stats.app.codel = malloc(obj->stats.app._len.codel);
+	memcpy(obj->stats.app.codel, codel, obj->stats.app._len.codel);
+}
+static inline void
+tc_act_attrs_set_stats_app_dualpi2(struct tc_act_attrs *obj,
+				   const void *dualpi2, size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.dualpi2);
+	obj->stats.app._len.dualpi2 = len;
+	obj->stats.app.dualpi2 = malloc(obj->stats.app._len.dualpi2);
+	memcpy(obj->stats.app.dualpi2, dualpi2, obj->stats.app._len.dualpi2);
+}
+static inline void
+tc_act_attrs_set_stats_app_fq(struct tc_act_attrs *obj, const void *fq,
+			      size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.fq);
+	obj->stats.app._len.fq = len;
+	obj->stats.app.fq = malloc(obj->stats.app._len.fq);
+	memcpy(obj->stats.app.fq, fq, obj->stats.app._len.fq);
+}
+static inline void
+tc_act_attrs_set_stats_app_fq_codel(struct tc_act_attrs *obj,
+				    const void *fq_codel, size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.fq_codel);
+	obj->stats.app._len.fq_codel = len;
+	obj->stats.app.fq_codel = malloc(obj->stats.app._len.fq_codel);
+	memcpy(obj->stats.app.fq_codel, fq_codel, obj->stats.app._len.fq_codel);
+}
+static inline void
+tc_act_attrs_set_stats_app_fq_pie(struct tc_act_attrs *obj, const void *fq_pie,
+				  size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.fq_pie);
+	obj->stats.app._len.fq_pie = len;
+	obj->stats.app.fq_pie = malloc(obj->stats.app._len.fq_pie);
+	memcpy(obj->stats.app.fq_pie, fq_pie, obj->stats.app._len.fq_pie);
+}
+static inline void
+tc_act_attrs_set_stats_app_hhf(struct tc_act_attrs *obj, const void *hhf,
+			       size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.hhf);
+	obj->stats.app._len.hhf = len;
+	obj->stats.app.hhf = malloc(obj->stats.app._len.hhf);
+	memcpy(obj->stats.app.hhf, hhf, obj->stats.app._len.hhf);
+}
+static inline void
+tc_act_attrs_set_stats_app_pie(struct tc_act_attrs *obj, const void *pie,
+			       size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.pie);
+	obj->stats.app._len.pie = len;
+	obj->stats.app.pie = malloc(obj->stats.app._len.pie);
+	memcpy(obj->stats.app.pie, pie, obj->stats.app._len.pie);
+}
+static inline void
+tc_act_attrs_set_stats_app_red(struct tc_act_attrs *obj, const void *red,
+			       size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.red);
+	obj->stats.app._len.red = len;
+	obj->stats.app.red = malloc(obj->stats.app._len.red);
+	memcpy(obj->stats.app.red, red, obj->stats.app._len.red);
+}
+static inline void
+tc_act_attrs_set_stats_app_sfb(struct tc_act_attrs *obj, const void *sfb,
+			       size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.sfb);
+	obj->stats.app._len.sfb = len;
+	obj->stats.app.sfb = malloc(obj->stats.app._len.sfb);
+	memcpy(obj->stats.app.sfb, sfb, obj->stats.app._len.sfb);
+}
+static inline void
+tc_act_attrs_set_stats_app_sfq(struct tc_act_attrs *obj, const void *sfq,
+			       size_t len)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.app = 1;
+	free(obj->stats.app.sfq);
+	obj->stats.app._len.sfq = len;
+	obj->stats.app.sfq = malloc(obj->stats.app._len.sfq);
+	memcpy(obj->stats.app.sfq, sfq, obj->stats.app._len.sfq);
+}
+static inline void
+tc_act_attrs_set_stats_rate_est64(struct tc_act_attrs *obj,
+				  const void *rate_est64, size_t len)
+{
+	obj->_present.stats = 1;
+	free(obj->stats.rate_est64);
+	obj->stats._len.rate_est64 = len;
+	obj->stats.rate_est64 = malloc(obj->stats._len.rate_est64);
+	memcpy(obj->stats.rate_est64, rate_est64, obj->stats._len.rate_est64);
+}
+static inline void
+tc_act_attrs_set_stats_basic_hw(struct tc_act_attrs *obj, const void *basic_hw,
+				size_t len)
+{
+	obj->_present.stats = 1;
+	free(obj->stats.basic_hw);
+	obj->stats._len.basic_hw = len;
+	obj->stats.basic_hw = malloc(obj->stats._len.basic_hw);
+	memcpy(obj->stats.basic_hw, basic_hw, obj->stats._len.basic_hw);
+}
+static inline void
+tc_act_attrs_set_stats_pkt64(struct tc_act_attrs *obj, __u64 pkt64)
+{
+	obj->_present.stats = 1;
+	obj->stats._present.pkt64 = 1;
+	obj->stats.pkt64 = pkt64;
+}
+static inline void
+tc_act_attrs_set_cookie(struct tc_act_attrs *obj, const void *cookie,
+			size_t len)
+{
+	free(obj->cookie);
+	obj->_len.cookie = len;
+	obj->cookie = malloc(obj->_len.cookie);
+	memcpy(obj->cookie, cookie, obj->_len.cookie);
+}
+static inline void
+tc_act_attrs_set_flags(struct tc_act_attrs *obj, struct nla_bitfield32 *flags)
+{
+	obj->_present.flags = 1;
+	memcpy(&obj->flags, flags, sizeof(struct nla_bitfield32));
+}
+static inline void
+tc_act_attrs_set_hw_stats(struct tc_act_attrs *obj,
+			  struct nla_bitfield32 *hw_stats)
+{
+	obj->_present.hw_stats = 1;
+	memcpy(&obj->hw_stats, hw_stats, sizeof(struct nla_bitfield32));
+}
+static inline void
+tc_act_attrs_set_used_hw_stats(struct tc_act_attrs *obj,
+			       struct nla_bitfield32 *used_hw_stats)
+{
+	obj->_present.used_hw_stats = 1;
+	memcpy(&obj->used_hw_stats, used_hw_stats, sizeof(struct nla_bitfield32));
+}
+static inline void
+tc_act_attrs_set_in_hw_count(struct tc_act_attrs *obj, __u32 in_hw_count)
+{
+	obj->_present.in_hw_count = 1;
+	obj->in_hw_count = in_hw_count;
+}
 
 struct tc_basic_attrs {
 	struct {
@@ -1696,6 +3656,7 @@ struct tc_options_msg {
 		__u32 clsact:1;
 		__u32 codel:1;
 		__u32 drr:1;
+		__u32 dualpi2:1;
 		__u32 etf:1;
 		__u32 ets:1;
 		__u32 flow:1;
@@ -1742,6 +3703,7 @@ struct tc_options_msg {
 	struct tc_choke_attrs choke;
 	struct tc_codel_attrs codel;
 	struct tc_drr_attrs drr;
+	struct tc_dualpi2_attrs dualpi2;
 	struct tc_etf_attrs etf;
 	struct tc_ets_attrs *ets;
 	struct tc_flow_attrs flow;
@@ -2580,6 +4542,141 @@ tc_newqdisc_req_set_options_drr_quantum(struct tc_newqdisc_req *req,
 	req->options._present.drr = 1;
 	req->options.drr._present.quantum = 1;
 	req->options.drr.quantum = quantum;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_limit(struct tc_newqdisc_req *req,
+					  __u32 limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.limit = 1;
+	req->options.dualpi2.limit = limit;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_memory_limit(struct tc_newqdisc_req *req,
+						 __u32 memory_limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.memory_limit = 1;
+	req->options.dualpi2.memory_limit = memory_limit;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_target(struct tc_newqdisc_req *req,
+					   __u32 target)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.target = 1;
+	req->options.dualpi2.target = target;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_tupdate(struct tc_newqdisc_req *req,
+					    __u32 tupdate)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.tupdate = 1;
+	req->options.dualpi2.tupdate = tupdate;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_alpha(struct tc_newqdisc_req *req,
+					  __u32 alpha)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.alpha = 1;
+	req->options.dualpi2.alpha = alpha;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_beta(struct tc_newqdisc_req *req,
+					 __u32 beta)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.beta = 1;
+	req->options.dualpi2.beta = beta;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_step_thresh_pkts(struct tc_newqdisc_req *req,
+						     __u32 step_thresh_pkts)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_pkts = 1;
+	req->options.dualpi2.step_thresh_pkts = step_thresh_pkts;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_step_thresh_us(struct tc_newqdisc_req *req,
+						   __u32 step_thresh_us)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_us = 1;
+	req->options.dualpi2.step_thresh_us = step_thresh_us;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_min_qlen_step(struct tc_newqdisc_req *req,
+						  __u32 min_qlen_step)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.min_qlen_step = 1;
+	req->options.dualpi2.min_qlen_step = min_qlen_step;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_coupling(struct tc_newqdisc_req *req,
+					     __u8 coupling)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.coupling = 1;
+	req->options.dualpi2.coupling = coupling;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_drop_overload(struct tc_newqdisc_req *req,
+						  enum tc_dualpi2_drop_overload drop_overload)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_overload = 1;
+	req->options.dualpi2.drop_overload = drop_overload;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_drop_early(struct tc_newqdisc_req *req,
+					       enum tc_dualpi2_drop_early drop_early)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_early = 1;
+	req->options.dualpi2.drop_early = drop_early;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_c_protection(struct tc_newqdisc_req *req,
+						 __u8 c_protection)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.c_protection = 1;
+	req->options.dualpi2.c_protection = c_protection;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_ecn_mask(struct tc_newqdisc_req *req,
+					     enum tc_dualpi2_ecn_mask ecn_mask)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.ecn_mask = 1;
+	req->options.dualpi2.ecn_mask = ecn_mask;
+}
+static inline void
+tc_newqdisc_req_set_options_dualpi2_split_gso(struct tc_newqdisc_req *req,
+					      enum tc_dualpi2_split_gso split_gso)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.split_gso = 1;
+	req->options.dualpi2.split_gso = split_gso;
 }
 static inline void
 tc_newqdisc_req_set_options_etf_parms(struct tc_newqdisc_req *req,
@@ -6854,6 +8951,141 @@ tc_newtclass_req_set_options_drr_quantum(struct tc_newtclass_req *req,
 	req->options.drr.quantum = quantum;
 }
 static inline void
+tc_newtclass_req_set_options_dualpi2_limit(struct tc_newtclass_req *req,
+					   __u32 limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.limit = 1;
+	req->options.dualpi2.limit = limit;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_memory_limit(struct tc_newtclass_req *req,
+						  __u32 memory_limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.memory_limit = 1;
+	req->options.dualpi2.memory_limit = memory_limit;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_target(struct tc_newtclass_req *req,
+					    __u32 target)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.target = 1;
+	req->options.dualpi2.target = target;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_tupdate(struct tc_newtclass_req *req,
+					     __u32 tupdate)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.tupdate = 1;
+	req->options.dualpi2.tupdate = tupdate;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_alpha(struct tc_newtclass_req *req,
+					   __u32 alpha)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.alpha = 1;
+	req->options.dualpi2.alpha = alpha;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_beta(struct tc_newtclass_req *req,
+					  __u32 beta)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.beta = 1;
+	req->options.dualpi2.beta = beta;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_step_thresh_pkts(struct tc_newtclass_req *req,
+						      __u32 step_thresh_pkts)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_pkts = 1;
+	req->options.dualpi2.step_thresh_pkts = step_thresh_pkts;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_step_thresh_us(struct tc_newtclass_req *req,
+						    __u32 step_thresh_us)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_us = 1;
+	req->options.dualpi2.step_thresh_us = step_thresh_us;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_min_qlen_step(struct tc_newtclass_req *req,
+						   __u32 min_qlen_step)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.min_qlen_step = 1;
+	req->options.dualpi2.min_qlen_step = min_qlen_step;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_coupling(struct tc_newtclass_req *req,
+					      __u8 coupling)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.coupling = 1;
+	req->options.dualpi2.coupling = coupling;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_drop_overload(struct tc_newtclass_req *req,
+						   enum tc_dualpi2_drop_overload drop_overload)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_overload = 1;
+	req->options.dualpi2.drop_overload = drop_overload;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_drop_early(struct tc_newtclass_req *req,
+						enum tc_dualpi2_drop_early drop_early)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_early = 1;
+	req->options.dualpi2.drop_early = drop_early;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_c_protection(struct tc_newtclass_req *req,
+						  __u8 c_protection)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.c_protection = 1;
+	req->options.dualpi2.c_protection = c_protection;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_ecn_mask(struct tc_newtclass_req *req,
+					      enum tc_dualpi2_ecn_mask ecn_mask)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.ecn_mask = 1;
+	req->options.dualpi2.ecn_mask = ecn_mask;
+}
+static inline void
+tc_newtclass_req_set_options_dualpi2_split_gso(struct tc_newtclass_req *req,
+					       enum tc_dualpi2_split_gso split_gso)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.split_gso = 1;
+	req->options.dualpi2.split_gso = split_gso;
+}
+static inline void
 tc_newtclass_req_set_options_etf_parms(struct tc_newtclass_req *req,
 				       const void *parms, size_t len)
 {
@@ -11100,6 +13332,141 @@ tc_newtfilter_req_set_options_drr_quantum(struct tc_newtfilter_req *req,
 	req->options._present.drr = 1;
 	req->options.drr._present.quantum = 1;
 	req->options.drr.quantum = quantum;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_limit(struct tc_newtfilter_req *req,
+					    __u32 limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.limit = 1;
+	req->options.dualpi2.limit = limit;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_memory_limit(struct tc_newtfilter_req *req,
+						   __u32 memory_limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.memory_limit = 1;
+	req->options.dualpi2.memory_limit = memory_limit;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_target(struct tc_newtfilter_req *req,
+					     __u32 target)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.target = 1;
+	req->options.dualpi2.target = target;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_tupdate(struct tc_newtfilter_req *req,
+					      __u32 tupdate)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.tupdate = 1;
+	req->options.dualpi2.tupdate = tupdate;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_alpha(struct tc_newtfilter_req *req,
+					    __u32 alpha)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.alpha = 1;
+	req->options.dualpi2.alpha = alpha;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_beta(struct tc_newtfilter_req *req,
+					   __u32 beta)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.beta = 1;
+	req->options.dualpi2.beta = beta;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_step_thresh_pkts(struct tc_newtfilter_req *req,
+						       __u32 step_thresh_pkts)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_pkts = 1;
+	req->options.dualpi2.step_thresh_pkts = step_thresh_pkts;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_step_thresh_us(struct tc_newtfilter_req *req,
+						     __u32 step_thresh_us)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_us = 1;
+	req->options.dualpi2.step_thresh_us = step_thresh_us;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_min_qlen_step(struct tc_newtfilter_req *req,
+						    __u32 min_qlen_step)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.min_qlen_step = 1;
+	req->options.dualpi2.min_qlen_step = min_qlen_step;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_coupling(struct tc_newtfilter_req *req,
+					       __u8 coupling)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.coupling = 1;
+	req->options.dualpi2.coupling = coupling;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_drop_overload(struct tc_newtfilter_req *req,
+						    enum tc_dualpi2_drop_overload drop_overload)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_overload = 1;
+	req->options.dualpi2.drop_overload = drop_overload;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_drop_early(struct tc_newtfilter_req *req,
+						 enum tc_dualpi2_drop_early drop_early)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_early = 1;
+	req->options.dualpi2.drop_early = drop_early;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_c_protection(struct tc_newtfilter_req *req,
+						   __u8 c_protection)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.c_protection = 1;
+	req->options.dualpi2.c_protection = c_protection;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_ecn_mask(struct tc_newtfilter_req *req,
+					       enum tc_dualpi2_ecn_mask ecn_mask)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.ecn_mask = 1;
+	req->options.dualpi2.ecn_mask = ecn_mask;
+}
+static inline void
+tc_newtfilter_req_set_options_dualpi2_split_gso(struct tc_newtfilter_req *req,
+						enum tc_dualpi2_split_gso split_gso)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.split_gso = 1;
+	req->options.dualpi2.split_gso = split_gso;
 }
 static inline void
 tc_newtfilter_req_set_options_etf_parms(struct tc_newtfilter_req *req,
@@ -15445,6 +17812,141 @@ tc_newchain_req_set_options_drr_quantum(struct tc_newchain_req *req,
 	req->options._present.drr = 1;
 	req->options.drr._present.quantum = 1;
 	req->options.drr.quantum = quantum;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_limit(struct tc_newchain_req *req,
+					  __u32 limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.limit = 1;
+	req->options.dualpi2.limit = limit;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_memory_limit(struct tc_newchain_req *req,
+						 __u32 memory_limit)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.memory_limit = 1;
+	req->options.dualpi2.memory_limit = memory_limit;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_target(struct tc_newchain_req *req,
+					   __u32 target)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.target = 1;
+	req->options.dualpi2.target = target;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_tupdate(struct tc_newchain_req *req,
+					    __u32 tupdate)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.tupdate = 1;
+	req->options.dualpi2.tupdate = tupdate;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_alpha(struct tc_newchain_req *req,
+					  __u32 alpha)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.alpha = 1;
+	req->options.dualpi2.alpha = alpha;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_beta(struct tc_newchain_req *req,
+					 __u32 beta)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.beta = 1;
+	req->options.dualpi2.beta = beta;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_step_thresh_pkts(struct tc_newchain_req *req,
+						     __u32 step_thresh_pkts)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_pkts = 1;
+	req->options.dualpi2.step_thresh_pkts = step_thresh_pkts;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_step_thresh_us(struct tc_newchain_req *req,
+						   __u32 step_thresh_us)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.step_thresh_us = 1;
+	req->options.dualpi2.step_thresh_us = step_thresh_us;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_min_qlen_step(struct tc_newchain_req *req,
+						  __u32 min_qlen_step)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.min_qlen_step = 1;
+	req->options.dualpi2.min_qlen_step = min_qlen_step;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_coupling(struct tc_newchain_req *req,
+					     __u8 coupling)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.coupling = 1;
+	req->options.dualpi2.coupling = coupling;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_drop_overload(struct tc_newchain_req *req,
+						  enum tc_dualpi2_drop_overload drop_overload)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_overload = 1;
+	req->options.dualpi2.drop_overload = drop_overload;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_drop_early(struct tc_newchain_req *req,
+					       enum tc_dualpi2_drop_early drop_early)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.drop_early = 1;
+	req->options.dualpi2.drop_early = drop_early;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_c_protection(struct tc_newchain_req *req,
+						 __u8 c_protection)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.c_protection = 1;
+	req->options.dualpi2.c_protection = c_protection;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_ecn_mask(struct tc_newchain_req *req,
+					     enum tc_dualpi2_ecn_mask ecn_mask)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.ecn_mask = 1;
+	req->options.dualpi2.ecn_mask = ecn_mask;
+}
+static inline void
+tc_newchain_req_set_options_dualpi2_split_gso(struct tc_newchain_req *req,
+					      enum tc_dualpi2_split_gso split_gso)
+{
+	req->_present.options = 1;
+	req->options._present.dualpi2 = 1;
+	req->options.dualpi2._present.split_gso = 1;
+	req->options.dualpi2.split_gso = split_gso;
 }
 static inline void
 tc_newchain_req_set_options_etf_parms(struct tc_newchain_req *req,
