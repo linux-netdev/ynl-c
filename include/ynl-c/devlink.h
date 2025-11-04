@@ -226,6 +226,7 @@ struct devlink_dl_health_reporter {
 		__u32 health_reporter_dump_ts:1;
 		__u32 health_reporter_dump_ts_ns:1;
 		__u32 health_reporter_auto_dump:1;
+		__u32 health_reporter_burst_period:1;
 	} _present;
 	struct {
 		__u32 health_reporter_name;
@@ -240,6 +241,7 @@ struct devlink_dl_health_reporter {
 	__u64 health_reporter_dump_ts;
 	__u64 health_reporter_dump_ts_ns;
 	__u8 health_reporter_auto_dump;
+	__u64 health_reporter_burst_period;
 };
 
 struct devlink_dl_attr_stats {
@@ -3733,6 +3735,7 @@ struct devlink_health_reporter_set_req {
 		__u32 health_reporter_graceful_period:1;
 		__u32 health_reporter_auto_recover:1;
 		__u32 health_reporter_auto_dump:1;
+		__u32 health_reporter_burst_period:1;
 	} _present;
 	struct {
 		__u32 bus_name;
@@ -3747,6 +3750,7 @@ struct devlink_health_reporter_set_req {
 	__u64 health_reporter_graceful_period;
 	__u8 health_reporter_auto_recover;
 	__u8 health_reporter_auto_dump;
+	__u64 health_reporter_burst_period;
 };
 
 static inline struct devlink_health_reporter_set_req *
@@ -3814,6 +3818,13 @@ devlink_health_reporter_set_req_set_health_reporter_auto_dump(struct devlink_hea
 {
 	req->_present.health_reporter_auto_dump = 1;
 	req->health_reporter_auto_dump = health_reporter_auto_dump;
+}
+static inline void
+devlink_health_reporter_set_req_set_health_reporter_burst_period(struct devlink_health_reporter_set_req *req,
+								 __u64 health_reporter_burst_period)
+{
+	req->_present.health_reporter_burst_period = 1;
+	req->health_reporter_burst_period = health_reporter_burst_period;
 }
 
 /*

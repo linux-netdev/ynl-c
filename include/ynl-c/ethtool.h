@@ -98,18 +98,6 @@ struct ethtool_cable_test_tdr_cfg {
 	__u8 pair;
 };
 
-struct ethtool_fec_stat {
-	struct {
-		__u32 corrected;
-		__u32 uncorr;
-		__u32 corr_bits;
-	} _count;
-
-	__u64 *corrected;
-	__u64 *uncorr;
-	__u64 *corr_bits;
-};
-
 struct ethtool_c33_pse_pw_limit {
 	struct {
 		__u32 min:1;
@@ -198,6 +186,32 @@ struct ethtool_mm_stat {
 	__u64 hold_count;
 };
 
+struct ethtool_mse_capabilities {
+	struct {
+		__u32 max_average_mse:1;
+		__u32 max_peak_mse:1;
+		__u32 refresh_rate_ps:1;
+		__u32 num_symbols:1;
+	} _present;
+
+	__u64 max_average_mse;
+	__u64 max_peak_mse;
+	__u64 refresh_rate_ps;
+	__u64 num_symbols;
+};
+
+struct ethtool_mse_snapshot {
+	struct {
+		__u32 average_mse:1;
+		__u32 peak_mse:1;
+		__u32 worst_peak_mse:1;
+	} _present;
+
+	__u64 average_mse;
+	__u64 peak_mse;
+	__u64 worst_peak_mse;
+};
+
 struct ethtool_irq_moderation {
 	struct {
 		__u32 usec:1;
@@ -261,6 +275,58 @@ struct ethtool_cable_fault_length {
 	__u32 cm;
 	__u32 src;
 };
+
+struct ethtool_fec_hist {
+	struct {
+		__u32 bin_low:1;
+		__u32 bin_high:1;
+		__u32 bin_val:1;
+	} _present;
+	struct {
+		__u32 bin_val_per_lane;
+	} _count;
+
+	__u32 bin_low;
+	__u32 bin_high;
+	__u64 bin_val;
+	__u64 *bin_val_per_lane;
+};
+
+static inline struct ethtool_fec_hist *ethtool_fec_hist_alloc(unsigned int n)
+{
+	return calloc(n, sizeof(struct ethtool_fec_hist));
+}
+
+void ethtool_fec_hist_free(struct ethtool_fec_hist *obj);
+
+static inline void
+ethtool_fec_hist_set_bin_low(struct ethtool_fec_hist *obj, __u32 bin_low)
+{
+	obj->_present.bin_low = 1;
+	obj->bin_low = bin_low;
+}
+static inline void
+ethtool_fec_hist_set_bin_high(struct ethtool_fec_hist *obj, __u32 bin_high)
+{
+	obj->_present.bin_high = 1;
+	obj->bin_high = bin_high;
+}
+static inline void
+ethtool_fec_hist_set_bin_val(struct ethtool_fec_hist *obj, __u64 bin_val)
+{
+	obj->_present.bin_val = 1;
+	obj->bin_val = bin_val;
+}
+static inline void
+ethtool_fec_hist_set_bin_val_per_lane(struct ethtool_fec_hist *obj,
+				      __u64 *bin_val_per_lane, size_t count)
+{
+	free(obj->bin_val_per_lane);
+	obj->_count.bin_val_per_lane = count;
+	count *= sizeof(__u64);
+	obj->bin_val_per_lane = malloc(count);
+	memcpy(obj->bin_val_per_lane, bin_val_per_lane, count);
+}
 
 struct ethtool_bitset_bit {
 	struct {
@@ -364,6 +430,20 @@ struct ethtool_cable_nest {
 
 	struct ethtool_cable_result result;
 	struct ethtool_cable_fault_length fault_length;
+};
+
+struct ethtool_fec_stat {
+	struct {
+		__u32 corrected;
+		__u32 uncorr;
+		__u32 corr_bits;
+		__u32 hist;
+	} _count;
+
+	__u64 *corrected;
+	__u64 *uncorr;
+	__u64 *corr_bits;
+	struct ethtool_fec_hist *hist;
 };
 
 struct ethtool_bitset_bits {
@@ -5207,6 +5287,20 @@ ethtool_fec_set_req_set_stats_corr_bits(struct ethtool_fec_set_req *req,
 	req->stats.corr_bits = malloc(count);
 	memcpy(req->stats.corr_bits, corr_bits, count);
 }
+static inline void
+__ethtool_fec_set_req_set_stats_hist(struct ethtool_fec_set_req *req,
+				     struct ethtool_fec_hist *hist,
+				     unsigned int n_hist)
+{
+	unsigned int i;
+
+	req->_present.stats = 1;
+	for (i = 0; i < req->stats._count.hist; i++)
+		ethtool_fec_hist_free(&req->stats.hist[i]);
+	free(req->stats.hist);
+	req->stats.hist = hist;
+	req->stats._count.hist = n_hist;
+}
 
 /*
  * Set FEC params.
@@ -8107,6 +8201,150 @@ ethtool_rss_delete_act_req_set_context(struct ethtool_rss_delete_act_req *req,
  */
 int ethtool_rss_delete_act(struct ynl_sock *ys,
 			   struct ethtool_rss_delete_act_req *req);
+
+/* ============== ETHTOOL_MSG_MSE_GET ============== */
+/* ETHTOOL_MSG_MSE_GET - do */
+struct ethtool_mse_get_req {
+	struct {
+		__u32 header:1;
+	} _present;
+
+	struct ethtool_header header;
+};
+
+static inline struct ethtool_mse_get_req *ethtool_mse_get_req_alloc(void)
+{
+	return calloc(1, sizeof(struct ethtool_mse_get_req));
+}
+void ethtool_mse_get_req_free(struct ethtool_mse_get_req *req);
+
+static inline void
+ethtool_mse_get_req_set_header_dev_index(struct ethtool_mse_get_req *req,
+					 __u32 dev_index)
+{
+	req->_present.header = 1;
+	req->header._present.dev_index = 1;
+	req->header.dev_index = dev_index;
+}
+static inline void
+ethtool_mse_get_req_set_header_dev_name(struct ethtool_mse_get_req *req,
+					const char *dev_name)
+{
+	req->_present.header = 1;
+	free(req->header.dev_name);
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
+}
+static inline void
+ethtool_mse_get_req_set_header_flags(struct ethtool_mse_get_req *req,
+				     __u32 flags)
+{
+	req->_present.header = 1;
+	req->header._present.flags = 1;
+	req->header.flags = flags;
+}
+static inline void
+ethtool_mse_get_req_set_header_phy_index(struct ethtool_mse_get_req *req,
+					 __u32 phy_index)
+{
+	req->_present.header = 1;
+	req->header._present.phy_index = 1;
+	req->header.phy_index = phy_index;
+}
+
+struct ethtool_mse_get_rsp {
+	struct {
+		__u32 header:1;
+		__u32 capabilities:1;
+		__u32 channel_a:1;
+		__u32 channel_b:1;
+		__u32 channel_c:1;
+		__u32 channel_d:1;
+		__u32 worst_channel:1;
+		__u32 link:1;
+	} _present;
+
+	struct ethtool_header header;
+	struct ethtool_mse_capabilities capabilities;
+	struct ethtool_mse_snapshot channel_a;
+	struct ethtool_mse_snapshot channel_b;
+	struct ethtool_mse_snapshot channel_c;
+	struct ethtool_mse_snapshot channel_d;
+	struct ethtool_mse_snapshot worst_channel;
+	struct ethtool_mse_snapshot link;
+};
+
+void ethtool_mse_get_rsp_free(struct ethtool_mse_get_rsp *rsp);
+
+/*
+ * Get PHY MSE measurement data and capabilities.
+ */
+struct ethtool_mse_get_rsp *
+ethtool_mse_get(struct ynl_sock *ys, struct ethtool_mse_get_req *req);
+
+/* ETHTOOL_MSG_MSE_GET - dump */
+struct ethtool_mse_get_req_dump {
+	struct {
+		__u32 header:1;
+	} _present;
+
+	struct ethtool_header header;
+};
+
+static inline struct ethtool_mse_get_req_dump *
+ethtool_mse_get_req_dump_alloc(void)
+{
+	return calloc(1, sizeof(struct ethtool_mse_get_req_dump));
+}
+void ethtool_mse_get_req_dump_free(struct ethtool_mse_get_req_dump *req);
+
+static inline void
+ethtool_mse_get_req_dump_set_header_dev_index(struct ethtool_mse_get_req_dump *req,
+					      __u32 dev_index)
+{
+	req->_present.header = 1;
+	req->header._present.dev_index = 1;
+	req->header.dev_index = dev_index;
+}
+static inline void
+ethtool_mse_get_req_dump_set_header_dev_name(struct ethtool_mse_get_req_dump *req,
+					     const char *dev_name)
+{
+	req->_present.header = 1;
+	free(req->header.dev_name);
+	req->header._len.dev_name = strlen(dev_name);
+	req->header.dev_name = malloc(req->header._len.dev_name + 1);
+	memcpy(req->header.dev_name, dev_name, req->header._len.dev_name);
+	req->header.dev_name[req->header._len.dev_name] = 0;
+}
+static inline void
+ethtool_mse_get_req_dump_set_header_flags(struct ethtool_mse_get_req_dump *req,
+					  __u32 flags)
+{
+	req->_present.header = 1;
+	req->header._present.flags = 1;
+	req->header.flags = flags;
+}
+static inline void
+ethtool_mse_get_req_dump_set_header_phy_index(struct ethtool_mse_get_req_dump *req,
+					      __u32 phy_index)
+{
+	req->_present.header = 1;
+	req->header._present.phy_index = 1;
+	req->header.phy_index = phy_index;
+}
+
+struct ethtool_mse_get_list {
+	struct ethtool_mse_get_list *next;
+	struct ethtool_mse_get_rsp obj __attribute__((aligned(8)));
+};
+
+void ethtool_mse_get_list_free(struct ethtool_mse_get_list *rsp);
+
+struct ethtool_mse_get_list *
+ethtool_mse_get_dump(struct ynl_sock *ys, struct ethtool_mse_get_req_dump *req);
 
 /* ETHTOOL_MSG_CABLE_TEST_NTF - event */
 struct ethtool_cable_test_ntf_rsp {

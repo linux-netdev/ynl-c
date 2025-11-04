@@ -161,6 +161,7 @@ int handshake_accept_rsp_parse(const struct nlmsghdr *nlh,
 	unsigned int n_certificate = 0;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -199,8 +200,6 @@ int handshake_accept_rsp_parse(const struct nlmsghdr *nlh,
 		} else if (type == HANDSHAKE_A_ACCEPT_CERTIFICATE) {
 			n_certificate++;
 		} else if (type == HANDSHAKE_A_ACCEPT_PEERNAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

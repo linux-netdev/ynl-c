@@ -403,13 +403,12 @@ int ovs_flow_ovs_nsh_key_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct ovs_flow_ovs_nsh_key_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == OVS_NSH_KEY_ATTR_BASE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -418,8 +417,6 @@ int ovs_flow_ovs_nsh_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->base = malloc(len);
 			memcpy(dst->base, ynl_attr_data(attr), len);
 		} else if (type == OVS_NSH_KEY_ATTR_MD1) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -428,8 +425,6 @@ int ovs_flow_ovs_nsh_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->md1 = malloc(len);
 			memcpy(dst->md1, ynl_attr_data(attr), len);
 		} else if (type == OVS_NSH_KEY_ATTR_MD2) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -472,6 +467,7 @@ int ovs_flow_userspace_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct ovs_flow_userspace_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -482,8 +478,6 @@ int ovs_flow_userspace_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.pid = 1;
 			dst->pid = ynl_attr_get_u32(attr);
 		} else if (type == OVS_USERSPACE_ATTR_USERDATA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -531,6 +525,7 @@ int ovs_flow_psample_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct ovs_flow_psample_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -541,8 +536,6 @@ int ovs_flow_psample_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.group = 1;
 			dst->group = ynl_attr_get_u32(attr);
 		} else if (type == OVS_PSAMPLE_ATTR_COOKIE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -633,6 +626,7 @@ int ovs_flow_nat_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct ovs_flow_nat_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -646,8 +640,6 @@ int ovs_flow_nat_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.dst = 1;
 		} else if (type == OVS_NAT_ATTR_IP_MIN) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -656,8 +648,6 @@ int ovs_flow_nat_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->ip_min = malloc(len);
 			memcpy(dst->ip_min, ynl_attr_data(attr), len);
 		} else if (type == OVS_NAT_ATTR_IP_MAX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -757,6 +747,7 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 	struct ovs_flow_tunnel_key_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -801,8 +792,6 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.oam = 1;
 		} else if (type == OVS_TUNNEL_KEY_ATTR_GENEVE_OPTS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -831,8 +820,6 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			if (ovs_flow_vxlan_ext_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == OVS_TUNNEL_KEY_ATTR_IPV6_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -841,8 +828,6 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->ipv6_src = malloc(len);
 			memcpy(dst->ipv6_src, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_IPV6_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -851,8 +836,6 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->ipv6_dst = malloc(len);
 			memcpy(dst->ipv6_dst, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_PAD) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -861,8 +844,6 @@ int ovs_flow_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->pad = malloc(len);
 			memcpy(dst->pad, ynl_attr_data(attr), len);
 		} else if (type == OVS_TUNNEL_KEY_ATTR_ERSPAN_OPTS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -924,6 +905,7 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 	struct ovs_flow_ct_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -940,8 +922,6 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.zone = 1;
 			dst->zone = ynl_attr_get_u16(attr);
 		} else if (type == OVS_CT_ATTR_MARK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -950,8 +930,6 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->mark = malloc(len);
 			memcpy(dst->mark, ynl_attr_data(attr), len);
 		} else if (type == OVS_CT_ATTR_LABELS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -960,8 +938,6 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->labels = malloc(len);
 			memcpy(dst->labels, ynl_attr_data(attr), len);
 		} else if (type == OVS_CT_ATTR_HELPER) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -989,8 +965,6 @@ int ovs_flow_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.eventmask = 1;
 			dst->eventmask = ynl_attr_get_u32(attr);
 		} else if (type == OVS_CT_ATTR_TIMEOUT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1111,6 +1085,7 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 	struct ovs_flow_key_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -1137,8 +1112,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.in_port = 1;
 			dst->in_port = ynl_attr_get_u32(attr);
 		} else if (type == OVS_KEY_ATTR_ETHERNET) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1160,8 +1133,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.ethertype = 1;
 			dst->ethertype = ynl_attr_get_u16(attr);
 		} else if (type == OVS_KEY_ATTR_IPV4) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1173,8 +1144,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->ipv4 = malloc(len);
 			memcpy(dst->ipv4, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1186,8 +1155,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->ipv6 = malloc(len);
 			memcpy(dst->ipv6, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_TCP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1199,8 +1166,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tcp = malloc(len);
 			memcpy(dst->tcp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_UDP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1212,8 +1177,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->udp = malloc(len);
 			memcpy(dst->udp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ICMP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1225,8 +1188,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->icmp = malloc(len);
 			memcpy(dst->icmp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ICMPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1238,8 +1199,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->icmpv6 = malloc(len);
 			memcpy(dst->icmpv6, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ARP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1251,8 +1210,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->arp = malloc(len);
 			memcpy(dst->arp, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_ND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1278,8 +1235,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			if (ovs_flow_tunnel_key_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == OVS_KEY_ATTR_SCTP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1306,8 +1261,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.recirc_id = 1;
 			dst->recirc_id = ynl_attr_get_u32(attr);
 		} else if (type == OVS_KEY_ATTR_MPLS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1334,8 +1287,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.ct_mark = 1;
 			dst->ct_mark = ynl_attr_get_u32(attr);
 		} else if (type == OVS_KEY_ATTR_CT_LABELS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1344,8 +1295,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->ct_labels = malloc(len);
 			memcpy(dst->ct_labels, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV4) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1357,8 +1306,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->ct_orig_tuple_ipv4 = malloc(len);
 			memcpy(dst->ct_orig_tuple_ipv4, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_CT_ORIG_TUPLE_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1381,8 +1328,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.packet_type = 1;
 			dst->packet_type = ynl_attr_get_u32(attr);
 		} else if (type == OVS_KEY_ATTR_ND_EXTENSIONS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1391,8 +1336,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->nd_extensions = malloc(len);
 			memcpy(dst->nd_extensions, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_TUNNEL_INFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1401,8 +1344,6 @@ int ovs_flow_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->tunnel_info = malloc(len);
 			memcpy(dst->tunnel_info, ynl_attr_data(attr), len);
 		} else if (type == OVS_KEY_ATTR_IPV6_EXTHDRS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1673,6 +1614,7 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 	struct ovs_flow_action_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -1703,8 +1645,6 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 			if (ovs_flow_key_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == OVS_ACTION_ATTR_PUSH_VLAN) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1734,8 +1674,6 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.recirc = 1;
 			dst->recirc = ynl_attr_get_u32(attr);
 		} else if (type == OVS_ACTION_ATTR_HASH) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1747,8 +1685,6 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->hash = malloc(len);
 			memcpy(dst->hash, ynl_attr_data(attr), len);
 		} else if (type == OVS_ACTION_ATTR_PUSH_MPLS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1788,8 +1724,6 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.trunc = 1;
 			dst->trunc = ynl_attr_get_u32(attr);
 		} else if (type == OVS_ACTION_ATTR_PUSH_ETH) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1842,8 +1776,6 @@ int ovs_flow_action_attrs_parse(struct ynl_parse_arg *yarg,
 			if (ovs_flow_check_pkt_len_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == OVS_ACTION_ATTR_ADD_MPLS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1903,6 +1835,7 @@ int ovs_flow_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct ovs_flow_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -1924,8 +1857,6 @@ int ovs_flow_get_rsp_parse(const struct nlmsghdr *nlh,
 			if (ovs_flow_key_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == OVS_FLOW_ATTR_UFID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1943,8 +1874,6 @@ int ovs_flow_get_rsp_parse(const struct nlmsghdr *nlh,
 			if (ovs_flow_key_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == OVS_FLOW_ATTR_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

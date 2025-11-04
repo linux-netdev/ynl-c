@@ -1736,13 +1736,12 @@ int tc_tca_stab_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_tca_stab_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_STAB_BASE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1754,8 +1753,6 @@ int tc_tca_stab_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->base = malloc(len);
 			memcpy(dst->base, ynl_attr_data(attr), len);
 		} else if (type == TCA_STAB_DATA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1940,13 +1937,12 @@ int tc_cbs_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_cbs_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CBS_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1991,13 +1987,12 @@ int tc_choke_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_choke_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CHOKE_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2009,8 +2004,6 @@ int tc_choke_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_CHOKE_STAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2287,13 +2280,12 @@ int tc_etf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_etf_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_ETF_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2368,6 +2360,7 @@ int tc_fq_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_fq_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -2448,8 +2441,6 @@ int tc_fq_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.horizon_drop = 1;
 			dst->horizon_drop = ynl_attr_get_u8(attr);
 		} else if (type == TCA_FQ_PRIOMAP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2461,8 +2452,6 @@ int tc_fq_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				dst->priomap = malloc(len);
 			memcpy(dst->priomap, ynl_attr_data(attr), len);
 		} else if (type == TCA_FQ_WEIGHTS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2815,13 +2804,12 @@ int tc_htb_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_htb_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_HTB_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2833,8 +2821,6 @@ int tc_htb_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_HTB_INIT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2846,8 +2832,6 @@ int tc_htb_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				dst->init = malloc(len);
 			memcpy(dst->init, ynl_attr_data(attr), len);
 		} else if (type == TCA_HTB_CTAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2856,8 +2840,6 @@ int tc_htb_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->ctab = malloc(len);
 			memcpy(dst->ctab, ynl_attr_data(attr), len);
 		} else if (type == TCA_HTB_RTAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3051,13 +3033,12 @@ int tc_red_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_red_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_RED_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3069,8 +3050,6 @@ int tc_red_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_RED_STAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3140,13 +3119,12 @@ int tc_tbf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_tbf_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_TBF_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3158,8 +3136,6 @@ int tc_tbf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_TBF_RTAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3168,8 +3144,6 @@ int tc_tbf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->rtab = malloc(len);
 			memcpy(dst->rtab, ynl_attr_data(attr), len);
 		} else if (type == TCA_TBF_PTAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3229,13 +3203,12 @@ int tc_ematch_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_ematch_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_EMATCH_TREE_HDR) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3247,8 +3220,6 @@ int tc_ematch_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tree_hdr = malloc(len);
 			memcpy(dst->tree_hdr, ynl_attr_data(attr), len);
 		} else if (type == TCA_EMATCH_TREE_LIST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3306,13 +3277,12 @@ int tc_police_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_police_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_POLICE_TBF) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3324,8 +3294,6 @@ int tc_police_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tbf = malloc(len);
 			memcpy(dst->tbf, ynl_attr_data(attr), len);
 		} else if (type == TCA_POLICE_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3334,8 +3302,6 @@ int tc_police_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->rate = malloc(len);
 			memcpy(dst->rate, ynl_attr_data(attr), len);
 		} else if (type == TCA_POLICE_PEAKRATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3354,8 +3320,6 @@ int tc_police_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.result = 1;
 			dst->result = ynl_attr_get_u32(attr);
 		} else if (type == TCA_POLICE_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3529,13 +3493,12 @@ int tc_netem_loss_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_netem_loss_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == NETEM_LOSS_GI) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3547,8 +3510,6 @@ int tc_netem_loss_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->gi = malloc(len);
 			memcpy(dst->gi, ynl_attr_data(attr), len);
 		} else if (type == NETEM_LOSS_GE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3903,6 +3864,7 @@ int tc_flower_key_enc_opt_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_flower_key_enc_opt_geneve_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -3918,8 +3880,6 @@ int tc_flower_key_enc_opt_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.type = 1;
 			dst->type = ynl_attr_get_u8(attr);
 		} else if (type == TCA_FLOWER_KEY_ENC_OPT_GENEVE_DATA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4228,13 +4188,12 @@ int tc_act_bpf_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_bpf_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_ACT_BPF_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4246,8 +4205,6 @@ int tc_act_bpf_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_ACT_BPF_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4261,8 +4218,6 @@ int tc_act_bpf_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.ops_len = 1;
 			dst->ops_len = ynl_attr_get_u16(attr);
 		} else if (type == TCA_ACT_BPF_OPS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4276,8 +4231,6 @@ int tc_act_bpf_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.fd = 1;
 			dst->fd = ynl_attr_get_u32(attr);
 		} else if (type == TCA_ACT_BPF_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4287,8 +4240,6 @@ int tc_act_bpf_attrs_parse(struct ynl_parse_arg *yarg,
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
 		} else if (type == TCA_ACT_BPF_TAG) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4297,8 +4248,6 @@ int tc_act_bpf_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->tag = malloc(len);
 			memcpy(dst->tag, ynl_attr_data(attr), len);
 		} else if (type == TCA_ACT_BPF_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4338,13 +4287,12 @@ int tc_act_connmark_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_connmark_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CONNMARK_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4353,8 +4301,6 @@ int tc_act_connmark_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_CONNMARK_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4397,13 +4343,12 @@ int tc_act_csum_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_csum_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CSUM_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4412,8 +4357,6 @@ int tc_act_csum_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_CSUM_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4491,13 +4434,12 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_ct_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CT_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4506,8 +4448,6 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_CT_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4539,8 +4479,6 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.mark_mask = 1;
 			dst->mark_mask = ynl_attr_get_u32(attr);
 		} else if (type == TCA_CT_LABELS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4549,8 +4487,6 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->labels = malloc(len);
 			memcpy(dst->labels, ynl_attr_data(attr), len);
 		} else if (type == TCA_CT_LABELS_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4569,8 +4505,6 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.nat_ipv4_max = 1;
 			dst->nat_ipv4_max = ynl_attr_get_u32(attr);
 		} else if (type == TCA_CT_NAT_IPV6_MIN) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4579,8 +4513,6 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->nat_ipv6_min = malloc(len);
 			memcpy(dst->nat_ipv6_min, ynl_attr_data(attr), len);
 		} else if (type == TCA_CT_NAT_IPV6_MAX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4599,8 +4531,6 @@ int tc_act_ct_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.nat_port_max = 1;
 			dst->nat_port_max = ynl_attr_get_u16(attr);
 		} else if (type == TCA_CT_HELPER_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4665,13 +4595,12 @@ int tc_act_ctinfo_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_ctinfo_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CTINFO_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4683,8 +4612,6 @@ int tc_act_ctinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_CTINFO_ACT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4762,13 +4689,12 @@ int tc_act_gact_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_gact_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_GACT_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4780,8 +4706,6 @@ int tc_act_gact_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_GACT_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4793,8 +4717,6 @@ int tc_act_gact_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_GACT_PROB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4852,13 +4774,12 @@ int tc_act_gate_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_gate_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_GATE_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4870,8 +4791,6 @@ int tc_act_gate_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_GATE_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4885,8 +4804,6 @@ int tc_act_gate_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.priority = 1;
 			dst->priority = ynl_attr_get_s32(attr);
 		} else if (type == TCA_GATE_ENTRY_LIST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4962,13 +4879,12 @@ int tc_act_ife_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_ife_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_IFE_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4977,8 +4893,6 @@ int tc_act_ife_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_IFE_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4990,8 +4904,6 @@ int tc_act_ife_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_IFE_DMAC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5000,8 +4912,6 @@ int tc_act_ife_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->dmac = malloc(len);
 			memcpy(dst->dmac, ynl_attr_data(attr), len);
 		} else if (type == TCA_IFE_SMAC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5015,8 +4925,6 @@ int tc_act_ife_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.type = 1;
 			dst->type = ynl_attr_get_u16(attr);
 		} else if (type == TCA_IFE_METALST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5059,13 +4967,12 @@ int tc_act_mirred_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_mirred_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_MIRRED_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5077,8 +4984,6 @@ int tc_act_mirred_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_MIRRED_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5087,8 +4992,6 @@ int tc_act_mirred_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_MIRRED_BLOCKID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5138,13 +5041,12 @@ int tc_act_mpls_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_mpls_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_MPLS_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5156,8 +5058,6 @@ int tc_act_mpls_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_MPLS_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5225,13 +5125,12 @@ int tc_act_nat_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_nat_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_NAT_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5240,8 +5139,6 @@ int tc_act_nat_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_NAT_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5293,13 +5190,12 @@ int tc_act_pedit_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_pedit_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_PEDIT_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5311,8 +5207,6 @@ int tc_act_pedit_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_PEDIT_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5324,8 +5218,6 @@ int tc_act_pedit_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_PEDIT_PARMS_EX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5334,8 +5226,6 @@ int tc_act_pedit_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms_ex = malloc(len);
 			memcpy(dst->parms_ex, ynl_attr_data(attr), len);
 		} else if (type == TCA_PEDIT_KEYS_EX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5344,8 +5234,6 @@ int tc_act_pedit_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->keys_ex = malloc(len);
 			memcpy(dst->keys_ex, ynl_attr_data(attr), len);
 		} else if (type == TCA_PEDIT_KEY_EX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5391,13 +5279,12 @@ int tc_act_sample_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_sample_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_SAMPLE_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5409,8 +5296,6 @@ int tc_act_sample_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_SAMPLE_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5471,13 +5356,12 @@ int tc_act_simple_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_simple_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_DEF_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5489,8 +5373,6 @@ int tc_act_simple_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_DEF_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5499,8 +5381,6 @@ int tc_act_simple_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_DEF_DATA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5554,13 +5434,12 @@ int tc_act_skbedit_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_skbedit_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_SKBEDIT_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5572,8 +5451,6 @@ int tc_act_skbedit_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_SKBEDIT_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5657,13 +5534,12 @@ int tc_act_skbmod_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_skbmod_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_SKBMOD_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5675,8 +5551,6 @@ int tc_act_skbmod_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_SKBMOD_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5685,8 +5559,6 @@ int tc_act_skbmod_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_SKBMOD_DMAC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5695,8 +5567,6 @@ int tc_act_skbmod_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->dmac = malloc(len);
 			memcpy(dst->dmac, ynl_attr_data(attr), len);
 		} else if (type == TCA_SKBMOD_SMAC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5705,8 +5575,6 @@ int tc_act_skbmod_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->smac = malloc(len);
 			memcpy(dst->smac, ynl_attr_data(attr), len);
 		} else if (type == TCA_SKBMOD_ETYPE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5771,13 +5639,12 @@ int tc_act_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_tunnel_key_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_TUNNEL_KEY_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5789,8 +5656,6 @@ int tc_act_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_TUNNEL_KEY_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5809,8 +5674,6 @@ int tc_act_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.enc_ipv4_dst = 1;
 			dst->enc_ipv4_dst = ynl_attr_get_u32(attr);
 		} else if (type == TCA_TUNNEL_KEY_ENC_IPV6_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5819,8 +5682,6 @@ int tc_act_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->enc_ipv6_src = malloc(len);
 			memcpy(dst->enc_ipv6_src, ynl_attr_data(attr), len);
 		} else if (type == TCA_TUNNEL_KEY_ENC_IPV6_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5844,8 +5705,6 @@ int tc_act_tunnel_key_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.no_csum = 1;
 			dst->no_csum = ynl_attr_get_u8(attr);
 		} else if (type == TCA_TUNNEL_KEY_ENC_OPTS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5911,13 +5770,12 @@ int tc_act_vlan_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct tc_act_vlan_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_VLAN_TM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5929,8 +5787,6 @@ int tc_act_vlan_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tm = malloc(len);
 			memcpy(dst->tm, ynl_attr_data(attr), len);
 		} else if (type == TCA_VLAN_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5957,8 +5813,6 @@ int tc_act_vlan_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.push_vlan_priority = 1;
 			dst->push_vlan_priority = ynl_attr_get_u8(attr);
 		} else if (type == TCA_VLAN_PUSH_ETH_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5967,8 +5821,6 @@ int tc_act_vlan_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->push_eth_dst = malloc(len);
 			memcpy(dst->push_eth_dst, ynl_attr_data(attr), len);
 		} else if (type == TCA_VLAN_PUSH_ETH_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6030,6 +5882,7 @@ int tc_flow_attrs_parse(struct ynl_parse_arg *yarg,
 	struct tc_flow_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -6077,8 +5930,6 @@ int tc_flow_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.divisor = 1;
 			dst->divisor = ynl_attr_get_u32(attr);
 		} else if (type == TCA_FLOW_ACT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6096,8 +5947,6 @@ int tc_flow_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_police_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_FLOW_EMATCHES) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6181,6 +6030,7 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 	struct tc_netem_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	parg.ys = yarg->ys;
@@ -6192,8 +6042,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_NETEM_CORR) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6205,8 +6053,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->corr = malloc(len);
 			memcpy(dst->corr, ynl_attr_data(attr), len);
 		} else if (type == TCA_NETEM_DELAY_DIST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6216,8 +6062,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->delay_dist = malloc(len);
 			memcpy(dst->delay_dist, ynl_attr_data(attr), len);
 		} else if (type == TCA_NETEM_REORDER) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6229,8 +6073,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->reorder = malloc(len);
 			memcpy(dst->reorder, ynl_attr_data(attr), len);
 		} else if (type == TCA_NETEM_CORRUPT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6251,8 +6093,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_netem_loss_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_NETEM_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6289,8 +6129,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.jitter64 = 1;
 			dst->jitter64 = ynl_attr_get_s64(attr);
 		} else if (type == TCA_NETEM_SLOT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6302,8 +6140,6 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->slot = malloc(len);
 			memcpy(dst->slot, ynl_attr_data(attr), len);
 		} else if (type == TCA_NETEM_SLOT_DIST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6377,8 +6213,9 @@ int tc_cake_stats_attrs_parse(struct ynl_parse_arg *yarg,
 			      const struct nlattr *nested)
 {
 	struct tc_cake_stats_attrs *dst = yarg->data;
-	const struct nlattr *attr_tin_stats;
+	const struct nlattr *attr_tin_stats = NULL;
 	unsigned int n_tin_stats = 0;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	int i;
@@ -6432,13 +6269,11 @@ int tc_cake_stats_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.max_adjlen = 1;
 			dst->max_adjlen = ynl_attr_get_u32(attr);
 		} else if (type == TCA_CAKE_STATS_TIN_STATS) {
-			const struct nlattr *attr2;
-
 			attr_tin_stats = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.tin_stats++;
+				n_tin_stats++;
 			}
 		} else if (type == TCA_CAKE_STATS_DEFICIT) {
 			if (ynl_attr_validate(yarg, attr))
@@ -7091,6 +6926,7 @@ int tc_tca_stats_attrs_parse(struct ynl_parse_arg *yarg,
 	struct tc_tca_stats_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -7098,8 +6934,6 @@ int tc_tca_stats_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_STATS_BASIC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7111,8 +6945,6 @@ int tc_tca_stats_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->basic = malloc(len);
 			memcpy(dst->basic, ynl_attr_data(attr), len);
 		} else if (type == TCA_STATS_RATE_EST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7124,8 +6956,6 @@ int tc_tca_stats_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->rate_est = malloc(len);
 			memcpy(dst->rate_est, ynl_attr_data(attr), len);
 		} else if (type == TCA_STATS_QUEUE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7148,8 +6978,6 @@ int tc_tca_stats_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_tca_stats_app_msg_parse(&parg, _sel_kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_STATS_RATE_EST64) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7161,8 +6989,6 @@ int tc_tca_stats_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->rate_est64 = malloc(len);
 			memcpy(dst->rate_est64, ynl_attr_data(attr), len);
 		} else if (type == TCA_STATS_BASIC_HW) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7227,6 +7053,7 @@ int tc_gred_attrs_parse(struct ynl_parse_arg *yarg,
 	struct tc_gred_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -7234,8 +7061,6 @@ int tc_gred_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_GRED_PARMS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7244,8 +7069,6 @@ int tc_gred_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->parms = malloc(len);
 			memcpy(dst->parms, ynl_attr_data(attr), len);
 		} else if (type == TCA_GRED_STAB) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7255,8 +7078,6 @@ int tc_gred_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->stab = malloc(len);
 			memcpy(dst->stab, ynl_attr_data(attr), len);
 		} else if (type == TCA_GRED_DPS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7268,8 +7089,6 @@ int tc_gred_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->dps = malloc(len);
 			memcpy(dst->dps, ynl_attr_data(attr), len);
 		} else if (type == TCA_GRED_MAX_P) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7346,6 +7165,7 @@ int tc_taprio_attrs_parse(struct ynl_parse_arg *yarg,
 	struct tc_taprio_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -7353,8 +7173,6 @@ int tc_taprio_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_TAPRIO_ATTR_PRIOMAP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7394,8 +7212,6 @@ int tc_taprio_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.sched_clockid = 1;
 			dst->sched_clockid = ynl_attr_get_s32(attr);
 		} else if (type == TCA_TAPRIO_ATTR_ADMIN_SCHED) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7481,6 +7297,7 @@ int tc_act_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested,
 	struct tc_act_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -7490,8 +7307,6 @@ int tc_act_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_ACT_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7526,8 +7341,6 @@ int tc_act_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested,
 			if (tc_tca_stats_attrs_parse(&parg, attr, dst->kind))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_ACT_COOKIE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7598,10 +7411,12 @@ int tc_basic_attrs_parse(struct ynl_parse_arg *yarg,
 			 const struct nlattr *nested)
 {
 	struct tc_basic_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -7627,13 +7442,11 @@ int tc_basic_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_ematch_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_BASIC_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_BASIC_POLICE) {
 			if (ynl_attr_validate(yarg, attr))
@@ -7645,8 +7458,6 @@ int tc_basic_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_police_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_BASIC_PCNT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7725,10 +7536,12 @@ int tc_bpf_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 int tc_bpf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_bpf_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -7740,13 +7553,11 @@ int tc_bpf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_BPF_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_BPF_POLICE) {
 			if (ynl_attr_validate(yarg, attr))
@@ -7768,8 +7579,6 @@ int tc_bpf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.ops_len = 1;
 			dst->ops_len = ynl_attr_get_u16(attr);
 		} else if (type == TCA_BPF_OPS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7783,8 +7592,6 @@ int tc_bpf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.fd = 1;
 			dst->fd = ynl_attr_get_u32(attr);
 		} else if (type == TCA_BPF_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7804,8 +7611,6 @@ int tc_bpf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.flags_gen = 1;
 			dst->flags_gen = ynl_attr_get_u32(attr);
 		} else if (type == TCA_BPF_TAG) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7869,10 +7674,12 @@ int tc_cgroup_attrs_parse(struct ynl_parse_arg *yarg,
 			  const struct nlattr *nested)
 {
 	struct tc_cgroup_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -7884,13 +7691,11 @@ int tc_cgroup_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_CGROUP_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_CGROUP_POLICE) {
 			if (ynl_attr_validate(yarg, attr))
@@ -7902,8 +7707,6 @@ int tc_cgroup_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_police_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_CGROUP_EMATCHES) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8199,10 +8002,12 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			  const struct nlattr *nested)
 {
 	struct tc_flower_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -8219,8 +8024,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.classid = 1;
 			dst->classid = ynl_attr_get_u32(attr);
 		} else if (type == TCA_FLOWER_INDEV) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8230,17 +8033,13 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			memcpy(dst->indev, ynl_attr_get_str(attr), len);
 			dst->indev[len] = 0;
 		} else if (type == TCA_FLOWER_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_FLOWER_KEY_ETH_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8249,8 +8048,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_eth_dst = malloc(len);
 			memcpy(dst->key_eth_dst, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ETH_DST_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8259,8 +8056,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_eth_dst_mask = malloc(len);
 			memcpy(dst->key_eth_dst_mask, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ETH_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8269,8 +8064,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_eth_src = malloc(len);
 			memcpy(dst->key_eth_src, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ETH_SRC_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8309,8 +8102,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.key_ipv4_dst_mask = 1;
 			dst->key_ipv4_dst_mask = ynl_attr_get_u32(attr);
 		} else if (type == TCA_FLOWER_KEY_IPV6_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8319,8 +8110,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_ipv6_src = malloc(len);
 			memcpy(dst->key_ipv6_src, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_IPV6_SRC_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8329,8 +8118,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_ipv6_src_mask = malloc(len);
 			memcpy(dst->key_ipv6_src_mask, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_IPV6_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8339,8 +8126,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_ipv6_dst = malloc(len);
 			memcpy(dst->key_ipv6_dst, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_IPV6_DST_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8414,8 +8199,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.key_enc_ipv4_dst_mask = 1;
 			dst->key_enc_ipv4_dst_mask = ynl_attr_get_u32(attr);
 		} else if (type == TCA_FLOWER_KEY_ENC_IPV6_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8424,8 +8207,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_enc_ipv6_src = malloc(len);
 			memcpy(dst->key_enc_ipv6_src, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ENC_IPV6_SRC_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8434,8 +8215,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_enc_ipv6_src_mask = malloc(len);
 			memcpy(dst->key_enc_ipv6_src_mask, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ENC_IPV6_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8444,8 +8223,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_enc_ipv6_dst = malloc(len);
 			memcpy(dst->key_enc_ipv6_dst, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ENC_IPV6_DST_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8594,8 +8371,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.key_arp_op_mask = 1;
 			dst->key_arp_op_mask = ynl_attr_get_u8(attr);
 		} else if (type == TCA_FLOWER_KEY_ARP_SHA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8604,8 +8379,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_arp_sha = malloc(len);
 			memcpy(dst->key_arp_sha, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ARP_SHA_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8614,8 +8387,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_arp_sha_mask = malloc(len);
 			memcpy(dst->key_arp_sha_mask, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ARP_THA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8624,8 +8395,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_arp_tha = malloc(len);
 			memcpy(dst->key_arp_tha, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_ARP_THA_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8792,8 +8561,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.key_ct_mark_mask = 1;
 			dst->key_ct_mark_mask = ynl_attr_get_u32(attr);
 		} else if (type == TCA_FLOWER_KEY_CT_LABELS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8802,8 +8569,6 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->key_ct_labels = malloc(len);
 			memcpy(dst->key_ct_labels, ynl_attr_data(attr), len);
 		} else if (type == TCA_FLOWER_KEY_CT_LABELS_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8938,10 +8703,12 @@ int tc_fw_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 int tc_fw_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_fw_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -8967,8 +8734,6 @@ int tc_fw_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			if (tc_police_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_FW_INDEV) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -8978,13 +8743,11 @@ int tc_fw_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			memcpy(dst->indev, ynl_attr_get_str(attr), len);
 			dst->indev[len] = 0;
 		} else if (type == TCA_FW_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_FW_MASK) {
 			if (ynl_attr_validate(yarg, attr))
@@ -9043,10 +8806,12 @@ int tc_matchall_attrs_parse(struct ynl_parse_arg *yarg,
 			    const struct nlattr *nested)
 {
 	struct tc_matchall_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -9063,13 +8828,11 @@ int tc_matchall_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.classid = 1;
 			dst->classid = ynl_attr_get_u32(attr);
 		} else if (type == TCA_MATCHALL_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_MATCHALL_FLAGS) {
 			if (ynl_attr_validate(yarg, attr))
@@ -9077,8 +8840,6 @@ int tc_matchall_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.flags = 1;
 			dst->flags = ynl_attr_get_u32(attr);
 		} else if (type == TCA_MATCHALL_PCNT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -9145,7 +8906,8 @@ int tc_route_attrs_parse(struct ynl_parse_arg *yarg,
 			 const struct nlattr *nested)
 {
 	struct tc_route_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
@@ -9189,13 +8951,11 @@ int tc_route_attrs_parse(struct ynl_parse_arg *yarg,
 			if (tc_police_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_ROUTE4_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		}
 	}
@@ -9266,10 +9026,12 @@ int tc_u32_attrs_put(struct nlmsghdr *nlh, unsigned int attr_type,
 int tc_u32_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct tc_u32_attrs *dst = yarg->data;
-	const struct nlattr *attr_act;
+	const struct nlattr *attr_act = NULL;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_act = 0;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -9301,8 +9063,6 @@ int tc_u32_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.divisor = 1;
 			dst->divisor = ynl_attr_get_u32(attr);
 		} else if (type == TCA_U32_SEL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -9323,17 +9083,13 @@ int tc_u32_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			if (tc_police_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_U32_ACT) {
-			const struct nlattr *attr2;
-
 			attr_act = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.act++;
+				n_act++;
 			}
 		} else if (type == TCA_U32_INDEV) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -9343,8 +9099,6 @@ int tc_u32_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			memcpy(dst->indev, ynl_attr_get_str(attr), len);
 			dst->indev[len] = 0;
 		} else if (type == TCA_U32_PCNT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -9356,8 +9110,6 @@ int tc_u32_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 				dst->pcnt = malloc(len);
 			memcpy(dst->pcnt, ynl_attr_data(attr), len);
 		} else if (type == TCA_U32_MARK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10027,6 +9779,7 @@ int tc_getqdisc_rsp_parse(const struct nlmsghdr *nlh,
 	struct tc_getqdisc_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -10039,8 +9792,6 @@ int tc_getqdisc_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10061,8 +9812,6 @@ int tc_getqdisc_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_options_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10085,8 +9834,6 @@ int tc_getqdisc_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_tca_stats_app_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10343,6 +10090,7 @@ int tc_gettclass_rsp_parse(const struct nlmsghdr *nlh,
 	struct tc_gettclass_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -10355,8 +10103,6 @@ int tc_gettclass_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10377,8 +10123,6 @@ int tc_gettclass_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_options_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10401,8 +10145,6 @@ int tc_gettclass_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_tca_stats_app_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10600,6 +10342,7 @@ int tc_gettfilter_rsp_parse(const struct nlmsghdr *nlh,
 	struct tc_gettfilter_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -10612,8 +10355,6 @@ int tc_gettfilter_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10634,8 +10375,6 @@ int tc_gettfilter_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_options_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10658,8 +10397,6 @@ int tc_gettfilter_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_tca_stats_app_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10923,6 +10660,7 @@ int tc_getchain_rsp_parse(const struct nlmsghdr *nlh,
 	struct tc_getchain_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -10935,8 +10673,6 @@ int tc_getchain_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TCA_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10957,8 +10693,6 @@ int tc_getchain_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_options_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -10981,8 +10715,6 @@ int tc_getchain_rsp_parse(const struct nlmsghdr *nlh,
 			if (tc_tca_stats_app_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == TCA_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

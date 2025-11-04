@@ -479,6 +479,7 @@ const struct ynl_policy_attr devlink_dl_health_reporter_policy[DEVLINK_ATTR_MAX 
 	[DEVLINK_ATTR_HEALTH_REPORTER_DUMP_TS] = { .name = "health-reporter-dump-ts", .type = YNL_PT_U64, },
 	[DEVLINK_ATTR_HEALTH_REPORTER_DUMP_TS_NS] = { .name = "health-reporter-dump-ts-ns", .type = YNL_PT_U64, },
 	[DEVLINK_ATTR_HEALTH_REPORTER_AUTO_DUMP] = { .name = "health-reporter-auto-dump", .type = YNL_PT_U8, },
+	[DEVLINK_ATTR_HEALTH_REPORTER_BURST_PERIOD] = { .name = "health-reporter-burst-period", .type = YNL_PT_U64, },
 };
 
 const struct ynl_policy_nest devlink_dl_health_reporter_nest = {
@@ -909,6 +910,7 @@ const struct ynl_policy_attr devlink_policy[DEVLINK_ATTR_MAX + 1] = {
 	[DEVLINK_ATTR_RATE_TX_WEIGHT] = { .name = "rate-tx-weight", .type = YNL_PT_U32, },
 	[DEVLINK_ATTR_REGION_DIRECT] = { .name = "region-direct", .type = YNL_PT_FLAG, },
 	[DEVLINK_ATTR_RATE_TC_BWS] = { .name = "rate-tc-bws", .type = YNL_PT_NEST, .nest = &devlink_dl_rate_tc_bws_nest, },
+	[DEVLINK_ATTR_HEALTH_REPORTER_BURST_PERIOD] = { .name = "health-reporter-burst-period", .type = YNL_PT_U64, },
 };
 
 const struct ynl_policy_nest devlink_nest = {
@@ -980,6 +982,7 @@ int devlink_dl_dpipe_match_value_parse(struct ynl_parse_arg *yarg,
 	unsigned int n_dpipe_match = 0;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -993,8 +996,6 @@ int devlink_dl_dpipe_match_value_parse(struct ynl_parse_arg *yarg,
 		if (type == DEVLINK_ATTR_DPIPE_MATCH) {
 			n_dpipe_match++;
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1003,8 +1004,6 @@ int devlink_dl_dpipe_match_value_parse(struct ynl_parse_arg *yarg,
 			dst->dpipe_value = malloc(len);
 			memcpy(dst->dpipe_value, ynl_attr_data(attr), len);
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1101,6 +1100,7 @@ int devlink_dl_dpipe_action_value_parse(struct ynl_parse_arg *yarg,
 	unsigned int n_dpipe_action = 0;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -1114,8 +1114,6 @@ int devlink_dl_dpipe_action_value_parse(struct ynl_parse_arg *yarg,
 		if (type == DEVLINK_ATTR_DPIPE_ACTION) {
 			n_dpipe_action++;
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1124,8 +1122,6 @@ int devlink_dl_dpipe_action_value_parse(struct ynl_parse_arg *yarg,
 			dst->dpipe_value = malloc(len);
 			memcpy(dst->dpipe_value, ynl_attr_data(attr), len);
 		} else if (type == DEVLINK_ATTR_DPIPE_VALUE_MASK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1169,13 +1165,12 @@ int devlink_dl_dpipe_field_parse(struct ynl_parse_arg *yarg,
 {
 	struct devlink_dl_dpipe_field *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_DPIPE_FIELD_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1215,13 +1210,12 @@ int devlink_dl_resource_parse(struct ynl_parse_arg *yarg,
 {
 	struct devlink_dl_resource *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_RESOURCE_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1306,13 +1300,12 @@ int devlink_dl_info_version_parse(struct ynl_parse_arg *yarg,
 {
 	struct devlink_dl_info_version *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_INFO_VERSION_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1322,8 +1315,6 @@ int devlink_dl_info_version_parse(struct ynl_parse_arg *yarg,
 			memcpy(dst->info_version_name, ynl_attr_get_str(attr), len);
 			dst->info_version_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_INFO_VERSION_VALUE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1348,6 +1339,7 @@ int devlink_dl_fmsg_parse(struct ynl_parse_arg *yarg,
 {
 	struct devlink_dl_fmsg *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -1369,8 +1361,6 @@ int devlink_dl_fmsg_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.fmsg_nest_end = 1;
 		} else if (type == DEVLINK_ATTR_FMSG_OBJ_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1919,6 +1909,7 @@ int devlink_dl_dpipe_table_parse(struct ynl_parse_arg *yarg,
 	struct devlink_dl_dpipe_table *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -1926,8 +1917,6 @@ int devlink_dl_dpipe_table_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_DPIPE_TABLE_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2044,6 +2033,7 @@ int devlink_dl_dpipe_header_parse(struct ynl_parse_arg *yarg,
 	struct devlink_dl_dpipe_header *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -2051,8 +2041,6 @@ int devlink_dl_dpipe_header_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_DPIPE_HEADER_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2347,6 +2335,7 @@ int devlink_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct devlink_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -2355,8 +2344,6 @@ int devlink_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2366,8 +2353,6 @@ int devlink_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2493,6 +2478,7 @@ int devlink_port_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_port_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -2500,8 +2486,6 @@ int devlink_port_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2511,8 +2495,6 @@ int devlink_port_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2574,6 +2556,7 @@ int devlink_port_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_port_get_rsp_dump *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -2581,8 +2564,6 @@ int devlink_port_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2592,8 +2573,6 @@ int devlink_port_get_rsp_dump_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2728,6 +2707,7 @@ int devlink_port_new_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_port_new_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -2735,8 +2715,6 @@ int devlink_port_new_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2746,8 +2724,6 @@ int devlink_port_new_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2934,6 +2910,7 @@ int devlink_sb_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_sb_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -2941,8 +2918,6 @@ int devlink_sb_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2952,8 +2927,6 @@ int devlink_sb_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3086,6 +3059,7 @@ int devlink_sb_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_sb_pool_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -3093,8 +3067,6 @@ int devlink_sb_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3104,8 +3076,6 @@ int devlink_sb_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3289,6 +3259,7 @@ int devlink_sb_port_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_sb_port_pool_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -3296,8 +3267,6 @@ int devlink_sb_port_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3307,8 +3276,6 @@ int devlink_sb_port_pool_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3502,6 +3469,7 @@ int devlink_sb_tc_pool_bind_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_sb_tc_pool_bind_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -3509,8 +3477,6 @@ int devlink_sb_tc_pool_bind_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3520,8 +3486,6 @@ int devlink_sb_tc_pool_bind_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3793,6 +3757,7 @@ int devlink_eswitch_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_eswitch_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -3800,8 +3765,6 @@ int devlink_eswitch_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3811,8 +3774,6 @@ int devlink_eswitch_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3938,6 +3899,7 @@ int devlink_dpipe_table_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct devlink_dpipe_table_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -3946,8 +3908,6 @@ int devlink_dpipe_table_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3957,8 +3917,6 @@ int devlink_dpipe_table_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4045,6 +4003,7 @@ int devlink_dpipe_entries_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct devlink_dpipe_entries_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -4053,8 +4012,6 @@ int devlink_dpipe_entries_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4064,8 +4021,6 @@ int devlink_dpipe_entries_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4151,6 +4106,7 @@ int devlink_dpipe_headers_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct devlink_dpipe_headers_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -4159,8 +4115,6 @@ int devlink_dpipe_headers_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4170,8 +4124,6 @@ int devlink_dpipe_headers_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4327,6 +4279,7 @@ int devlink_resource_dump_rsp_parse(const struct nlmsghdr *nlh,
 	struct devlink_resource_dump_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -4335,8 +4288,6 @@ int devlink_resource_dump_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4346,8 +4297,6 @@ int devlink_resource_dump_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4427,6 +4376,7 @@ int devlink_reload_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_reload_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -4434,8 +4384,6 @@ int devlink_reload_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4445,8 +4393,6 @@ int devlink_reload_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4533,6 +4479,7 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_param_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -4540,8 +4487,6 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4551,8 +4496,6 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4562,8 +4505,6 @@ int devlink_param_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_PARAM_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4733,6 +4674,7 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_region_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -4740,8 +4682,6 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4751,8 +4691,6 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4767,8 +4705,6 @@ int devlink_region_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.port_index = 1;
 			dst->port_index = ynl_attr_get_u32(attr);
 		} else if (type == DEVLINK_ATTR_REGION_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4902,6 +4838,7 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_region_new_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -4909,8 +4846,6 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4920,8 +4855,6 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4936,8 +4869,6 @@ int devlink_region_new_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.port_index = 1;
 			dst->port_index = ynl_attr_get_u32(attr);
 		} else if (type == DEVLINK_ATTR_REGION_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5042,6 +4973,7 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_region_read_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -5049,8 +4981,6 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5060,8 +4990,6 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5076,8 +5004,6 @@ int devlink_region_read_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.port_index = 1;
 			dst->port_index = ynl_attr_get_u32(attr);
 		} else if (type == DEVLINK_ATTR_REGION_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5183,6 +5109,7 @@ int devlink_port_param_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_port_param_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -5190,8 +5117,6 @@ int devlink_port_param_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5201,8 +5126,6 @@ int devlink_port_param_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5374,6 +5297,7 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct devlink_info_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -5390,8 +5314,6 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5401,8 +5323,6 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5412,8 +5332,6 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_INFO_DRIVER_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5423,8 +5341,6 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->info_driver_name, ynl_attr_get_str(attr), len);
 			dst->info_driver_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_INFO_SERIAL_NUMBER) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5440,8 +5356,6 @@ int devlink_info_get_rsp_parse(const struct nlmsghdr *nlh,
 		} else if (type == DEVLINK_ATTR_INFO_VERSION_STORED) {
 			n_info_version_stored++;
 		} else if (type == DEVLINK_ATTR_INFO_BOARD_SERIAL_NUMBER) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5613,6 +5527,7 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_health_reporter_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -5620,8 +5535,6 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5631,8 +5544,6 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5647,8 +5558,6 @@ int devlink_health_reporter_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.port_index = 1;
 			dst->port_index = ynl_attr_get_u32(attr);
 		} else if (type == DEVLINK_ATTR_HEALTH_REPORTER_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5800,6 +5709,8 @@ int devlink_health_reporter_set(struct ynl_sock *ys,
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_HEALTH_REPORTER_AUTO_RECOVER, req->health_reporter_auto_recover);
 	if (req->_present.health_reporter_auto_dump)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_HEALTH_REPORTER_AUTO_DUMP, req->health_reporter_auto_dump);
+	if (req->_present.health_reporter_burst_period)
+		ynl_attr_put_u64(nlh, DEVLINK_ATTR_HEALTH_REPORTER_BURST_PERIOD, req->health_reporter_burst_period);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -6077,6 +5988,7 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_trap_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -6084,8 +5996,6 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6095,8 +6005,6 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6106,8 +6014,6 @@ int devlink_trap_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_TRAP_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6275,6 +6181,7 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_trap_group_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -6282,8 +6189,6 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6293,8 +6198,6 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6304,8 +6207,6 @@ int devlink_trap_group_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->dev_name, ynl_attr_get_str(attr), len);
 			dst->dev_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_TRAP_GROUP_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6478,6 +6379,7 @@ int devlink_trap_policer_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_trap_policer_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -6485,8 +6387,6 @@ int devlink_trap_policer_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6496,8 +6396,6 @@ int devlink_trap_policer_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6713,6 +6611,7 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_rate_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -6720,8 +6619,6 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6731,8 +6628,6 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6747,8 +6642,6 @@ int devlink_rate_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.port_index = 1;
 			dst->port_index = ynl_attr_get_u32(attr);
 		} else if (type == DEVLINK_ATTR_RATE_NODE_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7020,6 +6913,7 @@ int devlink_linecard_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_linecard_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -7027,8 +6921,6 @@ int devlink_linecard_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7038,8 +6930,6 @@ int devlink_linecard_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7211,6 +7101,7 @@ int devlink_selftests_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct devlink_selftests_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -7218,8 +7109,6 @@ int devlink_selftests_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == DEVLINK_ATTR_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -7229,8 +7118,6 @@ int devlink_selftests_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->bus_name, ynl_attr_get_str(attr), len);
 			dst->bus_name[len] = 0;
 		} else if (type == DEVLINK_ATTR_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

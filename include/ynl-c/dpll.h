@@ -260,6 +260,7 @@ struct dpll_device_get_rsp {
 		__u32 clock_id:1;
 		__u32 type:1;
 		__u32 phase_offset_monitor:1;
+		__u32 phase_offset_avg_factor:1;
 	} _present;
 	struct {
 		__u32 module_name;
@@ -278,6 +279,7 @@ struct dpll_device_get_rsp {
 	__u64 clock_id;
 	enum dpll_type type;
 	enum dpll_feature_state phase_offset_monitor;
+	__u32 phase_offset_avg_factor;
 };
 
 void dpll_device_get_rsp_free(struct dpll_device_get_rsp *rsp);
@@ -316,10 +318,12 @@ struct dpll_device_set_req {
 	struct {
 		__u32 id:1;
 		__u32 phase_offset_monitor:1;
+		__u32 phase_offset_avg_factor:1;
 	} _present;
 
 	__u32 id;
 	enum dpll_feature_state phase_offset_monitor;
+	__u32 phase_offset_avg_factor;
 };
 
 static inline struct dpll_device_set_req *dpll_device_set_req_alloc(void)
@@ -340,6 +344,13 @@ dpll_device_set_req_set_phase_offset_monitor(struct dpll_device_set_req *req,
 {
 	req->_present.phase_offset_monitor = 1;
 	req->phase_offset_monitor = phase_offset_monitor;
+}
+static inline void
+dpll_device_set_req_set_phase_offset_avg_factor(struct dpll_device_set_req *req,
+						__u32 phase_offset_avg_factor)
+{
+	req->_present.phase_offset_avg_factor = 1;
+	req->phase_offset_avg_factor = phase_offset_avg_factor;
 }
 
 /*
@@ -473,9 +484,11 @@ dpll_pin_get_req_set_id(struct dpll_pin_get_req *req, __u32 id)
 struct dpll_pin_get_rsp {
 	struct {
 		__u32 id:1;
+		__u32 clock_id:1;
 		__u32 type:1;
 		__u32 frequency:1;
 		__u32 capabilities:1;
+		__u32 phase_adjust_gran:1;
 		__u32 phase_adjust_min:1;
 		__u32 phase_adjust_max:1;
 		__u32 phase_adjust:1;
@@ -484,6 +497,7 @@ struct dpll_pin_get_rsp {
 		__u32 esync_pulse:1;
 	} _present;
 	struct {
+		__u32 module_name;
 		__u32 board_label;
 		__u32 panel_label;
 		__u32 package_label;
@@ -497,6 +511,8 @@ struct dpll_pin_get_rsp {
 	} _count;
 
 	__u32 id;
+	char *module_name;
+	__u64 clock_id;
 	char *board_label;
 	char *panel_label;
 	char *package_label;
@@ -506,6 +522,7 @@ struct dpll_pin_get_rsp {
 	__u32 capabilities;
 	struct dpll_pin_parent_device *parent_device;
 	struct dpll_pin_parent_pin *parent_pin;
+	__u32 phase_adjust_gran;
 	__s32 phase_adjust_min;
 	__s32 phase_adjust_max;
 	__s32 phase_adjust;

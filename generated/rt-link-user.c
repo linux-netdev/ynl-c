@@ -1048,6 +1048,8 @@ const struct ynl_policy_attr rt_link_link_attrs_policy[IFLA_MAX + 1] = {
 	[IFLA_DPLL_PIN] = { .name = "dpll-pin", .type = YNL_PT_NEST, .nest = &rt_link_link_dpll_pin_attrs_nest, },
 	[IFLA_MAX_PACING_OFFLOAD_HORIZON] = { .name = "max-pacing-offload-horizon", .type = YNL_PT_UINT, },
 	[IFLA_NETNS_IMMUTABLE] = { .name = "netns-immutable", .type = YNL_PT_U8, },
+	[IFLA_HEADROOM] = { .name = "headroom", .type = YNL_PT_U16, },
+	[IFLA_TAILROOM] = { .name = "tailroom", .type = YNL_PT_U16, },
 };
 
 const struct ynl_policy_nest rt_link_link_attrs_nest = {
@@ -1292,13 +1294,12 @@ int rt_link_ifla_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_ifla_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_INET_CONF) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1364,6 +1365,7 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_ifla6_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -1374,8 +1376,6 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.flags = 1;
 			dst->flags = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_INET6_CONF) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1385,8 +1385,6 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->conf = malloc(len);
 			memcpy(dst->conf, ynl_attr_data(attr), len);
 		} else if (type == IFLA_INET6_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1396,8 +1394,6 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->stats = malloc(len);
 			memcpy(dst->stats, ynl_attr_data(attr), len);
 		} else if (type == IFLA_INET6_MCAST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1406,8 +1402,6 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->mcast = malloc(len);
 			memcpy(dst->mcast, ynl_attr_data(attr), len);
 		} else if (type == IFLA_INET6_CACHEINFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1419,8 +1413,6 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->cacheinfo = malloc(len);
 			memcpy(dst->cacheinfo, ynl_attr_data(attr), len);
 		} else if (type == IFLA_INET6_ICMP6STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1430,8 +1422,6 @@ int rt_link_ifla6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->icmp6stats = malloc(len);
 			memcpy(dst->icmp6stats, ynl_attr_data(attr), len);
 		} else if (type == IFLA_INET6_TOKEN) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1654,6 +1644,7 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_bridge_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -1704,8 +1695,6 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.group_fwd_mask = 1;
 			dst->group_fwd_mask = ynl_attr_get_u16(attr);
 		} else if (type == IFLA_BR_ROOT_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1717,8 +1706,6 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->root_id = malloc(len);
 			memcpy(dst->root_id, ynl_attr_data(attr), len);
 		} else if (type == IFLA_BR_BRIDGE_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1770,8 +1757,6 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.gc_timer = 1;
 			dst->gc_timer = ynl_attr_get_u64(attr);
 		} else if (type == IFLA_BR_GROUP_ADDR) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1780,8 +1765,6 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->group_addr = malloc(len);
 			memcpy(dst->group_addr, ynl_attr_data(attr), len);
 		} else if (type == IFLA_BR_FDB_FLUSH) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1905,8 +1888,6 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.vlan_stats_per_port = 1;
 			dst->vlan_stats_per_port = ynl_attr_get_u8(attr);
 		} else if (type == IFLA_BR_MULTI_BOOLOPT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -1918,8 +1899,6 @@ int rt_link_linkinfo_bridge_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->multi_boolopt = malloc(len);
 			memcpy(dst->multi_boolopt, ynl_attr_data(attr), len);
 		} else if (type == IFLA_BR_MCAST_QUERIER_STATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2014,6 +1993,7 @@ int rt_link_linkinfo_gre_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_gre_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -2044,8 +2024,6 @@ int rt_link_linkinfo_gre_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.okey = 1;
 			dst->okey = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_GRE_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2054,8 +2032,6 @@ int rt_link_linkinfo_gre_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFLA_GRE_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2218,6 +2194,7 @@ int rt_link_linkinfo_gre6_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_gre6_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -2248,8 +2225,6 @@ int rt_link_linkinfo_gre6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.okey = 1;
 			dst->okey = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_GRE_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2258,8 +2233,6 @@ int rt_link_linkinfo_gre6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFLA_GRE_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2397,6 +2370,7 @@ int rt_link_linkinfo_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_geneve_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -2407,8 +2381,6 @@ int rt_link_linkinfo_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.id = 1;
 			dst->id = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_GENEVE_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2436,8 +2408,6 @@ int rt_link_linkinfo_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.collect_metadata = 1;
 		} else if (type == IFLA_GENEVE_REMOTE6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2480,8 +2450,6 @@ int rt_link_linkinfo_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.inner_proto_inherit = 1;
 		} else if (type == IFLA_GENEVE_PORT_RANGE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2564,6 +2532,7 @@ int rt_link_linkinfo_iptun_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_iptun_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -2574,8 +2543,6 @@ int rt_link_linkinfo_iptun_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.link = 1;
 			dst->link = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_IPTUN_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2584,8 +2551,6 @@ int rt_link_linkinfo_iptun_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFLA_IPTUN_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2629,8 +2594,6 @@ int rt_link_linkinfo_iptun_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.pmtudisc = 1;
 			dst->pmtudisc = ynl_attr_get_u8(attr);
 		} else if (type == IFLA_IPTUN_6RD_PREFIX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2639,8 +2602,6 @@ int rt_link_linkinfo_iptun_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_6rd_prefix = malloc(len);
 			memcpy(dst->_6rd_prefix, ynl_attr_data(attr), len);
 		} else if (type == IFLA_IPTUN_6RD_RELAY_PREFIX) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2745,6 +2706,7 @@ int rt_link_linkinfo_ip6tnl_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_ip6tnl_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -2755,8 +2717,6 @@ int rt_link_linkinfo_ip6tnl_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.link = 1;
 			dst->link = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_IPTUN_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -2765,8 +2725,6 @@ int rt_link_linkinfo_ip6tnl_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFLA_IPTUN_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3001,6 +2959,7 @@ int rt_link_linkinfo_vti_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_vti_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -3021,8 +2980,6 @@ int rt_link_linkinfo_vti_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.okey = 1;
 			dst->okey = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_VTI_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3031,8 +2988,6 @@ int rt_link_linkinfo_vti_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VTI_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3086,6 +3041,7 @@ int rt_link_linkinfo_vti6_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_vti6_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -3106,8 +3062,6 @@ int rt_link_linkinfo_vti6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.okey = 1;
 			dst->okey = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_VTI_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3116,8 +3070,6 @@ int rt_link_linkinfo_vti6_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VTI_REMOTE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3177,13 +3129,12 @@ int rt_link_linkinfo_netkit_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_netkit_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_NETKIT_PEER_INFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3385,6 +3336,7 @@ int rt_link_linkinfo_brport_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_linkinfo_brport_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -3441,8 +3393,6 @@ int rt_link_linkinfo_brport_attrs_parse(struct ynl_parse_arg *yarg,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.proxyarp_wifi = 1;
 		} else if (type == IFLA_BRPORT_ROOT_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3454,8 +3404,6 @@ int rt_link_linkinfo_brport_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->root_id = malloc(len);
 			memcpy(dst->root_id, ynl_attr_data(attr), len);
 		} else if (type == IFLA_BRPORT_BRIDGE_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3644,6 +3592,7 @@ int rt_link_bond_slave_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_bond_slave_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -3664,8 +3613,6 @@ int rt_link_bond_slave_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.link_failure_count = 1;
 			dst->link_failure_count = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_BOND_SLAVE_PERM_HWADDR) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -3879,6 +3826,7 @@ int rt_link_bond_ad_info_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_link_bond_ad_info_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -3904,8 +3852,6 @@ int rt_link_bond_ad_info_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.partner_key = 1;
 			dst->partner_key = ynl_attr_get_u16(attr);
 		} else if (type == IFLA_BOND_AD_INFO_PARTNER_MAC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4056,10 +4002,12 @@ int rt_link_link_offload_xstats_parse(struct ynl_parse_arg *yarg,
 				      const struct nlattr *nested)
 {
 	struct rt_link_link_offload_xstats *dst = yarg->data;
-	const struct nlattr *attr_hw_s_info;
+	const struct nlattr *attr_hw_s_info = NULL;
 	unsigned int n_hw_s_info = 0;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -4071,8 +4019,6 @@ int rt_link_link_offload_xstats_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_OFFLOAD_XSTATS_CPU_HIT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4081,17 +4027,13 @@ int rt_link_link_offload_xstats_parse(struct ynl_parse_arg *yarg,
 			dst->cpu_hit = malloc(len);
 			memcpy(dst->cpu_hit, ynl_attr_data(attr), len);
 		} else if (type == IFLA_OFFLOAD_XSTATS_HW_S_INFO) {
-			const struct nlattr *attr2;
-
 			attr_hw_s_info = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.hw_s_info++;
+				n_hw_s_info++;
 			}
 		} else if (type == IFLA_OFFLOAD_XSTATS_L3_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4223,6 +4165,7 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 	struct rt_link_vfinfo_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -4230,8 +4173,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_VF_MAC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4243,8 +4184,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->mac = malloc(len);
 			memcpy(dst->mac, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_VLAN) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4256,8 +4195,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->vlan = malloc(len);
 			memcpy(dst->vlan, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_TX_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4269,8 +4206,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->tx_rate = malloc(len);
 			memcpy(dst->tx_rate, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_SPOOFCHK) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4282,8 +4217,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->spoofchk = malloc(len);
 			memcpy(dst->spoofchk, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_LINK_STATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4295,8 +4228,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->link_state = malloc(len);
 			memcpy(dst->link_state, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_RATE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4308,8 +4239,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->rate = malloc(len);
 			memcpy(dst->rate, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_RSS_QUERY_EN) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4330,8 +4259,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 			if (rt_link_vf_stats_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == IFLA_VF_TRUST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4343,8 +4270,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->trust = malloc(len);
 			memcpy(dst->trust, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_IB_NODE_GUID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4356,8 +4281,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 				dst->ib_node_guid = malloc(len);
 			memcpy(dst->ib_node_guid, ynl_attr_data(attr), len);
 		} else if (type == IFLA_VF_IB_PORT_GUID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4378,8 +4301,6 @@ int rt_link_vfinfo_attrs_parse(struct ynl_parse_arg *yarg,
 			if (rt_link_vf_vlan_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == IFLA_VF_BROADCAST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4488,12 +4409,14 @@ int rt_link_linkinfo_bond_attrs_parse(struct ynl_parse_arg *yarg,
 				      const struct nlattr *nested)
 {
 	struct rt_link_linkinfo_bond_attrs *dst = yarg->data;
-	const struct nlattr *attr_arp_ip_target;
-	const struct nlattr *attr_ns_ip6_target;
+	const struct nlattr *attr_arp_ip_target = NULL;
+	const struct nlattr *attr_ns_ip6_target = NULL;
 	unsigned int n_arp_ip_target = 0;
 	unsigned int n_ns_ip6_target = 0;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	parg.ys = yarg->ys;
@@ -4542,13 +4465,11 @@ int rt_link_linkinfo_bond_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.arp_interval = 1;
 			dst->arp_interval = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_BOND_ARP_IP_TARGET) {
-			const struct nlattr *attr2;
-
 			attr_arp_ip_target = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.arp_ip_target++;
+				n_arp_ip_target++;
 			}
 		} else if (type == IFLA_BOND_ARP_VALIDATE) {
 			if (ynl_attr_validate(yarg, attr))
@@ -4640,8 +4561,6 @@ int rt_link_linkinfo_bond_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.ad_user_port_key = 1;
 			dst->ad_user_port_key = ynl_attr_get_u16(attr);
 		} else if (type == IFLA_BOND_AD_ACTOR_SYSTEM) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -4670,13 +4589,11 @@ int rt_link_linkinfo_bond_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.missed_max = 1;
 			dst->missed_max = ynl_attr_get_u8(attr);
 		} else if (type == IFLA_BOND_NS_IP6_TARGET) {
-			const struct nlattr *attr2;
-
 			attr_ns_ip6_target = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.ns_ip6_target++;
+				n_ns_ip6_target++;
 			}
 		} else if (type == IFLA_BOND_COUPLED_CONTROL) {
 			if (ynl_attr_validate(yarg, attr))
@@ -4743,6 +4660,7 @@ int rt_link_linkinfo_vlan_attrs_parse(struct ynl_parse_arg *yarg,
 	struct rt_link_linkinfo_vlan_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -4755,8 +4673,6 @@ int rt_link_linkinfo_vlan_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->_present.id = 1;
 			dst->id = ynl_attr_get_u16(attr);
 		} else if (type == IFLA_VLAN_FLAGS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5073,6 +4989,7 @@ int rt_link_linkinfo_attrs_parse(struct ynl_parse_arg *yarg,
 	struct rt_link_linkinfo_attrs *dst = yarg->data;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	parg.ys = yarg->ys;
 
@@ -5080,8 +4997,6 @@ int rt_link_linkinfo_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_INFO_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5102,8 +5017,6 @@ int rt_link_linkinfo_attrs_parse(struct ynl_parse_arg *yarg,
 			if (rt_link_linkinfo_data_msg_parse(&parg, dst->kind, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == IFLA_INFO_XSTATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5112,8 +5025,6 @@ int rt_link_linkinfo_attrs_parse(struct ynl_parse_arg *yarg,
 			dst->xstats = malloc(len);
 			memcpy(dst->xstats, ynl_attr_data(attr), len);
 		} else if (type == IFLA_INFO_SLAVE_KIND) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5298,6 +5209,7 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 	struct rt_link_getlink_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -5310,8 +5222,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_ADDRESS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5320,8 +5230,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->address = malloc(len);
 			memcpy(dst->address, ynl_attr_data(attr), len);
 		} else if (type == IFLA_BROADCAST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5330,8 +5238,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->broadcast = malloc(len);
 			memcpy(dst->broadcast, ynl_attr_data(attr), len);
 		} else if (type == IFLA_IFNAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5351,8 +5257,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.link = 1;
 			dst->link = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_QDISC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5362,8 +5266,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->qdisc, ynl_attr_get_str(attr), len);
 			dst->qdisc[len] = 0;
 		} else if (type == IFLA_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5375,8 +5277,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 				dst->stats = malloc(len);
 			memcpy(dst->stats, ynl_attr_data(attr), len);
 		} else if (type == IFLA_COST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5386,8 +5286,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->cost, ynl_attr_get_str(attr), len);
 			dst->cost[len] = 0;
 		} else if (type == IFLA_PRIORITY) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5402,8 +5300,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.master = 1;
 			dst->master = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_WIRELESS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5413,8 +5309,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->wireless, ynl_attr_get_str(attr), len);
 			dst->wireless[len] = 0;
 		} else if (type == IFLA_PROTINFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5429,8 +5323,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.txqlen = 1;
 			dst->txqlen = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_MAP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5471,8 +5363,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.net_ns_pid = 1;
 			dst->net_ns_pid = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_IFALIAS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5496,8 +5386,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			if (rt_link_vfinfo_list_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == IFLA_STATS64) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5571,8 +5459,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.carrier = 1;
 			dst->carrier = ynl_attr_get_u8(attr);
 		} else if (type == IFLA_PHYS_PORT_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5586,8 +5472,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.carrier_changes = 1;
 			dst->carrier_changes = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_PHYS_SWITCH_ID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5601,8 +5485,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.link_netnsid = 1;
 			dst->link_netnsid = ynl_attr_get_s32(attr);
 		} else if (type == IFLA_PHYS_PORT_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5685,8 +5567,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			if (rt_link_prop_list_link_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == IFLA_PERM_ADDRESS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5695,8 +5575,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->perm_address = malloc(len);
 			memcpy(dst->perm_address, ynl_attr_data(attr), len);
 		} else if (type == IFLA_PROTO_DOWN_REASON) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5706,8 +5584,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->proto_down_reason, ynl_attr_get_str(attr), len);
 			dst->proto_down_reason[len] = 0;
 		} else if (type == IFLA_PARENT_DEV_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5717,8 +5593,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->parent_dev_name, ynl_attr_get_str(attr), len);
 			dst->parent_dev_name[len] = 0;
 		} else if (type == IFLA_PARENT_DEV_BUS_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -5748,8 +5622,6 @@ int rt_link_getlink_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.allmulti = 1;
 			dst->allmulti = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_DEVLINK_PORT) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6145,6 +6017,7 @@ int rt_link_getstats_rsp_parse(const struct nlmsghdr *nlh,
 	struct rt_link_getstats_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -6157,8 +6030,6 @@ int rt_link_getstats_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFLA_STATS_LINK_64) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6170,8 +6041,6 @@ int rt_link_getstats_rsp_parse(const struct nlmsghdr *nlh,
 				dst->link_64 = malloc(len);
 			memcpy(dst->link_64, ynl_attr_data(attr), len);
 		} else if (type == IFLA_STATS_LINK_XSTATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6180,8 +6049,6 @@ int rt_link_getstats_rsp_parse(const struct nlmsghdr *nlh,
 			dst->link_xstats = malloc(len);
 			memcpy(dst->link_xstats, ynl_attr_data(attr), len);
 		} else if (type == IFLA_STATS_LINK_XSTATS_SLAVE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -6199,8 +6066,6 @@ int rt_link_getstats_rsp_parse(const struct nlmsghdr *nlh,
 			if (rt_link_link_offload_xstats_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == IFLA_STATS_AF_SPEC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

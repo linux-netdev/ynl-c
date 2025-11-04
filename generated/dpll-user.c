@@ -227,6 +227,7 @@ const struct ynl_policy_attr dpll_policy[DPLL_A_MAX + 1] = {
 	[DPLL_A_LOCK_STATUS_ERROR] = { .name = "lock-status-error", .type = YNL_PT_U32, },
 	[DPLL_A_CLOCK_QUALITY_LEVEL] = { .name = "clock-quality-level", .type = YNL_PT_U32, },
 	[DPLL_A_PHASE_OFFSET_MONITOR] = { .name = "phase-offset-monitor", .type = YNL_PT_U32, },
+	[DPLL_A_PHASE_OFFSET_AVG_FACTOR] = { .name = "phase-offset-avg-factor", .type = YNL_PT_U32, },
 };
 
 const struct ynl_policy_nest dpll_nest = {
@@ -263,6 +264,7 @@ const struct ynl_policy_attr dpll_pin_policy[DPLL_A_PIN_MAX + 1] = {
 	[DPLL_A_PIN_ESYNC_FREQUENCY_SUPPORTED] = { .name = "esync-frequency-supported", .type = YNL_PT_NEST, .nest = &dpll_frequency_range_nest, },
 	[DPLL_A_PIN_ESYNC_PULSE] = { .name = "esync-pulse", .type = YNL_PT_U32, },
 	[DPLL_A_PIN_REFERENCE_SYNC] = { .name = "reference-sync", .type = YNL_PT_NEST, .nest = &dpll_reference_sync_nest, },
+	[DPLL_A_PIN_PHASE_ADJUST_GRAN] = { .name = "phase-adjust-gran", .type = YNL_PT_U32, },
 };
 
 const struct ynl_policy_nest dpll_pin_nest = {
@@ -544,6 +546,7 @@ int dpll_device_get_rsp_parse(const struct nlmsghdr *nlh,
 	unsigned int n_mode_supported = 0;
 	struct dpll_device_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -560,8 +563,6 @@ int dpll_device_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.id = 1;
 			dst->id = ynl_attr_get_u32(attr);
 		} else if (type == DPLL_A_MODULE_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -607,6 +608,11 @@ int dpll_device_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.phase_offset_monitor = 1;
 			dst->phase_offset_monitor = ynl_attr_get_u32(attr);
+		} else if (type == DPLL_A_PHASE_OFFSET_AVG_FACTOR) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.phase_offset_avg_factor = 1;
+			dst->phase_offset_avg_factor = ynl_attr_get_u32(attr);
 		}
 	}
 
@@ -727,6 +733,8 @@ int dpll_device_set(struct ynl_sock *ys, struct dpll_device_set_req *req)
 		ynl_attr_put_u32(nlh, DPLL_A_ID, req->id);
 	if (req->_present.phase_offset_monitor)
 		ynl_attr_put_u32(nlh, DPLL_A_PHASE_OFFSET_MONITOR, req->phase_offset_monitor);
+	if (req->_present.phase_offset_avg_factor)
+		ynl_attr_put_u32(nlh, DPLL_A_PHASE_OFFSET_AVG_FACTOR, req->phase_offset_avg_factor);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)
@@ -826,6 +834,7 @@ void dpll_pin_get_rsp_free(struct dpll_pin_get_rsp *rsp)
 {
 	unsigned int i;
 
+	free(rsp->module_name);
 	free(rsp->board_label);
 	free(rsp->panel_label);
 	free(rsp->package_label);
@@ -858,6 +867,7 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct dpll_pin_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -882,9 +892,21 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.id = 1;
 			dst->id = ynl_attr_get_u32(attr);
-		} else if (type == DPLL_A_PIN_BOARD_LABEL) {
-			unsigned int len;
+		} else if (type == DPLL_A_PIN_MODULE_NAME) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
 
+			len = strnlen(ynl_attr_get_str(attr), ynl_attr_data_len(attr));
+			dst->_len.module_name = len;
+			dst->module_name = malloc(len + 1);
+			memcpy(dst->module_name, ynl_attr_get_str(attr), len);
+			dst->module_name[len] = 0;
+		} else if (type == DPLL_A_PIN_CLOCK_ID) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.clock_id = 1;
+			dst->clock_id = ynl_attr_get_u64(attr);
+		} else if (type == DPLL_A_PIN_BOARD_LABEL) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -894,8 +916,6 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->board_label, ynl_attr_get_str(attr), len);
 			dst->board_label[len] = 0;
 		} else if (type == DPLL_A_PIN_PANEL_LABEL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -905,8 +925,6 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->panel_label, ynl_attr_get_str(attr), len);
 			dst->panel_label[len] = 0;
 		} else if (type == DPLL_A_PIN_PACKAGE_LABEL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -936,6 +954,11 @@ int dpll_pin_get_rsp_parse(const struct nlmsghdr *nlh,
 			n_parent_device++;
 		} else if (type == DPLL_A_PIN_PARENT_PIN) {
 			n_parent_pin++;
+		} else if (type == DPLL_A_PIN_PHASE_ADJUST_GRAN) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.phase_adjust_gran = 1;
+			dst->phase_adjust_gran = ynl_attr_get_u32(attr);
 		} else if (type == DPLL_A_PIN_PHASE_ADJUST_MIN) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -1095,6 +1118,7 @@ void dpll_pin_get_list_free(struct dpll_pin_get_list *rsp)
 		rsp = next;
 		next = rsp->next;
 
+		free(rsp->obj.module_name);
 		free(rsp->obj.board_label);
 		free(rsp->obj.panel_label);
 		free(rsp->obj.package_label);
@@ -1154,6 +1178,7 @@ void dpll_pin_get_ntf_free(struct dpll_pin_get_ntf *rsp)
 {
 	unsigned int i;
 
+	free(rsp->obj.module_name);
 	free(rsp->obj.board_label);
 	free(rsp->obj.panel_label);
 	free(rsp->obj.package_label);

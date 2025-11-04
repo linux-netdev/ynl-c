@@ -255,6 +255,7 @@ int rt_rule_getrule_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct rt_rule_getrule_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -266,8 +267,6 @@ int rt_rule_getrule_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == FRA_IIFNAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -277,8 +276,6 @@ int rt_rule_getrule_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->iifname, ynl_attr_get_str(attr), len);
 			dst->iifname[len] = 0;
 		} else if (type == FRA_OIFNAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -338,8 +335,6 @@ int rt_rule_getrule_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.l3mdev = 1;
 			dst->l3mdev = ynl_attr_get_u8(attr);
 		} else if (type == FRA_UID_RANGE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -361,8 +356,6 @@ int rt_rule_getrule_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.ip_proto = 1;
 			dst->ip_proto = ynl_attr_get_u8(attr);
 		} else if (type == FRA_SPORT_RANGE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -374,8 +367,6 @@ int rt_rule_getrule_rsp_parse(const struct nlmsghdr *nlh,
 				dst->sport_range = malloc(len);
 			memcpy(dst->sport_range, ynl_attr_data(attr), len);
 		} else if (type == FRA_DPORT_RANGE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

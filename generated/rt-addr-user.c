@@ -155,6 +155,7 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct rt_addr_getaddr_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -166,8 +167,6 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFA_ADDRESS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -176,8 +175,6 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 			dst->address = malloc(len);
 			memcpy(dst->address, ynl_attr_data(attr), len);
 		} else if (type == IFA_LABEL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -187,8 +184,6 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->label, ynl_attr_get_str(attr), len);
 			dst->label[len] = 0;
 		} else if (type == IFA_LOCAL) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -197,8 +192,6 @@ int rt_addr_getaddr_rsp_parse(const struct nlmsghdr *nlh,
 			dst->local = malloc(len);
 			memcpy(dst->local, ynl_attr_data(attr), len);
 		} else if (type == IFA_CACHEINFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -290,6 +283,7 @@ int rt_addr_getmulticast_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct rt_addr_getmulticast_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -301,8 +295,6 @@ int rt_addr_getmulticast_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == IFA_MULTICAST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -311,8 +303,6 @@ int rt_addr_getmulticast_rsp_parse(const struct nlmsghdr *nlh,
 			dst->multicast = malloc(len);
 			memcpy(dst->multicast, ynl_attr_data(attr), len);
 		} else if (type == IFA_CACHEINFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

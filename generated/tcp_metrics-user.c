@@ -140,6 +140,7 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct tcp_metrics_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -153,8 +154,6 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.addr_ipv4 = 1;
 			dst->addr_ipv4 = ynl_attr_get_u32(attr);
 		} else if (type == TCP_METRICS_ATTR_ADDR_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -168,8 +167,6 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.saddr_ipv4 = 1;
 			dst->saddr_ipv4 = ynl_attr_get_u32(attr);
 		} else if (type == TCP_METRICS_ATTR_SADDR_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -207,8 +204,6 @@ int tcp_metrics_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.fopen_syn_drop_ts = 1;
 			dst->fopen_syn_drop_ts = ynl_attr_get_u64(attr);
 		} else if (type == TCP_METRICS_ATTR_FOPEN_COOKIE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

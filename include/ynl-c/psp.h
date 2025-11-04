@@ -22,9 +22,11 @@ const char *psp_version_str(enum psp_version value);
 /* Common nested types */
 struct psp_keys {
 	struct {
-		__u32 key_len;
 		__u32 spi:1;
 	} _present;
+	struct {
+		__u32 key;
+	} _len;
 
 	void *key;
 	__u32 spi;
@@ -232,12 +234,10 @@ psp_rx_assoc_req_set_sock_fd(struct psp_rx_assoc_req *req, __u32 sock_fd)
 struct psp_rx_assoc_rsp {
 	struct {
 		__u32 dev_id:1;
-		__u32 version:1;
 		__u32 rx_key:1;
 	} _present;
 
 	__u32 dev_id;
-	enum psp_version version;
 	struct psp_keys rx_key;
 };
 
@@ -290,9 +290,9 @@ psp_tx_assoc_req_set_tx_key_key(struct psp_tx_assoc_req *req, const void *key,
 {
 	req->_present.tx_key = 1;
 	free(req->tx_key.key);
-	req->tx_key._present.key_len = len;
-	req->tx_key.key = malloc(req->tx_key._present.key_len);
-	memcpy(req->tx_key.key, key, req->tx_key._present.key_len);
+	req->tx_key._len.key = len;
+	req->tx_key.key = malloc(req->tx_key._len.key);
+	memcpy(req->tx_key.key, key, req->tx_key._len.key);
 }
 static inline void
 psp_tx_assoc_req_set_tx_key_spi(struct psp_tx_assoc_req *req, __u32 spi)
@@ -318,58 +318,5 @@ void psp_tx_assoc_rsp_free(struct psp_tx_assoc_rsp *rsp);
  */
 struct psp_tx_assoc_rsp *
 psp_tx_assoc(struct ynl_sock *ys, struct psp_tx_assoc_req *req);
-
-/* ============== PSP_CMD_GET_STATS ============== */
-/* PSP_CMD_GET_STATS - do */
-struct psp_get_stats_req {
-	struct {
-		__u32 dev_id:1;
-	} _present;
-
-	__u32 dev_id;
-};
-
-static inline struct psp_get_stats_req *psp_get_stats_req_alloc(void)
-{
-	return calloc(1, sizeof(struct psp_get_stats_req));
-}
-void psp_get_stats_req_free(struct psp_get_stats_req *req);
-
-static inline void
-psp_get_stats_req_set_dev_id(struct psp_get_stats_req *req, __u32 dev_id)
-{
-	req->_present.dev_id = 1;
-	req->dev_id = dev_id;
-}
-
-struct psp_get_stats_rsp {
-	struct {
-		__u32 dev_id:1;
-		__u32 key_rotations:1;
-		__u32 stale_events:1;
-	} _present;
-
-	__u32 dev_id;
-	__u64 key_rotations;
-	__u64 stale_events;
-};
-
-void psp_get_stats_rsp_free(struct psp_get_stats_rsp *rsp);
-
-/*
- * Get device statistics.
- */
-struct psp_get_stats_rsp *
-psp_get_stats(struct ynl_sock *ys, struct psp_get_stats_req *req);
-
-/* PSP_CMD_GET_STATS - dump */
-struct psp_get_stats_list {
-	struct psp_get_stats_list *next;
-	struct psp_get_stats_rsp obj __attribute__((aligned(8)));
-};
-
-void psp_get_stats_list_free(struct psp_get_stats_list *rsp);
-
-struct psp_get_stats_list *psp_get_stats_dump(struct ynl_sock *ys);
 
 #endif /* _LINUX_PSP_GEN_H */

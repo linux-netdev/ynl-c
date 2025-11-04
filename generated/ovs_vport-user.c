@@ -238,6 +238,7 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct ovs_vport_get_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -260,8 +261,6 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.type = 1;
 			dst->type = ynl_attr_get_u32(attr);
 		} else if (type == OVS_VPORT_ATTR_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -271,8 +270,6 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 			memcpy(dst->name, ynl_attr_get_str(attr), len);
 			dst->name[len] = 0;
 		} else if (type == OVS_VPORT_ATTR_UPCALL_PID) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -282,8 +279,6 @@ int ovs_vport_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->upcall_pid = malloc(len);
 			memcpy(dst->upcall_pid, ynl_attr_data(attr), len);
 		} else if (type == OVS_VPORT_ATTR_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

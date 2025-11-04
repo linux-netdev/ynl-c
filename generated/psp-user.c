@@ -22,7 +22,6 @@ static const char * const psp_op_strmap[] = {
 	[PSP_CMD_KEY_ROTATE_NTF] = "key-rotate-ntf",
 	[PSP_CMD_RX_ASSOC] = "rx-assoc",
 	[PSP_CMD_TX_ASSOC] = "tx-assoc",
-	[PSP_CMD_GET_STATS] = "get-stats",
 };
 
 const char *psp_op_str(int op)
@@ -82,25 +81,6 @@ const struct ynl_policy_nest psp_assoc_nest = {
 	.table = psp_assoc_policy,
 };
 
-const struct ynl_policy_attr psp_stats_policy[PSP_A_STATS_MAX + 1] = {
-	[PSP_A_STATS_DEV_ID] = { .name = "dev-id", .type = YNL_PT_U32, },
-	[PSP_A_STATS_KEY_ROTATIONS] = { .name = "key-rotations", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_STALE_EVENTS] = { .name = "stale-events", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_RX_PACKETS] = { .name = "rx-packets", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_RX_BYTES] = { .name = "rx-bytes", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_RX_AUTH_FAIL] = { .name = "rx-auth-fail", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_RX_ERROR] = { .name = "rx-error", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_RX_BAD] = { .name = "rx-bad", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_TX_PACKETS] = { .name = "tx-packets", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_TX_BYTES] = { .name = "tx-bytes", .type = YNL_PT_UINT, },
-	[PSP_A_STATS_TX_ERROR] = { .name = "tx-error", .type = YNL_PT_UINT, },
-};
-
-const struct ynl_policy_nest psp_stats_nest = {
-	.max_attr = PSP_A_STATS_MAX,
-	.table = psp_stats_policy,
-};
-
 /* Common nested types */
 void psp_keys_free(struct psp_keys *obj)
 {
@@ -113,8 +93,8 @@ int psp_keys_put(struct nlmsghdr *nlh, unsigned int attr_type,
 	struct nlattr *nest;
 
 	nest = ynl_attr_nest_start(nlh, attr_type);
-	if (obj->_present.key_len)
-		ynl_attr_put(nlh, PSP_A_KEYS_KEY, obj->key, obj->_present.key_len);
+	if (obj->_len.key)
+		ynl_attr_put(nlh, PSP_A_KEYS_KEY, obj->key, obj->_len.key);
 	if (obj->_present.spi)
 		ynl_attr_put_u32(nlh, PSP_A_KEYS_SPI, obj->spi);
 	ynl_attr_nest_end(nlh, nest);
@@ -126,18 +106,17 @@ int psp_keys_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct psp_keys *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == PSP_A_KEYS_KEY) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
 			len = ynl_attr_data_len(attr);
-			dst->_present.key_len = len;
+			dst->_len.key = len;
 			dst->key = malloc(len);
 			memcpy(dst->key, ynl_attr_data(attr), len);
 		} else if (type == PSP_A_KEYS_SPI) {
@@ -210,6 +189,7 @@ psp_dev_get(struct ynl_sock *ys, struct psp_dev_get_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_DEV_GET, 1);
 	ys->req_policy = &psp_dev_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &psp_dev_nest;
 
 	if (req->_present.id)
@@ -304,6 +284,7 @@ psp_dev_set(struct ynl_sock *ys, struct psp_dev_set_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_DEV_SET, 1);
 	ys->req_policy = &psp_dev_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &psp_dev_nest;
 
 	if (req->_present.id)
@@ -371,6 +352,7 @@ psp_key_rotate(struct ynl_sock *ys, struct psp_key_rotate_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_KEY_ROTATE, 1);
 	ys->req_policy = &psp_dev_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &psp_dev_nest;
 
 	if (req->_present.id)
@@ -429,11 +411,6 @@ int psp_rx_assoc_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.dev_id = 1;
 			dst->dev_id = ynl_attr_get_u32(attr);
-		} else if (type == PSP_A_ASSOC_VERSION) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.version = 1;
-			dst->version = ynl_attr_get_u32(attr);
 		} else if (type == PSP_A_ASSOC_RX_KEY) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -459,6 +436,7 @@ psp_rx_assoc(struct ynl_sock *ys, struct psp_rx_assoc_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_RX_ASSOC, 1);
 	ys->req_policy = &psp_assoc_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &psp_assoc_nest;
 
 	if (req->_present.dev_id)
@@ -513,6 +491,7 @@ psp_tx_assoc(struct ynl_sock *ys, struct psp_tx_assoc_req *req)
 
 	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_TX_ASSOC, 1);
 	ys->req_policy = &psp_assoc_nest;
+	ys->req_hdr_len = ys->family->hdr_len;
 	yrs.yarg.rsp_policy = &psp_assoc_nest;
 
 	if (req->_present.dev_id)
@@ -537,120 +516,6 @@ psp_tx_assoc(struct ynl_sock *ys, struct psp_tx_assoc_req *req)
 
 err_free:
 	psp_tx_assoc_rsp_free(rsp);
-	return NULL;
-}
-
-/* ============== PSP_CMD_GET_STATS ============== */
-/* PSP_CMD_GET_STATS - do */
-void psp_get_stats_req_free(struct psp_get_stats_req *req)
-{
-	free(req);
-}
-
-void psp_get_stats_rsp_free(struct psp_get_stats_rsp *rsp)
-{
-	free(rsp);
-}
-
-int psp_get_stats_rsp_parse(const struct nlmsghdr *nlh,
-			    struct ynl_parse_arg *yarg)
-{
-	struct psp_get_stats_rsp *dst;
-	const struct nlattr *attr;
-
-	dst = yarg->data;
-
-	ynl_attr_for_each(attr, nlh, yarg->ys->family->hdr_len) {
-		unsigned int type = ynl_attr_type(attr);
-
-		if (type == PSP_A_STATS_DEV_ID) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.dev_id = 1;
-			dst->dev_id = ynl_attr_get_u32(attr);
-		} else if (type == PSP_A_STATS_KEY_ROTATIONS) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.key_rotations = 1;
-			dst->key_rotations = ynl_attr_get_uint(attr);
-		} else if (type == PSP_A_STATS_STALE_EVENTS) {
-			if (ynl_attr_validate(yarg, attr))
-				return YNL_PARSE_CB_ERROR;
-			dst->_present.stale_events = 1;
-			dst->stale_events = ynl_attr_get_uint(attr);
-		}
-	}
-
-	return YNL_PARSE_CB_OK;
-}
-
-struct psp_get_stats_rsp *
-psp_get_stats(struct ynl_sock *ys, struct psp_get_stats_req *req)
-{
-	struct ynl_req_state yrs = { .yarg = { .ys = ys, }, };
-	struct psp_get_stats_rsp *rsp;
-	struct nlmsghdr *nlh;
-	int err;
-
-	nlh = ynl_gemsg_start_req(ys, ys->family_id, PSP_CMD_GET_STATS, 1);
-	ys->req_policy = &psp_stats_nest;
-	yrs.yarg.rsp_policy = &psp_stats_nest;
-
-	if (req->_present.dev_id)
-		ynl_attr_put_u32(nlh, PSP_A_STATS_DEV_ID, req->dev_id);
-
-	rsp = calloc(1, sizeof(*rsp));
-	yrs.yarg.data = rsp;
-	yrs.cb = psp_get_stats_rsp_parse;
-	yrs.rsp_cmd = PSP_CMD_GET_STATS;
-
-	err = ynl_exec(ys, nlh, &yrs);
-	if (err < 0)
-		goto err_free;
-
-	return rsp;
-
-err_free:
-	psp_get_stats_rsp_free(rsp);
-	return NULL;
-}
-
-/* PSP_CMD_GET_STATS - dump */
-void psp_get_stats_list_free(struct psp_get_stats_list *rsp)
-{
-	struct psp_get_stats_list *next = rsp;
-
-	while ((void *)next != YNL_LIST_END) {
-		rsp = next;
-		next = rsp->next;
-
-		free(rsp);
-	}
-}
-
-struct psp_get_stats_list *psp_get_stats_dump(struct ynl_sock *ys)
-{
-	struct ynl_dump_state yds = {};
-	struct nlmsghdr *nlh;
-	int err;
-
-	yds.yarg.ys = ys;
-	yds.yarg.rsp_policy = &psp_stats_nest;
-	yds.yarg.data = NULL;
-	yds.alloc_sz = sizeof(struct psp_get_stats_list);
-	yds.cb = psp_get_stats_rsp_parse;
-	yds.rsp_cmd = PSP_CMD_GET_STATS;
-
-	nlh = ynl_gemsg_start_dump(ys, ys->family_id, PSP_CMD_GET_STATS, 1);
-
-	err = ynl_exec_dump(ys, nlh, &yds);
-	if (err < 0)
-		goto free_list;
-
-	return yds.first;
-
-free_list:
-	psp_get_stats_list_free(yds.first);
 	return NULL;
 }
 

@@ -190,13 +190,12 @@ int nfsd_sock_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct nfsd_sock *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == NFSD_A_SOCK_ADDR) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -205,8 +204,6 @@ int nfsd_sock_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->addr = malloc(len);
 			memcpy(dst->addr, ynl_attr_data(attr), len);
 		} else if (type == NFSD_A_SOCK_TRANSPORT_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -229,6 +226,7 @@ int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct nfsd_rpc_status_get_rsp *dst;
 	unsigned int n_compound_ops = 0;
 	const struct nlattr *attr;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -280,8 +278,6 @@ int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.daddr4 = 1;
 			dst->daddr4 = ynl_attr_get_u32(attr);
 		} else if (type == NFSD_A_RPC_STATUS_SADDR6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -290,8 +286,6 @@ int nfsd_rpc_status_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->saddr6 = malloc(len);
 			memcpy(dst->saddr6, ynl_attr_data(attr), len);
 		} else if (type == NFSD_A_RPC_STATUS_DADDR6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -421,6 +415,7 @@ int nfsd_threads_get_rsp_parse(const struct nlmsghdr *nlh,
 	struct nfsd_threads_get_rsp *dst;
 	unsigned int n_threads = 0;
 	const struct nlattr *attr;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -444,8 +439,6 @@ int nfsd_threads_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.leasetime = 1;
 			dst->leasetime = ynl_attr_get_u32(attr);
 		} else if (type == NFSD_A_SERVER_SCOPE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -769,6 +762,7 @@ int nfsd_pool_mode_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct nfsd_pool_mode_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -776,8 +770,6 @@ int nfsd_pool_mode_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == NFSD_A_POOL_MODE_MODE) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

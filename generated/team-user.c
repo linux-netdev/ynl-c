@@ -126,13 +126,12 @@ int team_attr_option_parse(struct ynl_parse_arg *yarg,
 {
 	struct team_attr_option *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == TEAM_ATTR_OPTION_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -151,8 +150,6 @@ int team_attr_option_parse(struct ynl_parse_arg *yarg,
 			dst->_present.type = 1;
 			dst->type = ynl_attr_get_u8(attr);
 		} else if (type == TEAM_ATTR_OPTION_DATA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

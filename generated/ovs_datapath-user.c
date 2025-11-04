@@ -81,6 +81,7 @@ int ovs_datapath_get_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct ovs_datapath_get_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -92,8 +93,6 @@ int ovs_datapath_get_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == OVS_DP_ATTR_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -108,8 +107,6 @@ int ovs_datapath_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.upcall_pid = 1;
 			dst->upcall_pid = ynl_attr_get_u32(attr);
 		} else if (type == OVS_DP_ATTR_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -121,8 +118,6 @@ int ovs_datapath_get_rsp_parse(const struct nlmsghdr *nlh,
 				dst->stats = malloc(len);
 			memcpy(dst->stats, ynl_attr_data(attr), len);
 		} else if (type == OVS_DP_ATTR_MEGAFLOW_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -144,8 +139,6 @@ int ovs_datapath_get_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.masks_cache_size = 1;
 			dst->masks_cache_size = ynl_attr_get_u32(attr);
 		} else if (type == OVS_DP_ATTR_PER_CPU_PIDS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

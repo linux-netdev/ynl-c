@@ -110,6 +110,7 @@ const char *netdev_qstats_scope_str(enum netdev_qstats_scope value)
 static const char * const netdev_napi_threaded_strmap[] = {
 	[0] = "disabled",
 	[1] = "enabled",
+	[2] = "busy-poll",
 };
 
 const char *netdev_napi_threaded_str(enum netdev_napi_threaded value)

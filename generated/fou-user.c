@@ -170,6 +170,7 @@ int fou_get_rsp_parse(const struct nlmsghdr *nlh, struct ynl_parse_arg *yarg)
 {
 	const struct nlattr *attr;
 	struct fou_get_rsp *dst;
+	unsigned int len;
 
 	dst = yarg->data;
 
@@ -206,8 +207,6 @@ int fou_get_rsp_parse(const struct nlmsghdr *nlh, struct ynl_parse_arg *yarg)
 			dst->_present.peer_v4 = 1;
 			dst->peer_v4 = ynl_attr_get_u32(attr);
 		} else if (type == FOU_ATTR_LOCAL_V6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -216,8 +215,6 @@ int fou_get_rsp_parse(const struct nlmsghdr *nlh, struct ynl_parse_arg *yarg)
 			dst->local_v6 = malloc(len);
 			memcpy(dst->local_v6, ynl_attr_data(attr), len);
 		} else if (type == FOU_ATTR_PEER_V6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

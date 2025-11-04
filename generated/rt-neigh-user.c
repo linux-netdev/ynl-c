@@ -443,6 +443,7 @@ int rt_neigh_getneigh_rsp_parse(const struct nlmsghdr *nlh,
 {
 	struct rt_neigh_getneigh_rsp *dst;
 	const struct nlattr *attr;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -454,8 +455,6 @@ int rt_neigh_getneigh_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == NDA_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -464,8 +463,6 @@ int rt_neigh_getneigh_rsp_parse(const struct nlmsghdr *nlh,
 			dst->dst = malloc(len);
 			memcpy(dst->dst, ynl_attr_data(attr), len);
 		} else if (type == NDA_LLADDR) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -519,8 +516,6 @@ int rt_neigh_getneigh_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.flags_ext = 1;
 			dst->flags_ext = ynl_attr_get_u32(attr);
 		} else if (type == NDA_FDB_EXT_ATTRS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -651,6 +646,7 @@ int rt_neigh_getneightbl_rsp_parse(const struct nlmsghdr *nlh,
 	struct rt_neigh_getneightbl_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -663,8 +659,6 @@ int rt_neigh_getneightbl_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == NDTA_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -689,8 +683,6 @@ int rt_neigh_getneightbl_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.thresh3 = 1;
 			dst->thresh3 = ynl_attr_get_u32(attr);
 		} else if (type == NDTA_CONFIG) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -711,8 +703,6 @@ int rt_neigh_getneightbl_rsp_parse(const struct nlmsghdr *nlh,
 			if (rt_neigh_ndtpa_attrs_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == NDTA_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

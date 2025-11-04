@@ -429,6 +429,7 @@ int ovpn_peer_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 {
 	struct ovpn_peer *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -444,8 +445,6 @@ int ovpn_peer_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.remote_ipv4 = 1;
 			dst->remote_ipv4 = ynl_attr_get_u32(attr);
 		} else if (type == OVPN_A_PEER_REMOTE_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -479,8 +478,6 @@ int ovpn_peer_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.vpn_ipv4 = 1;
 			dst->vpn_ipv4 = ynl_attr_get_u32(attr);
 		} else if (type == OVPN_A_PEER_VPN_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -494,8 +491,6 @@ int ovpn_peer_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 			dst->_present.local_ipv4 = 1;
 			dst->local_ipv4 = ynl_attr_get_u32(attr);
 		} else if (type == OVPN_A_PEER_LOCAL_IPV6) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 

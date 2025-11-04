@@ -179,6 +179,7 @@ int nlctrl_mcast_group_attrs_parse(struct ynl_parse_arg *yarg,
 {
 	struct nlctrl_mcast_group_attrs *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	dst->idx = idx;
 
@@ -186,8 +187,6 @@ int nlctrl_mcast_group_attrs_parse(struct ynl_parse_arg *yarg,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == CTRL_ATTR_MCAST_GRP_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -335,13 +334,15 @@ void nlctrl_getfamily_rsp_free(struct nlctrl_getfamily_rsp *rsp)
 int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 			       struct ynl_parse_arg *yarg)
 {
-	const struct nlattr *attr_mcast_groups;
+	const struct nlattr *attr_mcast_groups = NULL;
+	const struct nlattr *attr_ops = NULL;
 	struct nlctrl_getfamily_rsp *dst;
 	unsigned int n_mcast_groups = 0;
-	const struct nlattr *attr_ops;
+	const struct nlattr *attr2;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
 	unsigned int n_ops = 0;
+	unsigned int len;
 	int i;
 
 	dst = yarg->data;
@@ -361,8 +362,6 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.family_id = 1;
 			dst->family_id = ynl_attr_get_u16(attr);
 		} else if (type == CTRL_ATTR_FAMILY_NAME) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -382,22 +381,18 @@ int nlctrl_getfamily_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.maxattr = 1;
 			dst->maxattr = ynl_attr_get_u32(attr);
 		} else if (type == CTRL_ATTR_MCAST_GROUPS) {
-			const struct nlattr *attr2;
-
 			attr_mcast_groups = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.mcast_groups++;
+				n_mcast_groups++;
 			}
 		} else if (type == CTRL_ATTR_OPS) {
-			const struct nlattr *attr2;
-
 			attr_ops = attr;
 			ynl_attr_for_each_nested(attr2, attr) {
-				if (ynl_attr_validate(yarg, attr2))
+				if (__ynl_attr_validate(yarg, attr2, type))
 					return YNL_PARSE_CB_ERROR;
-				dst->_count.ops++;
+				n_ops++;
 			}
 		} else if (type == CTRL_ATTR_VERSION) {
 			if (ynl_attr_validate(yarg, attr))
@@ -514,9 +509,13 @@ free_list:
 int nlctrl_getpolicy_rsp_parse(const struct nlmsghdr *nlh,
 			       struct ynl_parse_arg *yarg)
 {
+	const struct nlattr *attr_policy_id, *attr_attr_id;
 	struct nlctrl_getpolicy_rsp *dst;
+	const struct nlattr *attr_op_id;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	__u32 policy_id, attr_id;
+	__u32 op_id;
 
 	dst = yarg->data;
 	parg.ys = yarg->ys;
@@ -530,9 +529,6 @@ int nlctrl_getpolicy_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.family_id = 1;
 			dst->family_id = ynl_attr_get_u16(attr);
 		} else if (type == CTRL_ATTR_OP_POLICY) {
-			const struct nlattr *attr_op_id;
-			__u32 op_id;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.op_policy = 1;
@@ -543,9 +539,6 @@ int nlctrl_getpolicy_rsp_parse(const struct nlmsghdr *nlh,
 			op_id = ynl_attr_type(attr_op_id);
 			nlctrl_op_policy_attrs_parse(&parg, attr_op_id, op_id);
 		} else if (type == CTRL_ATTR_POLICY) {
-			const struct nlattr *attr_policy_id, *attr_attr_id;
-			__u32 policy_id, attr_id;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.policy = 1;

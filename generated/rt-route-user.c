@@ -167,6 +167,7 @@ int rt_route_metrics_parse(struct ynl_parse_arg *yarg,
 {
 	struct rt_route_metrics *dst = yarg->data;
 	const struct nlattr *attr;
+	unsigned int len;
 
 	ynl_attr_for_each_nested(attr, nested) {
 		unsigned int type = ynl_attr_type(attr);
@@ -247,8 +248,6 @@ int rt_route_metrics_parse(struct ynl_parse_arg *yarg,
 			dst->_present.quickack = 1;
 			dst->quickack = ynl_attr_get_u32(attr);
 		} else if (type == RTAX_CC_ALGO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -300,6 +299,7 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 	struct rt_route_getroute_rsp *dst;
 	const struct nlattr *attr;
 	struct ynl_parse_arg parg;
+	unsigned int len;
 	void *hdr;
 
 	dst = yarg->data;
@@ -312,8 +312,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 		unsigned int type = ynl_attr_type(attr);
 
 		if (type == RTA_DST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -322,8 +320,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->dst = malloc(len);
 			memcpy(dst->dst, ynl_attr_data(attr), len);
 		} else if (type == RTA_SRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -342,8 +338,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.oif = 1;
 			dst->oif = ynl_attr_get_u32(attr);
 		} else if (type == RTA_GATEWAY) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -357,8 +351,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.priority = 1;
 			dst->priority = ynl_attr_get_u32(attr);
 		} else if (type == RTA_PREFSRC) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -376,8 +368,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			if (rt_route_metrics_parse(&parg, attr))
 				return YNL_PARSE_CB_ERROR;
 		} else if (type == RTA_MULTIPATH) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -391,8 +381,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.flow = 1;
 			dst->flow = ynl_attr_get_u32(attr);
 		} else if (type == RTA_CACHEINFO) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -414,8 +402,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.mark = 1;
 			dst->mark = ynl_attr_get_u32(attr);
 		} else if (type == RTA_MFC_STATS) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -424,8 +410,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->mfc_stats = malloc(len);
 			memcpy(dst->mfc_stats, ynl_attr_data(attr), len);
 		} else if (type == RTA_VIA) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -434,8 +418,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->via = malloc(len);
 			memcpy(dst->via, ynl_attr_data(attr), len);
 		} else if (type == RTA_NEWDST) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -454,8 +436,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.encap_type = 1;
 			dst->encap_type = ynl_attr_get_u16(attr);
 		} else if (type == RTA_ENCAP) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
@@ -469,8 +449,6 @@ int rt_route_getroute_rsp_parse(const struct nlmsghdr *nlh,
 			dst->_present.expires = 1;
 			dst->expires = ynl_attr_get_u32(attr);
 		} else if (type == RTA_PAD) {
-			unsigned int len;
-
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
 
