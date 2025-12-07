@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/rt-link.yaml */
 /* YNL-GEN user header */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_RT_LINK_GEN_H
 #define _LINUX_RT_LINK_GEN_H
@@ -348,6 +349,7 @@ struct rt_link_linkinfo_gre6_attrs {
 struct rt_link_linkinfo_geneve_attrs {
 	struct {
 		__u32 id:1;
+		__u32 remote:1;
 		__u32 ttl:1;
 		__u32 tos:1;
 		__u32 port:1;
@@ -361,13 +363,12 @@ struct rt_link_linkinfo_geneve_attrs {
 		__u32 inner_proto_inherit:1;
 	} _present;
 	struct {
-		__u32 remote;
 		__u32 remote6;
 		__u32 port_range;
 	} _len;
 
 	__u32 id;
-	void *remote;
+	__u32 remote /* big-endian */;
 	__u8 ttl;
 	__u8 tos;
 	__u16 port /* big-endian */;
@@ -381,6 +382,30 @@ struct rt_link_linkinfo_geneve_attrs {
 	struct ifla_geneve_port_range *port_range;
 };
 
+struct rt_link_linkinfo_hsr_attrs {
+	struct {
+		__u32 slave1:1;
+		__u32 slave2:1;
+		__u32 multicast_spec:1;
+		__u32 seq_nr:1;
+		__u32 version:1;
+		__u32 protocol:1;
+		__u32 interlink:1;
+	} _present;
+	struct {
+		__u32 supervision_addr;
+	} _len;
+
+	__u32 slave1;
+	__u32 slave2;
+	__u8 multicast_spec;
+	void *supervision_addr;
+	__u16 seq_nr;
+	__u8 version;
+	__u8 protocol;
+	__u32 interlink;
+};
+
 struct rt_link_linkinfo_iptun_attrs {
 	struct {
 		__u32 link:1;
@@ -391,6 +416,7 @@ struct rt_link_linkinfo_iptun_attrs {
 		__u32 flags:1;
 		__u32 proto:1;
 		__u32 pmtudisc:1;
+		__u32 _6rd_relay_prefix:1;
 		__u32 _6rd_prefixlen:1;
 		__u32 _6rd_relay_prefixlen:1;
 		__u32 encap_type:1;
@@ -404,7 +430,6 @@ struct rt_link_linkinfo_iptun_attrs {
 		__u32 local;
 		__u32 remote;
 		__u32 _6rd_prefix;
-		__u32 _6rd_relay_prefix;
 	} _len;
 
 	__u32 link;
@@ -418,7 +443,7 @@ struct rt_link_linkinfo_iptun_attrs {
 	__u8 proto;
 	__u8 pmtudisc;
 	void *_6rd_prefix;
-	void *_6rd_relay_prefix;
+	__u32 _6rd_relay_prefix /* big-endian */;
 	__u16 _6rd_prefixlen;
 	__u16 _6rd_relay_prefixlen;
 	__u16 encap_type;
@@ -1088,6 +1113,7 @@ struct rt_link_linkinfo_data_msg {
 		__u32 gretap:1;
 		__u32 ip6gre:1;
 		__u32 geneve:1;
+		__u32 hsr:1;
 		__u32 ipip:1;
 		__u32 ip6tnl:1;
 		__u32 sit:1;
@@ -1107,6 +1133,7 @@ struct rt_link_linkinfo_data_msg {
 	struct rt_link_linkinfo_gre_attrs gretap;
 	struct rt_link_linkinfo_gre6_attrs ip6gre;
 	struct rt_link_linkinfo_geneve_attrs geneve;
+	struct rt_link_linkinfo_hsr_attrs hsr;
 	struct rt_link_linkinfo_iptun_attrs ipip;
 	struct rt_link_linkinfo_ip6tnl_attrs ip6tnl;
 	struct rt_link_linkinfo_iptun_attrs sit;
@@ -3085,16 +3112,13 @@ rt_link_newlink_req_set_linkinfo_data_geneve_id(struct rt_link_newlink_req *req,
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_geneve_remote(struct rt_link_newlink_req *req,
-						    const void *remote,
-						    size_t len)
+						    __u32 remote /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.geneve = 1;
-	free(req->linkinfo.data.geneve.remote);
-	req->linkinfo.data.geneve._len.remote = len;
-	req->linkinfo.data.geneve.remote = malloc(req->linkinfo.data.geneve._len.remote);
-	memcpy(req->linkinfo.data.geneve.remote, remote, req->linkinfo.data.geneve._len.remote);
+	req->linkinfo.data.geneve._present.remote = 1;
+	req->linkinfo.data.geneve.remote = remote;
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_geneve_ttl(struct rt_link_newlink_req *req,
@@ -3229,6 +3253,89 @@ rt_link_newlink_req_set_linkinfo_data_geneve_port_range(struct rt_link_newlink_r
 	memcpy(req->linkinfo.data.geneve.port_range, port_range, req->linkinfo.data.geneve._len.port_range);
 }
 static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_slave1(struct rt_link_newlink_req *req,
+						 __u32 slave1)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.slave1 = 1;
+	req->linkinfo.data.hsr.slave1 = slave1;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_slave2(struct rt_link_newlink_req *req,
+						 __u32 slave2)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.slave2 = 1;
+	req->linkinfo.data.hsr.slave2 = slave2;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_multicast_spec(struct rt_link_newlink_req *req,
+							 __u8 multicast_spec)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.multicast_spec = 1;
+	req->linkinfo.data.hsr.multicast_spec = multicast_spec;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_supervision_addr(struct rt_link_newlink_req *req,
+							   const void *supervision_addr,
+							   size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	free(req->linkinfo.data.hsr.supervision_addr);
+	req->linkinfo.data.hsr._len.supervision_addr = len;
+	req->linkinfo.data.hsr.supervision_addr = malloc(req->linkinfo.data.hsr._len.supervision_addr);
+	memcpy(req->linkinfo.data.hsr.supervision_addr, supervision_addr, req->linkinfo.data.hsr._len.supervision_addr);
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_seq_nr(struct rt_link_newlink_req *req,
+						 __u16 seq_nr)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.seq_nr = 1;
+	req->linkinfo.data.hsr.seq_nr = seq_nr;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_version(struct rt_link_newlink_req *req,
+						  __u8 version)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.version = 1;
+	req->linkinfo.data.hsr.version = version;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_protocol(struct rt_link_newlink_req *req,
+						   __u8 protocol)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.protocol = 1;
+	req->linkinfo.data.hsr.protocol = protocol;
+}
+static inline void
+rt_link_newlink_req_set_linkinfo_data_hsr_interlink(struct rt_link_newlink_req *req,
+						    __u32 interlink)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.interlink = 1;
+	req->linkinfo.data.hsr.interlink = interlink;
+}
+static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip_link(struct rt_link_newlink_req *req,
 						__u32 link)
 {
@@ -3348,16 +3455,13 @@ rt_link_newlink_req_set_linkinfo_data_ipip__6rd_prefix(struct rt_link_newlink_re
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip__6rd_relay_prefix(struct rt_link_newlink_req *req,
-							     const void *_6rd_relay_prefix,
-							     size_t len)
+							     __u32 _6rd_relay_prefix /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.ipip = 1;
-	free(req->linkinfo.data.ipip._6rd_relay_prefix);
-	req->linkinfo.data.ipip._len._6rd_relay_prefix = len;
-	req->linkinfo.data.ipip._6rd_relay_prefix = malloc(req->linkinfo.data.ipip._len._6rd_relay_prefix);
-	memcpy(req->linkinfo.data.ipip._6rd_relay_prefix, _6rd_relay_prefix, req->linkinfo.data.ipip._len._6rd_relay_prefix);
+	req->linkinfo.data.ipip._present._6rd_relay_prefix = 1;
+	req->linkinfo.data.ipip._6rd_relay_prefix = _6rd_relay_prefix;
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_ipip__6rd_prefixlen(struct rt_link_newlink_req *req,
@@ -3701,16 +3805,13 @@ rt_link_newlink_req_set_linkinfo_data_sit__6rd_prefix(struct rt_link_newlink_req
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_sit__6rd_relay_prefix(struct rt_link_newlink_req *req,
-							    const void *_6rd_relay_prefix,
-							    size_t len)
+							    __u32 _6rd_relay_prefix /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.sit = 1;
-	free(req->linkinfo.data.sit._6rd_relay_prefix);
-	req->linkinfo.data.sit._len._6rd_relay_prefix = len;
-	req->linkinfo.data.sit._6rd_relay_prefix = malloc(req->linkinfo.data.sit._len._6rd_relay_prefix);
-	memcpy(req->linkinfo.data.sit._6rd_relay_prefix, _6rd_relay_prefix, req->linkinfo.data.sit._len._6rd_relay_prefix);
+	req->linkinfo.data.sit._present._6rd_relay_prefix = 1;
+	req->linkinfo.data.sit._6rd_relay_prefix = _6rd_relay_prefix;
 }
 static inline void
 rt_link_newlink_req_set_linkinfo_data_sit__6rd_prefixlen(struct rt_link_newlink_req *req,
@@ -7064,16 +7165,13 @@ rt_link_getlink_req_dump_set_linkinfo_data_geneve_id(struct rt_link_getlink_req_
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_geneve_remote(struct rt_link_getlink_req_dump *req,
-							 const void *remote,
-							 size_t len)
+							 __u32 remote /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.geneve = 1;
-	free(req->linkinfo.data.geneve.remote);
-	req->linkinfo.data.geneve._len.remote = len;
-	req->linkinfo.data.geneve.remote = malloc(req->linkinfo.data.geneve._len.remote);
-	memcpy(req->linkinfo.data.geneve.remote, remote, req->linkinfo.data.geneve._len.remote);
+	req->linkinfo.data.geneve._present.remote = 1;
+	req->linkinfo.data.geneve.remote = remote;
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_geneve_ttl(struct rt_link_getlink_req_dump *req,
@@ -7208,6 +7306,89 @@ rt_link_getlink_req_dump_set_linkinfo_data_geneve_port_range(struct rt_link_getl
 	memcpy(req->linkinfo.data.geneve.port_range, port_range, req->linkinfo.data.geneve._len.port_range);
 }
 static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_slave1(struct rt_link_getlink_req_dump *req,
+						      __u32 slave1)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.slave1 = 1;
+	req->linkinfo.data.hsr.slave1 = slave1;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_slave2(struct rt_link_getlink_req_dump *req,
+						      __u32 slave2)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.slave2 = 1;
+	req->linkinfo.data.hsr.slave2 = slave2;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_multicast_spec(struct rt_link_getlink_req_dump *req,
+							      __u8 multicast_spec)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.multicast_spec = 1;
+	req->linkinfo.data.hsr.multicast_spec = multicast_spec;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_supervision_addr(struct rt_link_getlink_req_dump *req,
+								const void *supervision_addr,
+								size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	free(req->linkinfo.data.hsr.supervision_addr);
+	req->linkinfo.data.hsr._len.supervision_addr = len;
+	req->linkinfo.data.hsr.supervision_addr = malloc(req->linkinfo.data.hsr._len.supervision_addr);
+	memcpy(req->linkinfo.data.hsr.supervision_addr, supervision_addr, req->linkinfo.data.hsr._len.supervision_addr);
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_seq_nr(struct rt_link_getlink_req_dump *req,
+						      __u16 seq_nr)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.seq_nr = 1;
+	req->linkinfo.data.hsr.seq_nr = seq_nr;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_version(struct rt_link_getlink_req_dump *req,
+						       __u8 version)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.version = 1;
+	req->linkinfo.data.hsr.version = version;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_protocol(struct rt_link_getlink_req_dump *req,
+							__u8 protocol)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.protocol = 1;
+	req->linkinfo.data.hsr.protocol = protocol;
+}
+static inline void
+rt_link_getlink_req_dump_set_linkinfo_data_hsr_interlink(struct rt_link_getlink_req_dump *req,
+							 __u32 interlink)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.interlink = 1;
+	req->linkinfo.data.hsr.interlink = interlink;
+}
+static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip_link(struct rt_link_getlink_req_dump *req,
 						     __u32 link)
 {
@@ -7328,16 +7509,13 @@ rt_link_getlink_req_dump_set_linkinfo_data_ipip__6rd_prefix(struct rt_link_getli
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip__6rd_relay_prefix(struct rt_link_getlink_req_dump *req,
-								  const void *_6rd_relay_prefix,
-								  size_t len)
+								  __u32 _6rd_relay_prefix /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.ipip = 1;
-	free(req->linkinfo.data.ipip._6rd_relay_prefix);
-	req->linkinfo.data.ipip._len._6rd_relay_prefix = len;
-	req->linkinfo.data.ipip._6rd_relay_prefix = malloc(req->linkinfo.data.ipip._len._6rd_relay_prefix);
-	memcpy(req->linkinfo.data.ipip._6rd_relay_prefix, _6rd_relay_prefix, req->linkinfo.data.ipip._len._6rd_relay_prefix);
+	req->linkinfo.data.ipip._present._6rd_relay_prefix = 1;
+	req->linkinfo.data.ipip._6rd_relay_prefix = _6rd_relay_prefix;
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_ipip__6rd_prefixlen(struct rt_link_getlink_req_dump *req,
@@ -7682,16 +7860,13 @@ rt_link_getlink_req_dump_set_linkinfo_data_sit__6rd_prefix(struct rt_link_getlin
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_sit__6rd_relay_prefix(struct rt_link_getlink_req_dump *req,
-								 const void *_6rd_relay_prefix,
-								 size_t len)
+								 __u32 _6rd_relay_prefix /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.sit = 1;
-	free(req->linkinfo.data.sit._6rd_relay_prefix);
-	req->linkinfo.data.sit._len._6rd_relay_prefix = len;
-	req->linkinfo.data.sit._6rd_relay_prefix = malloc(req->linkinfo.data.sit._len._6rd_relay_prefix);
-	memcpy(req->linkinfo.data.sit._6rd_relay_prefix, _6rd_relay_prefix, req->linkinfo.data.sit._len._6rd_relay_prefix);
+	req->linkinfo.data.sit._present._6rd_relay_prefix = 1;
+	req->linkinfo.data.sit._6rd_relay_prefix = _6rd_relay_prefix;
 }
 static inline void
 rt_link_getlink_req_dump_set_linkinfo_data_sit__6rd_prefixlen(struct rt_link_getlink_req_dump *req,
@@ -10826,16 +11001,13 @@ rt_link_setlink_req_set_linkinfo_data_geneve_id(struct rt_link_setlink_req *req,
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_geneve_remote(struct rt_link_setlink_req *req,
-						    const void *remote,
-						    size_t len)
+						    __u32 remote /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.geneve = 1;
-	free(req->linkinfo.data.geneve.remote);
-	req->linkinfo.data.geneve._len.remote = len;
-	req->linkinfo.data.geneve.remote = malloc(req->linkinfo.data.geneve._len.remote);
-	memcpy(req->linkinfo.data.geneve.remote, remote, req->linkinfo.data.geneve._len.remote);
+	req->linkinfo.data.geneve._present.remote = 1;
+	req->linkinfo.data.geneve.remote = remote;
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_geneve_ttl(struct rt_link_setlink_req *req,
@@ -10970,6 +11142,89 @@ rt_link_setlink_req_set_linkinfo_data_geneve_port_range(struct rt_link_setlink_r
 	memcpy(req->linkinfo.data.geneve.port_range, port_range, req->linkinfo.data.geneve._len.port_range);
 }
 static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_slave1(struct rt_link_setlink_req *req,
+						 __u32 slave1)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.slave1 = 1;
+	req->linkinfo.data.hsr.slave1 = slave1;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_slave2(struct rt_link_setlink_req *req,
+						 __u32 slave2)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.slave2 = 1;
+	req->linkinfo.data.hsr.slave2 = slave2;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_multicast_spec(struct rt_link_setlink_req *req,
+							 __u8 multicast_spec)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.multicast_spec = 1;
+	req->linkinfo.data.hsr.multicast_spec = multicast_spec;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_supervision_addr(struct rt_link_setlink_req *req,
+							   const void *supervision_addr,
+							   size_t len)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	free(req->linkinfo.data.hsr.supervision_addr);
+	req->linkinfo.data.hsr._len.supervision_addr = len;
+	req->linkinfo.data.hsr.supervision_addr = malloc(req->linkinfo.data.hsr._len.supervision_addr);
+	memcpy(req->linkinfo.data.hsr.supervision_addr, supervision_addr, req->linkinfo.data.hsr._len.supervision_addr);
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_seq_nr(struct rt_link_setlink_req *req,
+						 __u16 seq_nr)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.seq_nr = 1;
+	req->linkinfo.data.hsr.seq_nr = seq_nr;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_version(struct rt_link_setlink_req *req,
+						  __u8 version)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.version = 1;
+	req->linkinfo.data.hsr.version = version;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_protocol(struct rt_link_setlink_req *req,
+						   __u8 protocol)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.protocol = 1;
+	req->linkinfo.data.hsr.protocol = protocol;
+}
+static inline void
+rt_link_setlink_req_set_linkinfo_data_hsr_interlink(struct rt_link_setlink_req *req,
+						    __u32 interlink)
+{
+	req->_present.linkinfo = 1;
+	req->linkinfo._present.data = 1;
+	req->linkinfo.data._present.hsr = 1;
+	req->linkinfo.data.hsr._present.interlink = 1;
+	req->linkinfo.data.hsr.interlink = interlink;
+}
+static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip_link(struct rt_link_setlink_req *req,
 						__u32 link)
 {
@@ -11089,16 +11344,13 @@ rt_link_setlink_req_set_linkinfo_data_ipip__6rd_prefix(struct rt_link_setlink_re
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip__6rd_relay_prefix(struct rt_link_setlink_req *req,
-							     const void *_6rd_relay_prefix,
-							     size_t len)
+							     __u32 _6rd_relay_prefix /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.ipip = 1;
-	free(req->linkinfo.data.ipip._6rd_relay_prefix);
-	req->linkinfo.data.ipip._len._6rd_relay_prefix = len;
-	req->linkinfo.data.ipip._6rd_relay_prefix = malloc(req->linkinfo.data.ipip._len._6rd_relay_prefix);
-	memcpy(req->linkinfo.data.ipip._6rd_relay_prefix, _6rd_relay_prefix, req->linkinfo.data.ipip._len._6rd_relay_prefix);
+	req->linkinfo.data.ipip._present._6rd_relay_prefix = 1;
+	req->linkinfo.data.ipip._6rd_relay_prefix = _6rd_relay_prefix;
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_ipip__6rd_prefixlen(struct rt_link_setlink_req *req,
@@ -11442,16 +11694,13 @@ rt_link_setlink_req_set_linkinfo_data_sit__6rd_prefix(struct rt_link_setlink_req
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_sit__6rd_relay_prefix(struct rt_link_setlink_req *req,
-							    const void *_6rd_relay_prefix,
-							    size_t len)
+							    __u32 _6rd_relay_prefix /* big-endian */)
 {
 	req->_present.linkinfo = 1;
 	req->linkinfo._present.data = 1;
 	req->linkinfo.data._present.sit = 1;
-	free(req->linkinfo.data.sit._6rd_relay_prefix);
-	req->linkinfo.data.sit._len._6rd_relay_prefix = len;
-	req->linkinfo.data.sit._6rd_relay_prefix = malloc(req->linkinfo.data.sit._len._6rd_relay_prefix);
-	memcpy(req->linkinfo.data.sit._6rd_relay_prefix, _6rd_relay_prefix, req->linkinfo.data.sit._len._6rd_relay_prefix);
+	req->linkinfo.data.sit._present._6rd_relay_prefix = 1;
+	req->linkinfo.data.sit._6rd_relay_prefix = _6rd_relay_prefix;
 }
 static inline void
 rt_link_setlink_req_set_linkinfo_data_sit__6rd_prefixlen(struct rt_link_setlink_req *req,

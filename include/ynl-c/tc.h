@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/tc.yaml */
 /* YNL-GEN user header */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_TC_GEN_H
 #define _LINUX_TC_GEN_H
@@ -2985,9 +2986,13 @@ __tc_act_attrs_set_stats_app_cake_tin_stats(struct tc_act_attrs *obj,
 					    struct tc_cake_tin_stats_attrs *tin_stats,
 					    unsigned int n_tin_stats)
 {
+	unsigned int i;
+
 	obj->_present.stats = 1;
 	obj->stats._present.app = 1;
 	obj->stats.app._present.cake = 1;
+	for (i = 0; i < obj->stats.app.cake._count.tin_stats; i++)
+		tc_cake_tin_stats_attrs_free(&obj->stats.app.cake.tin_stats[i]);
 	free(obj->stats.app.cake.tin_stats);
 	obj->stats.app.cake.tin_stats = tin_stats;
 	obj->stats.app.cake._count.tin_stats = n_tin_stats;
@@ -3823,8 +3828,12 @@ __tc_newqdisc_req_set_options_basic_act(struct tc_newqdisc_req *req,
 					struct tc_act_attrs *act,
 					unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.basic = 1;
+	for (i = 0; i < req->options.basic._count.act; i++)
+		tc_act_attrs_free(&req->options.basic.act[i]);
 	free(req->options.basic.act);
 	req->options.basic.act = act;
 	req->options.basic._count.act = n_act;
@@ -3954,8 +3963,12 @@ __tc_newqdisc_req_set_options_bpf_act(struct tc_newqdisc_req *req,
 				      struct tc_act_attrs *act,
 				      unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.bpf = 1;
+	for (i = 0; i < req->options.bpf._count.act; i++)
+		tc_act_attrs_free(&req->options.bpf.act[i]);
 	free(req->options.bpf.act);
 	req->options.bpf.act = act;
 	req->options.bpf._count.act = n_act;
@@ -4327,8 +4340,12 @@ __tc_newqdisc_req_set_options_cgroup_act(struct tc_newqdisc_req *req,
 					 struct tc_act_attrs *act,
 					 unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.cgroup = 1;
+	for (i = 0; i < req->options.cgroup._count.act; i++)
+		tc_act_attrs_free(&req->options.cgroup.act[i]);
 	free(req->options.cgroup.act);
 	req->options.cgroup.act = act;
 	req->options.cgroup._count.act = n_act;
@@ -4923,8 +4940,12 @@ __tc_newqdisc_req_set_options_flower_act(struct tc_newqdisc_req *req,
 					 struct tc_act_attrs *act,
 					 unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.flower = 1;
+	for (i = 0; i < req->options.flower._count.act; i++)
+		tc_act_attrs_free(&req->options.flower.act[i]);
 	free(req->options.flower.act);
 	req->options.flower.act = act;
 	req->options.flower._count.act = n_act;
@@ -6714,8 +6735,12 @@ __tc_newqdisc_req_set_options_fw_act(struct tc_newqdisc_req *req,
 				     struct tc_act_attrs *act,
 				     unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.fw = 1;
+	for (i = 0; i < req->options.fw._count.act; i++)
+		tc_act_attrs_free(&req->options.fw.act[i]);
 	free(req->options.fw.act);
 	req->options.fw.act = act;
 	req->options.fw._count.act = n_act;
@@ -6970,8 +6995,12 @@ __tc_newqdisc_req_set_options_matchall_act(struct tc_newqdisc_req *req,
 					   struct tc_act_attrs *act,
 					   unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.matchall = 1;
+	for (i = 0; i < req->options.matchall._count.act; i++)
+		tc_act_attrs_free(&req->options.matchall.act[i]);
 	free(req->options.matchall.act);
 	req->options.matchall.act = act;
 	req->options.matchall._count.act = n_act;
@@ -7516,8 +7545,12 @@ __tc_newqdisc_req_set_options_route_act(struct tc_newqdisc_req *req,
 					struct tc_act_attrs *act,
 					unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.route = 1;
+	for (i = 0; i < req->options.route._count.act; i++)
+		tc_act_attrs_free(&req->options.route.act[i]);
 	free(req->options.route.act);
 	req->options.route.act = act;
 	req->options.route._count.act = n_act;
@@ -7932,8 +7965,12 @@ __tc_newqdisc_req_set_options_u32_act(struct tc_newqdisc_req *req,
 				      struct tc_act_attrs *act,
 				      unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.u32 = 1;
+	for (i = 0; i < req->options.u32._count.act; i++)
+		tc_act_attrs_free(&req->options.u32.act[i]);
 	free(req->options.u32.act);
 	req->options.u32.act = act;
 	req->options.u32._count.act = n_act;
@@ -8228,8 +8265,12 @@ __tc_newtclass_req_set_options_basic_act(struct tc_newtclass_req *req,
 					 struct tc_act_attrs *act,
 					 unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.basic = 1;
+	for (i = 0; i < req->options.basic._count.act; i++)
+		tc_act_attrs_free(&req->options.basic.act[i]);
 	free(req->options.basic.act);
 	req->options.basic.act = act;
 	req->options.basic._count.act = n_act;
@@ -8359,8 +8400,12 @@ __tc_newtclass_req_set_options_bpf_act(struct tc_newtclass_req *req,
 				       struct tc_act_attrs *act,
 				       unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.bpf = 1;
+	for (i = 0; i < req->options.bpf._count.act; i++)
+		tc_act_attrs_free(&req->options.bpf.act[i]);
 	free(req->options.bpf.act);
 	req->options.bpf.act = act;
 	req->options.bpf._count.act = n_act;
@@ -8734,8 +8779,12 @@ __tc_newtclass_req_set_options_cgroup_act(struct tc_newtclass_req *req,
 					  struct tc_act_attrs *act,
 					  unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.cgroup = 1;
+	for (i = 0; i < req->options.cgroup._count.act; i++)
+		tc_act_attrs_free(&req->options.cgroup.act[i]);
 	free(req->options.cgroup.act);
 	req->options.cgroup.act = act;
 	req->options.cgroup._count.act = n_act;
@@ -9333,8 +9382,12 @@ __tc_newtclass_req_set_options_flower_act(struct tc_newtclass_req *req,
 					  struct tc_act_attrs *act,
 					  unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.flower = 1;
+	for (i = 0; i < req->options.flower._count.act; i++)
+		tc_act_attrs_free(&req->options.flower.act[i]);
 	free(req->options.flower.act);
 	req->options.flower.act = act;
 	req->options.flower._count.act = n_act;
@@ -11125,8 +11178,12 @@ __tc_newtclass_req_set_options_fw_act(struct tc_newtclass_req *req,
 				      struct tc_act_attrs *act,
 				      unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.fw = 1;
+	for (i = 0; i < req->options.fw._count.act; i++)
+		tc_act_attrs_free(&req->options.fw.act[i]);
 	free(req->options.fw.act);
 	req->options.fw.act = act;
 	req->options.fw._count.act = n_act;
@@ -11381,8 +11438,12 @@ __tc_newtclass_req_set_options_matchall_act(struct tc_newtclass_req *req,
 					    struct tc_act_attrs *act,
 					    unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.matchall = 1;
+	for (i = 0; i < req->options.matchall._count.act; i++)
+		tc_act_attrs_free(&req->options.matchall.act[i]);
 	free(req->options.matchall.act);
 	req->options.matchall.act = act;
 	req->options.matchall._count.act = n_act;
@@ -11932,8 +11993,12 @@ __tc_newtclass_req_set_options_route_act(struct tc_newtclass_req *req,
 					 struct tc_act_attrs *act,
 					 unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.route = 1;
+	for (i = 0; i < req->options.route._count.act; i++)
+		tc_act_attrs_free(&req->options.route.act[i]);
 	free(req->options.route.act);
 	req->options.route.act = act;
 	req->options.route._count.act = n_act;
@@ -12349,8 +12414,12 @@ __tc_newtclass_req_set_options_u32_act(struct tc_newtclass_req *req,
 				       struct tc_act_attrs *act,
 				       unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.u32 = 1;
+	for (i = 0; i < req->options.u32._count.act; i++)
+		tc_act_attrs_free(&req->options.u32.act[i]);
 	free(req->options.u32.act);
 	req->options.u32.act = act;
 	req->options.u32._count.act = n_act;
@@ -12605,8 +12674,12 @@ __tc_newtfilter_req_set_options_basic_act(struct tc_newtfilter_req *req,
 					  struct tc_act_attrs *act,
 					  unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.basic = 1;
+	for (i = 0; i < req->options.basic._count.act; i++)
+		tc_act_attrs_free(&req->options.basic.act[i]);
 	free(req->options.basic.act);
 	req->options.basic.act = act;
 	req->options.basic._count.act = n_act;
@@ -12736,8 +12809,12 @@ __tc_newtfilter_req_set_options_bpf_act(struct tc_newtfilter_req *req,
 					struct tc_act_attrs *act,
 					unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.bpf = 1;
+	for (i = 0; i < req->options.bpf._count.act; i++)
+		tc_act_attrs_free(&req->options.bpf.act[i]);
 	free(req->options.bpf.act);
 	req->options.bpf.act = act;
 	req->options.bpf._count.act = n_act;
@@ -13116,8 +13193,12 @@ __tc_newtfilter_req_set_options_cgroup_act(struct tc_newtfilter_req *req,
 					   struct tc_act_attrs *act,
 					   unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.cgroup = 1;
+	for (i = 0; i < req->options.cgroup._count.act; i++)
+		tc_act_attrs_free(&req->options.cgroup.act[i]);
 	free(req->options.cgroup.act);
 	req->options.cgroup.act = act;
 	req->options.cgroup._count.act = n_act;
@@ -13717,8 +13798,12 @@ __tc_newtfilter_req_set_options_flower_act(struct tc_newtfilter_req *req,
 					   struct tc_act_attrs *act,
 					   unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.flower = 1;
+	for (i = 0; i < req->options.flower._count.act; i++)
+		tc_act_attrs_free(&req->options.flower.act[i]);
 	free(req->options.flower.act);
 	req->options.flower.act = act;
 	req->options.flower._count.act = n_act;
@@ -15509,8 +15594,12 @@ __tc_newtfilter_req_set_options_fw_act(struct tc_newtfilter_req *req,
 				       struct tc_act_attrs *act,
 				       unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.fw = 1;
+	for (i = 0; i < req->options.fw._count.act; i++)
+		tc_act_attrs_free(&req->options.fw.act[i]);
 	free(req->options.fw.act);
 	req->options.fw.act = act;
 	req->options.fw._count.act = n_act;
@@ -15766,8 +15855,12 @@ __tc_newtfilter_req_set_options_matchall_act(struct tc_newtfilter_req *req,
 					     struct tc_act_attrs *act,
 					     unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.matchall = 1;
+	for (i = 0; i < req->options.matchall._count.act; i++)
+		tc_act_attrs_free(&req->options.matchall.act[i]);
 	free(req->options.matchall.act);
 	req->options.matchall.act = act;
 	req->options.matchall._count.act = n_act;
@@ -16322,8 +16415,12 @@ __tc_newtfilter_req_set_options_route_act(struct tc_newtfilter_req *req,
 					  struct tc_act_attrs *act,
 					  unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.route = 1;
+	for (i = 0; i < req->options.route._count.act; i++)
+		tc_act_attrs_free(&req->options.route.act[i]);
 	free(req->options.route.act);
 	req->options.route.act = act;
 	req->options.route._count.act = n_act;
@@ -16741,8 +16838,12 @@ __tc_newtfilter_req_set_options_u32_act(struct tc_newtfilter_req *req,
 					struct tc_act_attrs *act,
 					unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.u32 = 1;
+	for (i = 0; i < req->options.u32._count.act; i++)
+		tc_act_attrs_free(&req->options.u32.act[i]);
 	free(req->options.u32.act);
 	req->options.u32.act = act;
 	req->options.u32._count.act = n_act;
@@ -17093,8 +17194,12 @@ __tc_newchain_req_set_options_basic_act(struct tc_newchain_req *req,
 					struct tc_act_attrs *act,
 					unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.basic = 1;
+	for (i = 0; i < req->options.basic._count.act; i++)
+		tc_act_attrs_free(&req->options.basic.act[i]);
 	free(req->options.basic.act);
 	req->options.basic.act = act;
 	req->options.basic._count.act = n_act;
@@ -17224,8 +17329,12 @@ __tc_newchain_req_set_options_bpf_act(struct tc_newchain_req *req,
 				      struct tc_act_attrs *act,
 				      unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.bpf = 1;
+	for (i = 0; i < req->options.bpf._count.act; i++)
+		tc_act_attrs_free(&req->options.bpf.act[i]);
 	free(req->options.bpf.act);
 	req->options.bpf.act = act;
 	req->options.bpf._count.act = n_act;
@@ -17597,8 +17706,12 @@ __tc_newchain_req_set_options_cgroup_act(struct tc_newchain_req *req,
 					 struct tc_act_attrs *act,
 					 unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.cgroup = 1;
+	for (i = 0; i < req->options.cgroup._count.act; i++)
+		tc_act_attrs_free(&req->options.cgroup.act[i]);
 	free(req->options.cgroup.act);
 	req->options.cgroup.act = act;
 	req->options.cgroup._count.act = n_act;
@@ -18193,8 +18306,12 @@ __tc_newchain_req_set_options_flower_act(struct tc_newchain_req *req,
 					 struct tc_act_attrs *act,
 					 unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.flower = 1;
+	for (i = 0; i < req->options.flower._count.act; i++)
+		tc_act_attrs_free(&req->options.flower.act[i]);
 	free(req->options.flower.act);
 	req->options.flower.act = act;
 	req->options.flower._count.act = n_act;
@@ -19984,8 +20101,12 @@ __tc_newchain_req_set_options_fw_act(struct tc_newchain_req *req,
 				     struct tc_act_attrs *act,
 				     unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.fw = 1;
+	for (i = 0; i < req->options.fw._count.act; i++)
+		tc_act_attrs_free(&req->options.fw.act[i]);
 	free(req->options.fw.act);
 	req->options.fw.act = act;
 	req->options.fw._count.act = n_act;
@@ -20240,8 +20361,12 @@ __tc_newchain_req_set_options_matchall_act(struct tc_newchain_req *req,
 					   struct tc_act_attrs *act,
 					   unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.matchall = 1;
+	for (i = 0; i < req->options.matchall._count.act; i++)
+		tc_act_attrs_free(&req->options.matchall.act[i]);
 	free(req->options.matchall.act);
 	req->options.matchall.act = act;
 	req->options.matchall._count.act = n_act;
@@ -20786,8 +20911,12 @@ __tc_newchain_req_set_options_route_act(struct tc_newchain_req *req,
 					struct tc_act_attrs *act,
 					unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.route = 1;
+	for (i = 0; i < req->options.route._count.act; i++)
+		tc_act_attrs_free(&req->options.route.act[i]);
 	free(req->options.route.act);
 	req->options.route.act = act;
 	req->options.route._count.act = n_act;
@@ -21202,8 +21331,12 @@ __tc_newchain_req_set_options_u32_act(struct tc_newchain_req *req,
 				      struct tc_act_attrs *act,
 				      unsigned int n_act)
 {
+	unsigned int i;
+
 	req->_present.options = 1;
 	req->options._present.u32 = 1;
+	for (i = 0; i < req->options.u32._count.act; i++)
+		tc_act_attrs_free(&req->options.u32.act[i]);
 	free(req->options.u32.act);
 	req->options.u32.act = act;
 	req->options.u32._count.act = n_act;

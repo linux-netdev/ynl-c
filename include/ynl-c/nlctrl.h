@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/nlctrl.yaml */
 /* YNL-GEN user header */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_NLCTRL_GEN_H
 #define _LINUX_NLCTRL_GEN_H

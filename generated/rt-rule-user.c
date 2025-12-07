@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/rt-rule.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,8 +47,8 @@ const char *rt_rule_fr_act_str(int value)
 
 /* Policies */
 const struct ynl_policy_attr rt_rule_fib_rule_attrs_policy[FRA_MAX + 1] = {
-	[FRA_DST] = { .name = "dst", .type = YNL_PT_U32, },
-	[FRA_SRC] = { .name = "src", .type = YNL_PT_U32, },
+	[FRA_DST] = { .name = "dst", .type = YNL_PT_BINARY,},
+	[FRA_SRC] = { .name = "src", .type = YNL_PT_BINARY,},
 	[FRA_IIFNAME] = { .name = "iifname", .type = YNL_PT_NUL_STR, },
 	[FRA_GOTO] = { .name = "goto", .type = YNL_PT_U32, },
 	[FRA_UNUSED2] = { .name = "unused2", .type = YNL_PT_IGNORE, },

@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/nl80211.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -1558,6 +1559,10 @@ int nl80211_iftype_attrs_parse(struct ynl_parse_arg *yarg,
 void
 nl80211_if_combination_attributes_free(struct nl80211_if_combination_attributes *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.limits; i++)
+		nl80211_iface_limit_attributes_free(&obj->limits[i]);
 	free(obj->limits);
 }
 
@@ -1639,6 +1644,10 @@ int nl80211_if_combination_attributes_parse(struct ynl_parse_arg *yarg,
 
 void nl80211_sar_attributes_free(struct nl80211_sar_attributes *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.specs; i++)
+		nl80211_sar_specs_free(&obj->specs[i]);
 	free(obj->specs);
 }
 
@@ -1694,6 +1703,8 @@ int nl80211_sar_attributes_parse(struct ynl_parse_arg *yarg,
 
 void nl80211_frequency_attrs_free(struct nl80211_frequency_attrs *obj)
 {
+	unsigned int i;
+
 	free(obj->dfs_time);
 	free(obj->no_ht40_minus);
 	free(obj->no_ht40_plus);
@@ -1704,6 +1715,8 @@ void nl80211_frequency_attrs_free(struct nl80211_frequency_attrs *obj)
 	free(obj->ir_concurrent);
 	free(obj->no_20mhz);
 	free(obj->no_10mhz);
+	for (i = 0; i < obj->_count.wmm; i++)
+		nl80211_wmm_attrs_free(&obj->wmm[i]);
 	free(obj->wmm);
 	free(obj->no_he);
 	free(obj->_1mhz);
@@ -1998,10 +2011,18 @@ int nl80211_frequency_attrs_parse(struct ynl_parse_arg *yarg,
 
 void nl80211_band_attrs_free(struct nl80211_band_attrs *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.freqs; i++)
+		nl80211_frequency_attrs_free(&obj->freqs[i]);
 	free(obj->freqs);
+	for (i = 0; i < obj->_count.rates; i++)
+		nl80211_bitrate_attrs_free(&obj->rates[i]);
 	free(obj->rates);
 	free(obj->ht_mcs_set);
 	free(obj->vht_mcs_set);
+	for (i = 0; i < obj->_count.iftype_data; i++)
+		nl80211_iftype_data_attrs_free(&obj->iftype_data[i]);
 	free(obj->iftype_data);
 	free(obj->edmg_channels);
 	free(obj->edmg_bw_config);
@@ -2260,11 +2281,15 @@ void nl80211_get_wiphy_req_free(struct nl80211_get_wiphy_req *req)
 
 void nl80211_get_wiphy_rsp_free(struct nl80211_get_wiphy_rsp *rsp)
 {
+	unsigned int i;
+
 	free(rsp->cipher_suites);
 	free(rsp->ext_capa);
 	free(rsp->ext_capa_mask);
 	free(rsp->ext_features);
 	free(rsp->ht_capability_mask);
+	for (i = 0; i < rsp->_count.interface_combinations; i++)
+		nl80211_if_combination_attributes_free(&rsp->interface_combinations[i]);
 	free(rsp->interface_combinations);
 	free(rsp->mac);
 	free(rsp->max_num_akm_suites);
@@ -3075,6 +3100,8 @@ void nl80211_get_wiphy_rsp_list_free(struct nl80211_get_wiphy_rsp_list *rsp)
 	struct nl80211_get_wiphy_rsp_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
+		unsigned int i;
+
 		rsp = next;
 		next = rsp->next;
 
@@ -3083,6 +3110,8 @@ void nl80211_get_wiphy_rsp_list_free(struct nl80211_get_wiphy_rsp_list *rsp)
 		free(rsp->obj.ext_capa_mask);
 		free(rsp->obj.ext_features);
 		free(rsp->obj.ht_capability_mask);
+		for (i = 0; i < rsp->obj._count.interface_combinations; i++)
+			nl80211_if_combination_attributes_free(&rsp->obj.interface_combinations[i]);
 		free(rsp->obj.interface_combinations);
 		free(rsp->obj.mac);
 		free(rsp->obj.max_num_akm_suites);

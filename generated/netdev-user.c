@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/netdev.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -1199,6 +1200,121 @@ int netdev_qstats_get_rsp_parse(const struct nlmsghdr *nlh,
 				return YNL_PARSE_CB_ERROR;
 			dst->_present.tx_bytes = 1;
 			dst->tx_bytes = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_ALLOC_FAIL) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_alloc_fail = 1;
+			dst->rx_alloc_fail = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_DROPS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_drops = 1;
+			dst->rx_hw_drops = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_DROP_OVERRUNS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_drop_overruns = 1;
+			dst->rx_hw_drop_overruns = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_CSUM_COMPLETE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_csum_complete = 1;
+			dst->rx_csum_complete = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_CSUM_UNNECESSARY) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_csum_unnecessary = 1;
+			dst->rx_csum_unnecessary = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_CSUM_NONE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_csum_none = 1;
+			dst->rx_csum_none = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_CSUM_BAD) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_csum_bad = 1;
+			dst->rx_csum_bad = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_GRO_PACKETS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_gro_packets = 1;
+			dst->rx_hw_gro_packets = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_GRO_BYTES) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_gro_bytes = 1;
+			dst->rx_hw_gro_bytes = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_GRO_WIRE_PACKETS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_gro_wire_packets = 1;
+			dst->rx_hw_gro_wire_packets = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_GRO_WIRE_BYTES) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_gro_wire_bytes = 1;
+			dst->rx_hw_gro_wire_bytes = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_RX_HW_DROP_RATELIMITS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.rx_hw_drop_ratelimits = 1;
+			dst->rx_hw_drop_ratelimits = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_DROPS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_drops = 1;
+			dst->tx_hw_drops = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_DROP_ERRORS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_drop_errors = 1;
+			dst->tx_hw_drop_errors = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_CSUM_NONE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_csum_none = 1;
+			dst->tx_csum_none = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_NEEDS_CSUM) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_needs_csum = 1;
+			dst->tx_needs_csum = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_GSO_PACKETS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_gso_packets = 1;
+			dst->tx_hw_gso_packets = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_GSO_BYTES) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_gso_bytes = 1;
+			dst->tx_hw_gso_bytes = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_GSO_WIRE_PACKETS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_gso_wire_packets = 1;
+			dst->tx_hw_gso_wire_packets = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_GSO_WIRE_BYTES) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_gso_wire_bytes = 1;
+			dst->tx_hw_gso_wire_bytes = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_HW_DROP_RATELIMITS) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_hw_drop_ratelimits = 1;
+			dst->tx_hw_drop_ratelimits = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_STOP) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_stop = 1;
+			dst->tx_stop = ynl_attr_get_uint(attr);
+		} else if (type == NETDEV_A_QSTATS_TX_WAKE) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.tx_wake = 1;
+			dst->tx_wake = ynl_attr_get_uint(attr);
 		}
 	}
 

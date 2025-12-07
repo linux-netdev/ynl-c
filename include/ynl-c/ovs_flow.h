@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/ovs_flow.yaml */
 /* YNL-GEN user header */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_OVS_FLOW_GEN_H
 #define _LINUX_OVS_FLOW_GEN_H

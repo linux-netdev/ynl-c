@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/rt-link.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -559,7 +560,7 @@ const struct ynl_policy_nest rt_link_linkinfo_gre6_attrs_nest = {
 
 const struct ynl_policy_attr rt_link_linkinfo_geneve_attrs_policy[IFLA_GENEVE_MAX + 1] = {
 	[IFLA_GENEVE_ID] = { .name = "id", .type = YNL_PT_U32, },
-	[IFLA_GENEVE_REMOTE] = { .name = "remote", .type = YNL_PT_BINARY,},
+	[IFLA_GENEVE_REMOTE] = { .name = "remote", .type = YNL_PT_U32, },
 	[IFLA_GENEVE_TTL] = { .name = "ttl", .type = YNL_PT_U8, },
 	[IFLA_GENEVE_TOS] = { .name = "tos", .type = YNL_PT_U8, },
 	[IFLA_GENEVE_PORT] = { .name = "port", .type = YNL_PT_U16, },
@@ -580,6 +581,22 @@ const struct ynl_policy_nest rt_link_linkinfo_geneve_attrs_nest = {
 	.table = rt_link_linkinfo_geneve_attrs_policy,
 };
 
+const struct ynl_policy_attr rt_link_linkinfo_hsr_attrs_policy[IFLA_HSR_MAX + 1] = {
+	[IFLA_HSR_SLAVE1] = { .name = "slave1", .type = YNL_PT_U32, },
+	[IFLA_HSR_SLAVE2] = { .name = "slave2", .type = YNL_PT_U32, },
+	[IFLA_HSR_MULTICAST_SPEC] = { .name = "multicast-spec", .type = YNL_PT_U8, },
+	[IFLA_HSR_SUPERVISION_ADDR] = { .name = "supervision-addr", .type = YNL_PT_BINARY,},
+	[IFLA_HSR_SEQ_NR] = { .name = "seq-nr", .type = YNL_PT_U16, },
+	[IFLA_HSR_VERSION] = { .name = "version", .type = YNL_PT_U8, },
+	[IFLA_HSR_PROTOCOL] = { .name = "protocol", .type = YNL_PT_U8, },
+	[IFLA_HSR_INTERLINK] = { .name = "interlink", .type = YNL_PT_U32, },
+};
+
+const struct ynl_policy_nest rt_link_linkinfo_hsr_attrs_nest = {
+	.max_attr = IFLA_HSR_MAX,
+	.table = rt_link_linkinfo_hsr_attrs_policy,
+};
+
 const struct ynl_policy_attr rt_link_linkinfo_iptun_attrs_policy[IFLA_IPTUN_MAX + 1] = {
 	[IFLA_IPTUN_LINK] = { .name = "link", .type = YNL_PT_U32, },
 	[IFLA_IPTUN_LOCAL] = { .name = "local", .type = YNL_PT_BINARY,},
@@ -592,7 +609,7 @@ const struct ynl_policy_attr rt_link_linkinfo_iptun_attrs_policy[IFLA_IPTUN_MAX 
 	[IFLA_IPTUN_PROTO] = { .name = "proto", .type = YNL_PT_U8, },
 	[IFLA_IPTUN_PMTUDISC] = { .name = "pmtudisc", .type = YNL_PT_U8, },
 	[IFLA_IPTUN_6RD_PREFIX] = { .name = "6rd-prefix", .type = YNL_PT_BINARY,},
-	[IFLA_IPTUN_6RD_RELAY_PREFIX] = { .name = "6rd-relay-prefix", .type = YNL_PT_BINARY,},
+	[IFLA_IPTUN_6RD_RELAY_PREFIX] = { .name = "6rd-relay-prefix", .type = YNL_PT_U32, },
 	[IFLA_IPTUN_6RD_PREFIXLEN] = { .name = "6rd-prefixlen", .type = YNL_PT_U16, },
 	[IFLA_IPTUN_6RD_RELAY_PREFIXLEN] = { .name = "6rd-relay-prefixlen", .type = YNL_PT_U16, },
 	[IFLA_IPTUN_ENCAP_TYPE] = { .name = "encap-type", .type = YNL_PT_U16, },
@@ -950,20 +967,21 @@ const struct ynl_policy_attr rt_link_linkinfo_data_msg_policy[] = {
 	[4] = { .type = YNL_PT_SUBMSG, .name = "gretap", .nest = &rt_link_linkinfo_gre_attrs_nest, },
 	[5] = { .type = YNL_PT_SUBMSG, .name = "ip6gre", .nest = &rt_link_linkinfo_gre6_attrs_nest, },
 	[6] = { .type = YNL_PT_SUBMSG, .name = "geneve", .nest = &rt_link_linkinfo_geneve_attrs_nest, },
-	[7] = { .type = YNL_PT_SUBMSG, .name = "ipip", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
-	[8] = { .type = YNL_PT_SUBMSG, .name = "ip6tnl", .nest = &rt_link_linkinfo_ip6tnl_attrs_nest, },
-	[9] = { .type = YNL_PT_SUBMSG, .name = "sit", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
-	[10] = { .type = YNL_PT_SUBMSG, .name = "tun", .nest = &rt_link_linkinfo_tun_attrs_nest, },
-	[11] = { .type = YNL_PT_SUBMSG, .name = "vlan", .nest = &rt_link_linkinfo_vlan_attrs_nest, },
-	[12] = { .type = YNL_PT_SUBMSG, .name = "vrf", .nest = &rt_link_linkinfo_vrf_attrs_nest, },
-	[13] = { .type = YNL_PT_SUBMSG, .name = "vti", .nest = &rt_link_linkinfo_vti_attrs_nest, },
-	[14] = { .type = YNL_PT_SUBMSG, .name = "vti6", .nest = &rt_link_linkinfo_vti6_attrs_nest, },
-	[15] = { .type = YNL_PT_SUBMSG, .name = "netkit", .nest = &rt_link_linkinfo_netkit_attrs_nest, },
-	[16] = { .type = YNL_PT_SUBMSG, .name = "ovpn", .nest = &rt_link_linkinfo_ovpn_attrs_nest, },
+	[7] = { .type = YNL_PT_SUBMSG, .name = "hsr", .nest = &rt_link_linkinfo_hsr_attrs_nest, },
+	[8] = { .type = YNL_PT_SUBMSG, .name = "ipip", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
+	[9] = { .type = YNL_PT_SUBMSG, .name = "ip6tnl", .nest = &rt_link_linkinfo_ip6tnl_attrs_nest, },
+	[10] = { .type = YNL_PT_SUBMSG, .name = "sit", .nest = &rt_link_linkinfo_iptun_attrs_nest, },
+	[11] = { .type = YNL_PT_SUBMSG, .name = "tun", .nest = &rt_link_linkinfo_tun_attrs_nest, },
+	[12] = { .type = YNL_PT_SUBMSG, .name = "vlan", .nest = &rt_link_linkinfo_vlan_attrs_nest, },
+	[13] = { .type = YNL_PT_SUBMSG, .name = "vrf", .nest = &rt_link_linkinfo_vrf_attrs_nest, },
+	[14] = { .type = YNL_PT_SUBMSG, .name = "vti", .nest = &rt_link_linkinfo_vti_attrs_nest, },
+	[15] = { .type = YNL_PT_SUBMSG, .name = "vti6", .nest = &rt_link_linkinfo_vti6_attrs_nest, },
+	[16] = { .type = YNL_PT_SUBMSG, .name = "netkit", .nest = &rt_link_linkinfo_netkit_attrs_nest, },
+	[17] = { .type = YNL_PT_SUBMSG, .name = "ovpn", .nest = &rt_link_linkinfo_ovpn_attrs_nest, },
 };
 
 const struct ynl_policy_nest rt_link_linkinfo_data_msg_nest = {
-	.max_attr = 16,
+	.max_attr = 17,
 	.table = rt_link_linkinfo_data_msg_policy,
 };
 
@@ -2318,7 +2336,6 @@ int rt_link_linkinfo_gre6_attrs_parse(struct ynl_parse_arg *yarg,
 void
 rt_link_linkinfo_geneve_attrs_free(struct rt_link_linkinfo_geneve_attrs *obj)
 {
-	free(obj->remote);
 	free(obj->remote6);
 	free(obj->port_range);
 }
@@ -2332,8 +2349,8 @@ int rt_link_linkinfo_geneve_attrs_put(struct nlmsghdr *nlh,
 	nest = ynl_attr_nest_start(nlh, attr_type);
 	if (obj->_present.id)
 		ynl_attr_put_u32(nlh, IFLA_GENEVE_ID, obj->id);
-	if (obj->_len.remote)
-		ynl_attr_put(nlh, IFLA_GENEVE_REMOTE, obj->remote, obj->_len.remote);
+	if (obj->_present.remote)
+		ynl_attr_put_u32(nlh, IFLA_GENEVE_REMOTE, obj->remote);
 	if (obj->_present.ttl)
 		ynl_attr_put_u8(nlh, IFLA_GENEVE_TTL, obj->ttl);
 	if (obj->_present.tos)
@@ -2383,11 +2400,8 @@ int rt_link_linkinfo_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 		} else if (type == IFLA_GENEVE_REMOTE) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
-
-			len = ynl_attr_data_len(attr);
-			dst->_len.remote = len;
-			dst->remote = malloc(len);
-			memcpy(dst->remote, ynl_attr_data(attr), len);
+			dst->_present.remote = 1;
+			dst->remote = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_GENEVE_TTL) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -2466,13 +2480,104 @@ int rt_link_linkinfo_geneve_attrs_parse(struct ynl_parse_arg *yarg,
 	return 0;
 }
 
+void rt_link_linkinfo_hsr_attrs_free(struct rt_link_linkinfo_hsr_attrs *obj)
+{
+	free(obj->supervision_addr);
+}
+
+int rt_link_linkinfo_hsr_attrs_put(struct nlmsghdr *nlh,
+				   unsigned int attr_type,
+				   struct rt_link_linkinfo_hsr_attrs *obj)
+{
+	struct nlattr *nest;
+
+	nest = ynl_attr_nest_start(nlh, attr_type);
+	if (obj->_present.slave1)
+		ynl_attr_put_u32(nlh, IFLA_HSR_SLAVE1, obj->slave1);
+	if (obj->_present.slave2)
+		ynl_attr_put_u32(nlh, IFLA_HSR_SLAVE2, obj->slave2);
+	if (obj->_present.multicast_spec)
+		ynl_attr_put_u8(nlh, IFLA_HSR_MULTICAST_SPEC, obj->multicast_spec);
+	if (obj->_len.supervision_addr)
+		ynl_attr_put(nlh, IFLA_HSR_SUPERVISION_ADDR, obj->supervision_addr, obj->_len.supervision_addr);
+	if (obj->_present.seq_nr)
+		ynl_attr_put_u16(nlh, IFLA_HSR_SEQ_NR, obj->seq_nr);
+	if (obj->_present.version)
+		ynl_attr_put_u8(nlh, IFLA_HSR_VERSION, obj->version);
+	if (obj->_present.protocol)
+		ynl_attr_put_u8(nlh, IFLA_HSR_PROTOCOL, obj->protocol);
+	if (obj->_present.interlink)
+		ynl_attr_put_u32(nlh, IFLA_HSR_INTERLINK, obj->interlink);
+	ynl_attr_nest_end(nlh, nest);
+
+	return 0;
+}
+
+int rt_link_linkinfo_hsr_attrs_parse(struct ynl_parse_arg *yarg,
+				     const struct nlattr *nested)
+{
+	struct rt_link_linkinfo_hsr_attrs *dst = yarg->data;
+	const struct nlattr *attr;
+	unsigned int len;
+
+	ynl_attr_for_each_nested(attr, nested) {
+		unsigned int type = ynl_attr_type(attr);
+
+		if (type == IFLA_HSR_SLAVE1) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.slave1 = 1;
+			dst->slave1 = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_HSR_SLAVE2) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.slave2 = 1;
+			dst->slave2 = ynl_attr_get_u32(attr);
+		} else if (type == IFLA_HSR_MULTICAST_SPEC) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.multicast_spec = 1;
+			dst->multicast_spec = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_HSR_SUPERVISION_ADDR) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+
+			len = ynl_attr_data_len(attr);
+			dst->_len.supervision_addr = len;
+			dst->supervision_addr = malloc(len);
+			memcpy(dst->supervision_addr, ynl_attr_data(attr), len);
+		} else if (type == IFLA_HSR_SEQ_NR) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.seq_nr = 1;
+			dst->seq_nr = ynl_attr_get_u16(attr);
+		} else if (type == IFLA_HSR_VERSION) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.version = 1;
+			dst->version = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_HSR_PROTOCOL) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.protocol = 1;
+			dst->protocol = ynl_attr_get_u8(attr);
+		} else if (type == IFLA_HSR_INTERLINK) {
+			if (ynl_attr_validate(yarg, attr))
+				return YNL_PARSE_CB_ERROR;
+			dst->_present.interlink = 1;
+			dst->interlink = ynl_attr_get_u32(attr);
+		}
+	}
+
+	return 0;
+}
+
 void
 rt_link_linkinfo_iptun_attrs_free(struct rt_link_linkinfo_iptun_attrs *obj)
 {
 	free(obj->local);
 	free(obj->remote);
 	free(obj->_6rd_prefix);
-	free(obj->_6rd_relay_prefix);
 }
 
 int rt_link_linkinfo_iptun_attrs_put(struct nlmsghdr *nlh,
@@ -2504,8 +2609,8 @@ int rt_link_linkinfo_iptun_attrs_put(struct nlmsghdr *nlh,
 		ynl_attr_put_u8(nlh, IFLA_IPTUN_PMTUDISC, obj->pmtudisc);
 	if (obj->_len._6rd_prefix)
 		ynl_attr_put(nlh, IFLA_IPTUN_6RD_PREFIX, obj->_6rd_prefix, obj->_len._6rd_prefix);
-	if (obj->_len._6rd_relay_prefix)
-		ynl_attr_put(nlh, IFLA_IPTUN_6RD_RELAY_PREFIX, obj->_6rd_relay_prefix, obj->_len._6rd_relay_prefix);
+	if (obj->_present._6rd_relay_prefix)
+		ynl_attr_put_u32(nlh, IFLA_IPTUN_6RD_RELAY_PREFIX, obj->_6rd_relay_prefix);
 	if (obj->_present._6rd_prefixlen)
 		ynl_attr_put_u16(nlh, IFLA_IPTUN_6RD_PREFIXLEN, obj->_6rd_prefixlen);
 	if (obj->_present._6rd_relay_prefixlen)
@@ -2604,11 +2709,8 @@ int rt_link_linkinfo_iptun_attrs_parse(struct ynl_parse_arg *yarg,
 		} else if (type == IFLA_IPTUN_6RD_RELAY_PREFIX) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
-
-			len = ynl_attr_data_len(attr);
-			dst->_len._6rd_relay_prefix = len;
-			dst->_6rd_relay_prefix = malloc(len);
-			memcpy(dst->_6rd_relay_prefix, ynl_attr_data(attr), len);
+			dst->_present._6rd_relay_prefix = 1;
+			dst->_6rd_relay_prefix = ynl_attr_get_u32(attr);
 		} else if (type == IFLA_IPTUN_6RD_PREFIXLEN) {
 			if (ynl_attr_validate(yarg, attr))
 				return YNL_PARSE_CB_ERROR;
@@ -3993,7 +4095,11 @@ int rt_link_af_spec_attrs_parse(struct ynl_parse_arg *yarg,
 
 void rt_link_link_offload_xstats_free(struct rt_link_link_offload_xstats *obj)
 {
+	unsigned int i;
+
 	free(obj->cpu_hit);
+	for (i = 0; i < obj->_count.hw_s_info; i++)
+		rt_link_hw_s_info_one_free(&obj->hw_s_info[i]);
 	free(obj->hw_s_info);
 	free(obj->l3_stats);
 }
@@ -4784,6 +4890,7 @@ void rt_link_linkinfo_data_msg_free(struct rt_link_linkinfo_data_msg *obj)
 	rt_link_linkinfo_gre_attrs_free(&obj->gretap);
 	rt_link_linkinfo_gre6_attrs_free(&obj->ip6gre);
 	rt_link_linkinfo_geneve_attrs_free(&obj->geneve);
+	rt_link_linkinfo_hsr_attrs_free(&obj->hsr);
 	rt_link_linkinfo_iptun_attrs_free(&obj->ipip);
 	rt_link_linkinfo_ip6tnl_attrs_free(&obj->ip6tnl);
 	rt_link_linkinfo_iptun_attrs_free(&obj->sit);
@@ -4813,6 +4920,8 @@ int rt_link_linkinfo_data_msg_put(struct nlmsghdr *nlh, unsigned int attr_type,
 		rt_link_linkinfo_gre6_attrs_put(nlh, IFLA_INFO_DATA, &obj->ip6gre);
 	if (obj->_present.geneve)
 		rt_link_linkinfo_geneve_attrs_put(nlh, IFLA_INFO_DATA, &obj->geneve);
+	if (obj->_present.hsr)
+		rt_link_linkinfo_hsr_attrs_put(nlh, IFLA_INFO_DATA, &obj->hsr);
 	if (obj->_present.ipip)
 		rt_link_linkinfo_iptun_attrs_put(nlh, IFLA_INFO_DATA, &obj->ipip);
 	if (obj->_present.ip6tnl)
@@ -4889,6 +4998,12 @@ int rt_link_linkinfo_data_msg_parse(struct ynl_parse_arg *yarg,
 		if (rt_link_linkinfo_geneve_attrs_parse(&parg, attr))
 			return YNL_PARSE_CB_ERROR;
 		dst->_present.geneve = 1;
+	} else if (!strcmp(sel, "hsr")) {
+		parg.rsp_policy = &rt_link_linkinfo_hsr_attrs_nest;
+		parg.data = &dst->hsr;
+		if (rt_link_linkinfo_hsr_attrs_parse(&parg, attr))
+			return YNL_PARSE_CB_ERROR;
+		dst->_present.hsr = 1;
 	} else if (!strcmp(sel, "ipip")) {
 		parg.rsp_policy = &rt_link_linkinfo_iptun_attrs_nest;
 		parg.data = &dst->ipip;

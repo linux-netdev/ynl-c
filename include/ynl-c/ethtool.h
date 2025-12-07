@@ -3,6 +3,7 @@
 /*	Documentation/netlink/specs/ethtool.yaml */
 /* YNL-GEN user header */
 /* YNL-ARG --user-header linux/ethtool_netlink.h --exclude-op stats-get */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_ETHTOOL_GEN_H
 #define _LINUX_ETHTOOL_GEN_H

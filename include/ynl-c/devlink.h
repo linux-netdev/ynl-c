@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/devlink.yaml */
 /* YNL-GEN user header */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_DEVLINK_GEN_H
 #define _LINUX_DEVLINK_GEN_H
@@ -2847,6 +2848,7 @@ struct devlink_param_set_req {
 	struct {
 		__u32 param_type:1;
 		__u32 param_value_cmode:1;
+		__u32 param_reset_default:1;
 	} _present;
 	struct {
 		__u32 bus_name;
@@ -2910,6 +2912,11 @@ devlink_param_set_req_set_param_value_cmode(struct devlink_param_set_req *req,
 {
 	req->_present.param_value_cmode = 1;
 	req->param_value_cmode = param_value_cmode;
+}
+static inline void
+devlink_param_set_req_set_param_reset_default(struct devlink_param_set_req *req)
+{
+	req->_present.param_reset_default = 1;
 }
 
 /*

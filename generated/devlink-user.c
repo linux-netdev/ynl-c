@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/devlink.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -158,6 +159,7 @@ const char *devlink_sb_threshold_type_str(enum devlink_sb_threshold_type value)
 static const char * const devlink_eswitch_mode_strmap[] = {
 	[0] = "legacy",
 	[1] = "switchdev",
+	[2] = "switchdev-inactive",
 };
 
 const char *devlink_eswitch_mode_str(enum devlink_eswitch_mode value)
@@ -911,6 +913,7 @@ const struct ynl_policy_attr devlink_policy[DEVLINK_ATTR_MAX + 1] = {
 	[DEVLINK_ATTR_REGION_DIRECT] = { .name = "region-direct", .type = YNL_PT_FLAG, },
 	[DEVLINK_ATTR_RATE_TC_BWS] = { .name = "rate-tc-bws", .type = YNL_PT_NEST, .nest = &devlink_dl_rate_tc_bws_nest, },
 	[DEVLINK_ATTR_HEALTH_REPORTER_BURST_PERIOD] = { .name = "health-reporter-burst-period", .type = YNL_PT_U64, },
+	[DEVLINK_ATTR_PARAM_RESET_DEFAULT] = { .name = "param-reset-default", .type = YNL_PT_FLAG, },
 };
 
 const struct ynl_policy_nest devlink_nest = {
@@ -4643,6 +4646,8 @@ int devlink_param_set(struct ynl_sock *ys, struct devlink_param_set_req *req)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_PARAM_TYPE, req->param_type);
 	if (req->_present.param_value_cmode)
 		ynl_attr_put_u8(nlh, DEVLINK_ATTR_PARAM_VALUE_CMODE, req->param_value_cmode);
+	if (req->_present.param_reset_default)
+		ynl_attr_put(nlh, DEVLINK_ATTR_PARAM_RESET_DEFAULT, NULL, 0);
 
 	err = ynl_exec(ys, nlh, &yrs);
 	if (err < 0)

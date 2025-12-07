@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/nlctrl.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -325,8 +326,14 @@ void nlctrl_getfamily_req_free(struct nlctrl_getfamily_req *req)
 
 void nlctrl_getfamily_rsp_free(struct nlctrl_getfamily_rsp *rsp)
 {
+	unsigned int i;
+
 	free(rsp->family_name);
+	for (i = 0; i < rsp->_count.mcast_groups; i++)
+		nlctrl_mcast_group_attrs_free(&rsp->mcast_groups[i]);
 	free(rsp->mcast_groups);
+	for (i = 0; i < rsp->_count.ops; i++)
+		nlctrl_op_attrs_free(&rsp->ops[i]);
 	free(rsp->ops);
 	free(rsp);
 }
@@ -468,11 +475,17 @@ void nlctrl_getfamily_list_free(struct nlctrl_getfamily_list *rsp)
 	struct nlctrl_getfamily_list *next = rsp;
 
 	while ((void *)next != YNL_LIST_END) {
+		unsigned int i;
+
 		rsp = next;
 		next = rsp->next;
 
 		free(rsp->obj.family_name);
+		for (i = 0; i < rsp->obj._count.mcast_groups; i++)
+			nlctrl_mcast_group_attrs_free(&rsp->obj.mcast_groups[i]);
 		free(rsp->obj.mcast_groups);
+		for (i = 0; i < rsp->obj._count.ops; i++)
+			nlctrl_op_attrs_free(&rsp->obj.ops[i]);
 		free(rsp->obj.ops);
 		free(rsp);
 	}

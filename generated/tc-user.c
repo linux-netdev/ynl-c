@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/tc.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -6161,6 +6162,10 @@ int tc_netem_attrs_parse(struct ynl_parse_arg *yarg,
 
 void tc_cake_stats_attrs_free(struct tc_cake_stats_attrs *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.tin_stats; i++)
+		tc_cake_tin_stats_attrs_free(&obj->tin_stats[i]);
 	free(obj->tin_stats);
 }
 
@@ -7376,7 +7381,11 @@ int tc_act_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested,
 
 void tc_basic_attrs_free(struct tc_basic_attrs *obj)
 {
+	unsigned int i;
+
 	tc_ematch_attrs_free(&obj->ematches);
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 	tc_police_attrs_free(&obj->police);
 	free(obj->pcnt);
@@ -7489,6 +7498,10 @@ int tc_basic_attrs_parse(struct ynl_parse_arg *yarg,
 
 void tc_bpf_attrs_free(struct tc_bpf_attrs *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 	tc_police_attrs_free(&obj->police);
 	free(obj->ops);
@@ -7644,6 +7657,10 @@ int tc_bpf_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 
 void tc_cgroup_attrs_free(struct tc_cgroup_attrs *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 	tc_police_attrs_free(&obj->police);
 	free(obj->ematches);
@@ -7735,7 +7752,11 @@ int tc_cgroup_attrs_parse(struct ynl_parse_arg *yarg,
 
 void tc_flower_attrs_free(struct tc_flower_attrs *obj)
 {
+	unsigned int i;
+
 	free(obj->indev);
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 	free(obj->key_eth_dst);
 	free(obj->key_eth_dst_mask);
@@ -8670,8 +8691,12 @@ int tc_flower_attrs_parse(struct ynl_parse_arg *yarg,
 
 void tc_fw_attrs_free(struct tc_fw_attrs *obj)
 {
+	unsigned int i;
+
 	tc_police_attrs_free(&obj->police);
 	free(obj->indev);
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 }
 
@@ -8775,6 +8800,10 @@ int tc_fw_attrs_parse(struct ynl_parse_arg *yarg, const struct nlattr *nested)
 
 void tc_matchall_attrs_free(struct tc_matchall_attrs *obj)
 {
+	unsigned int i;
+
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 	free(obj->pcnt);
 }
@@ -8871,7 +8900,11 @@ int tc_matchall_attrs_parse(struct ynl_parse_arg *yarg,
 
 void tc_route_attrs_free(struct tc_route_attrs *obj)
 {
+	unsigned int i;
+
 	tc_police_attrs_free(&obj->police);
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 }
 
@@ -8978,8 +9011,12 @@ int tc_route_attrs_parse(struct ynl_parse_arg *yarg,
 
 void tc_u32_attrs_free(struct tc_u32_attrs *obj)
 {
+	unsigned int i;
+
 	free(obj->sel);
 	tc_police_attrs_free(&obj->police);
+	for (i = 0; i < obj->_count.act; i++)
+		tc_act_attrs_free(&obj->act[i]);
 	free(obj->act);
 	free(obj->indev);
 	free(obj->pcnt);

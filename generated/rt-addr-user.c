@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/rt-addr.yaml */
 /* YNL-GEN user source */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #include <stdlib.h>
 #include <string.h>
@@ -52,7 +53,7 @@ const struct ynl_policy_attr rt_addr_addr_attrs_policy[IFA_MAX + 1] = {
 	[IFA_ADDRESS] = { .name = "address", .type = YNL_PT_BINARY,},
 	[IFA_LOCAL] = { .name = "local", .type = YNL_PT_BINARY,},
 	[IFA_LABEL] = { .name = "label", .type = YNL_PT_NUL_STR, },
-	[IFA_BROADCAST] = { .name = "broadcast", .type = YNL_PT_BINARY,},
+	[IFA_BROADCAST] = { .name = "broadcast", .type = YNL_PT_U32, },
 	[IFA_ANYCAST] = { .name = "anycast", .type = YNL_PT_BINARY,},
 	[IFA_CACHEINFO] = { .name = "cacheinfo", .type = YNL_PT_BINARY,},
 	[IFA_MULTICAST] = { .name = "multicast", .type = YNL_PT_BINARY,},

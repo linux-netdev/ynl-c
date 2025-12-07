@@ -2,6 +2,7 @@
 /* Do not edit directly, auto-generated from: */
 /*	Documentation/netlink/specs/netdev.yaml */
 /* YNL-GEN user header */
+/* To regenerate run: tools/net/ynl/ynl-regen.sh */
 
 #ifndef _LINUX_NETDEV_GEN_H
 #define _LINUX_NETDEV_GEN_H
@@ -537,6 +538,29 @@ struct netdev_qstats_get_rsp {
 		__u32 rx_bytes:1;
 		__u32 tx_packets:1;
 		__u32 tx_bytes:1;
+		__u32 rx_alloc_fail:1;
+		__u32 rx_hw_drops:1;
+		__u32 rx_hw_drop_overruns:1;
+		__u32 rx_csum_complete:1;
+		__u32 rx_csum_unnecessary:1;
+		__u32 rx_csum_none:1;
+		__u32 rx_csum_bad:1;
+		__u32 rx_hw_gro_packets:1;
+		__u32 rx_hw_gro_bytes:1;
+		__u32 rx_hw_gro_wire_packets:1;
+		__u32 rx_hw_gro_wire_bytes:1;
+		__u32 rx_hw_drop_ratelimits:1;
+		__u32 tx_hw_drops:1;
+		__u32 tx_hw_drop_errors:1;
+		__u32 tx_csum_none:1;
+		__u32 tx_needs_csum:1;
+		__u32 tx_hw_gso_packets:1;
+		__u32 tx_hw_gso_bytes:1;
+		__u32 tx_hw_gso_wire_packets:1;
+		__u32 tx_hw_gso_wire_bytes:1;
+		__u32 tx_hw_drop_ratelimits:1;
+		__u32 tx_stop:1;
+		__u32 tx_wake:1;
 	} _present;
 
 	__u32 ifindex;
@@ -546,6 +570,29 @@ struct netdev_qstats_get_rsp {
 	__u64 rx_bytes;
 	__u64 tx_packets;
 	__u64 tx_bytes;
+	__u64 rx_alloc_fail;
+	__u64 rx_hw_drops;
+	__u64 rx_hw_drop_overruns;
+	__u64 rx_csum_complete;
+	__u64 rx_csum_unnecessary;
+	__u64 rx_csum_none;
+	__u64 rx_csum_bad;
+	__u64 rx_hw_gro_packets;
+	__u64 rx_hw_gro_bytes;
+	__u64 rx_hw_gro_wire_packets;
+	__u64 rx_hw_gro_wire_bytes;
+	__u64 rx_hw_drop_ratelimits;
+	__u64 tx_hw_drops;
+	__u64 tx_hw_drop_errors;
+	__u64 tx_csum_none;
+	__u64 tx_needs_csum;
+	__u64 tx_hw_gso_packets;
+	__u64 tx_hw_gso_bytes;
+	__u64 tx_hw_gso_wire_packets;
+	__u64 tx_hw_gso_wire_bytes;
+	__u64 tx_hw_drop_ratelimits;
+	__u64 tx_stop;
+	__u64 tx_wake;
 };
 
 struct netdev_qstats_get_list {
